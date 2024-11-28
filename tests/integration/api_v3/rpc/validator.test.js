@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,9 +15,7 @@
  */
 const config = require('../../../config');
 
-const {
-	request,
-} = require('../../../helpers/socketIoRpcRequest');
+const { request } = require('../../../helpers/socketIoRpcRequest');
 
 const {
 	invalidParamsSchema,
@@ -29,10 +27,11 @@ const {
 	validatorInfoSchema,
 	validatorMetaSchema,
 } = require('../../../schemas/api_v3/validatorSchema.schema');
+const { invalidAddresses } = require('../constants/invalidInputs');
 
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
-const getValidator = async (params) => request(wsRpcUrl, 'get.validator', params);
-const getGenerators = async (params) => request(wsRpcUrl, 'get.generators', params);
+const getValidator = async params => request(wsRpcUrl, 'get.validator', params);
+const getGenerators = async params => request(wsRpcUrl, 'get.generators', params);
 
 describe('get.validator', () => {
 	let refGenerator;
@@ -41,7 +40,7 @@ describe('get.validator', () => {
 		[refGenerator] = response.result.data;
 	});
 
-	it('returns validator info', async () => {
+	it('should return validator info', async () => {
 		const response = await getValidator({ address: refGenerator.address });
 		expect(response).toMap(jsonRpcEnvelopeSchema);
 		const { result } = response;
@@ -50,18 +49,32 @@ describe('get.validator', () => {
 		expect(result.meta).toMap(validatorMetaSchema);
 	});
 
-	it('invalid address -> invalid params', async () => {
-		const response = await getValidator({ address: 'lsydxc4ta5j43jp9ro3f8zqbxta9fn6jwzjucw7yj' });
+	it('should return invalid params when requested without address', async () => {
+		const response = await getValidator();
 		expect(response).toMap(invalidParamsSchema);
 	});
 
-	it('invalid request param -> invalid param', async () => {
+	it('should return invalid params when requested with invalid address', async () => {
+		for (let i = 0; i < invalidAddresses.length; i++) {
+			const response = await getValidator({ address: invalidAddresses[i] });
+			expect(response).toMap(invalidParamsSchema);
+		}
+	});
+
+	it('should return invalid params when requested with address CSV', async () => {
+		const response = await getValidator({
+			address: `${refGenerator.address},${refGenerator.address}`,
+		});
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params when requested with invalid param', async () => {
 		const response = await getValidator({ invalidParam: 'invalid' });
 		expect(response).toMap(invalidParamsSchema);
 	});
 
-	it('No address -> invalid param', async () => {
-		const response = await getValidator();
+	it('should return invalid params when requested with empty invalid param', async () => {
+		const response = await getValidator({ invalidParam: '' });
 		expect(response).toMap(invalidParamsSchema);
 	});
 });

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -20,20 +20,24 @@ module.exports = {
 		transaction: '=',
 		skipVerify: '=,boolean',
 		skipDecode: '=,boolean',
+		strict: '=,boolean',
 	},
 	definition: {
 		data: {
 			result: '=,number',
 			status: '=,string',
-			events: ['data.events', {
-				data: '=',
-				index: '=,number',
-				module: '=,string',
-				name: '=,string',
-				topics: '=',
-				height: '=,number',
-				id: '=,string',
-			}],
+			events: [
+				'data.events',
+				{
+					data: '=',
+					index: '=,number',
+					module: '=,string',
+					name: '=,string',
+					topics: '=',
+					height: '=,number',
+					id: '=,string',
+				},
+			],
 			errorMessage: '=,string',
 		},
 		meta: {},

@@ -1,14 +1,14 @@
-# Lisk Service Subscribe API Documentation
+# Klayr Service Subscribe API Documentation
 
-The Lisk Service is a web application that interacts with the entire Lisk ecosystem in various aspects. For example, one key aspect is an update about blockchain events.
+The Klayr Service is a web application that interacts with the entire Klayr ecosystem in various aspects. For example, one key aspect is an update about blockchain events.
 
 The Subscribe API is sometimes called publish/subscribe or Event-Driven API. The biggest difference between Event-Driven and regular REST API is not only technical. In practice, a two-way streaming connection is used, which means that not only can the client request the server for a data update, (and also potential updates) but also the server can notify the client about new data instantly as it arrives.
 
-Lisk Service leverages the two-way communication approach by utilizing the WebSocket library responsible for updating users about changes in the blockchain network and markets.
+Klayr Service leverages the two-way communication approach by utilizing the WebSocket library responsible for updating users about changes in the blockchain network and markets.
 
 ## Table of Contents
 
-- [Lisk Service Subscribe API Documentation](#lisk-service-subscribe-api-documentation)
+- [Klayr Service Subscribe API Documentation](#klayr-service-subscribe-api-documentation)
   - [Access paths and compatibility](#access-paths-and-compatibility)
   - [Endpoint Logic](#endpoint-logic)
   - [Payloads](#payloads)
@@ -31,14 +31,16 @@ Lisk Service leverages the two-way communication approach by utilizing the WebSo
     - [Payload](#payload-6)
   - [`update.metadata`](#updatemetadata)
     - [Payload](#payload-7)
+  - [`update.index.status`](#updateindexstatus)
+    - [Payload](#payload-8)
 
 ## Access paths and compatibility
 
-The blockchain update API can be accessed by the following path `https://service.lisk.com/blockchain`.
+The blockchain update API can be accessed by the following path `https://service.klayr.xyz/blockchain`.
 
-You might also be interested in accessing the `testnet` network by using the `https://testnet-service.lisk.com/blockchain` endpoint.
+You might also be interested in accessing the `testnet` network by using the `https://testnet-service.klayr.xyz/blockchain` endpoint.
 
-**Important:** The Lisk Service WebSocket API uses the `socket.io` library. This implementation is compatible with version 2.0 of the `socket.io` library. Using the wrong major version might result in a broken connection and events not being passed.
+**Important:** The Klayr Service WebSocket API uses the `socket.io` library. This implementation is compatible with version 2.0 of the `socket.io` library. Using the wrong major version might result in a broken connection and events not being passed.
 
 The specification below contains numerous examples of how to use the API in practice.
 
@@ -67,7 +69,7 @@ All the event payloads are returned in the JSON format - application/json and ad
 
 ```javascript
 const io = require('socket.io-client');
-const connection = io.connect('https://service.lisk.com/blockchain', { transports: ['websocket'] });
+const connection = io.connect('https://service.klayr.xyz/blockchain', { transports: ['websocket'] });
 connection.on('update.block', (block) => { (...) });
 ```
 
@@ -96,6 +98,7 @@ Updates about a newly generated block.
       "transactionRoot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "assetsRoot": "6e904b2f678eb3b6c3042acb188a607d903d441d61508d047fe36b3c982995c8",
       "stateRoot": "95d9b1773b78034b8df9ac741c903b881da761d8ba002a939de28a4b86982c04",
+      "eventRoot": "7dee8ae1899582aabb0c4b967ceda6874329dba57b5eb23d7c62890917a55cbd",
       "maxHeightGenerated": 559421,
       "maxHeightPrevoted": 559434,
       "validatorsHash": "ad0076aa444f6cda608bb163c3bd77d9bf172f1d2803d53095bc0f277db6bcb3",
@@ -146,6 +149,7 @@ Updates about a deleted block. This usually happens when the chain switches fork
       "transactionRoot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "assetsRoot": "6e904b2f678eb3b6c3042acb188a607d903d441d61508d047fe36b3c982995c8",
       "stateRoot": "95d9b1773b78034b8df9ac741c903b881da761d8ba002a939de28a4b86982c04",
+      "eventRoot": "7dee8ae1899582aabb0c4b967ceda6874329dba57b5eb23d7c62890917a55cbd",
       "maxHeightGenerated": 559421,
       "maxHeightPrevoted": 559434,
       "validatorsHash": "ad0076aa444f6cda608bb163c3bd77d9bf172f1d2803d53095bc0f277db6bcb3",
@@ -213,7 +217,7 @@ Updates about included transactions within a newly generated block.
           "name": null
         }
       },
-      "executionStatus": "success",
+      "executionStatus": "successful",
       "index": 0
     },
   ],
@@ -265,7 +269,7 @@ Updates about deleted transactions within a deleted block. This usually happens 
           "name": null
         }
       },
-      "executionStatus": "success",
+      "executionStatus": "successful",
       "index": 0
     },
   ],
@@ -361,8 +365,31 @@ Updates about recent metadata changes.
 
 ```jsonc
 {
-  "mainnet": ["Lisk", "Colecti"],
-  "testnet": ["Lisk", "Enevti"],
-  "betanet": ["Lisk"],
+  "mainnet": ["Klayr", "Colecti"],
+  "testnet": ["Klayr", "Enevti"],
+  "betanet": ["Klayr"],
+}
+```
+
+## `update.index.status`
+
+Updates about index status changes.
+
+### Payload
+
+```jsonc
+{
+  "data": {
+    "genesisHeight": 0,
+    "lastBlockHeight": 18779,
+    "lastIndexedBlockHeight": 13955,
+    "chainLength": 18780,
+    "numBlocksIndexed": 13956,
+    "percentageIndexed": 74.31,
+    "isIndexingInProgress": true
+  },
+  "meta": {
+    "lastUpdate": 1700848735
+  }
 }
 ```

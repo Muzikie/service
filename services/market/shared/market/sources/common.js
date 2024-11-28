@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,9 +15,10 @@
  */
 const moment = require('moment');
 
-const validateEntries = (entries, allowRefreshAfter) => entries === null
-	|| Array.isArray(entries) && entries
-		.some(entry => entry.updateTimestamp <= moment().subtract(allowRefreshAfter).unix());
+const validateEntries = (entries, allowRefreshAfter) =>
+	entries === null ||
+	(Array.isArray(entries) &&
+		entries.some(entry => entry.updateTimestamp <= moment().subtract(allowRefreshAfter).unix()));
 
 module.exports = {
 	validateEntries,

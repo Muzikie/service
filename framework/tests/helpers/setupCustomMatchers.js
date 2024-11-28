@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,9 +18,18 @@ const mapRequiredSchema = (response, schema) => {
 	Object.keys(schema).forEach(key => {
 		if (!Object.prototype.hasOwnProperty.call(response, key)) {
 			errors += `${key} is not present in response \n`;
-		} else if (!['array', 'number', 'boolean', 'object', 'string', 'null'].some(type => type === schema[key])) {
-			if (response[key] !== schema[key]) errors += `${key}: ${response[key]} is not equal ${schema[key]}\n`;
-		} else if (schema[key] === 'array' ? !Array.isArray(response[key]) : (!typeof response[key] === schema[key])) {
+		} else if (
+			!['array', 'number', 'boolean', 'object', 'string', 'null'].some(type => type === schema[key])
+		) {
+			if (response[key] !== schema[key]) {
+				// eslint-disable-next-line implicit-arrow-linebreak
+				errors += `${key}: ${response[key]} is not equal ${schema[key]}\n`;
+			}
+		} else if (
+			schema[key] === 'array'
+				? !Array.isArray(response[key])
+				: !typeof response[key] === schema[key]
+		) {
 			errors += `${key}: ${response[key]} is not ${schema[key]}\n`;
 		}
 	});

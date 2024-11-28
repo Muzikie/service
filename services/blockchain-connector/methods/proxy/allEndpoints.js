@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,11 +15,11 @@
  */
 const endpoints = require('../../shared/sdk/endpoints');
 
-const exportAllMethods = async () => {
-	const registeredEndpoints = await endpoints.getRegisteredActions();
+const exportAllEndpoints = async () => {
+	const registeredEndpoints = await endpoints.getRegisteredEndpoints();
 	const allMethods = registeredEndpoints.map(endpoint => {
-		const genericController = (regEndpoint) => (params) => endpoints
-			.invokeEndpointProxy(regEndpoint, params);
+		const genericController = regEndpoint => params =>
+			endpoints.invokeEndpointProxy(regEndpoint, params);
 		const controller = genericController(endpoint);
 		return {
 			name: endpoint,
@@ -33,4 +33,4 @@ const exportAllMethods = async () => {
 	return allMethods;
 };
 
-module.exports = exportAllMethods();
+module.exports = exportAllEndpoints();

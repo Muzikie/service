@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,34 +13,40 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	parseToJSONCompatObj,
-	parseInputBySchema,
-} = require('../../../../shared/utils/parser');
+const { parseToJSONCompatObj, parseInputBySchema } = require('../../../../shared/utils/parser');
 
 const {
-	liskAccount,
-	liskBlock,
-	liskBlockHeader,
-	liskBlockHeaderAsset,
-	liskBlockHeaderAssetV3,
-	liskTransaction,
-	liskTransactionAssets,
+	klayrAccount,
+	klayrBlock,
+	klayrBlockHeader,
+	klayrBlockHeaderAsset,
+	klayrBlockHeaderAssetV3,
+	klayrTransaction,
+	klayrTransactionAssets,
 } = require('../../../constants/parser');
 
 describe('Test parse utilities', () => {
 	describe('parseToJSONCompatObj', () => {
 		it('should parse buffer', async () => {
-			const bufferData = Buffer.from('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'hex');
+			const bufferData = Buffer.from(
+				'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+				'hex',
+			);
 			const parsedResult = parseToJSONCompatObj(bufferData);
 			expect(typeof parsedResult).toBe('string');
-			expect(parsedResult).toEqual('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+			expect(parsedResult).toEqual(
+				'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+			);
 		});
 
 		it('should parse string', async () => {
-			const parsedResult = parseToJSONCompatObj('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+			const parsedResult = parseToJSONCompatObj(
+				'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+			);
 			expect(typeof parsedResult).toBe('string');
-			expect(parsedResult).toEqual('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+			expect(parsedResult).toEqual(
+				'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+			);
 		});
 
 		it('should parse number', async () => {
@@ -85,11 +91,13 @@ describe('Test parse utilities', () => {
 		});
 
 		it('should parse array of object', async () => {
-			const data = [{
-				delegateAddress: Buffer.from('8a9494ab112fb99ffd0ae8b653c4ed4e27f87fcb', 'hex'),
-				amount: BigInt(2000000000),
-				unvoteHeight: 934107,
-			}];
+			const data = [
+				{
+					delegateAddress: Buffer.from('8a9494ab112fb99ffd0ae8b653c4ed4e27f87fcb', 'hex'),
+					amount: BigInt(2000000000),
+					unvoteHeight: 934107,
+				},
+			];
 			const parsedResult = parseToJSONCompatObj(data);
 			expect(parsedResult).toBeInstanceOf(Array);
 			expect(parsedResult[0]).toMatchObject({
@@ -132,57 +140,57 @@ describe('Test parse utilities', () => {
 	});
 
 	describe('parseInputBySchema', () => {
-		it('should parse Lisk Account', async () => {
-			const { input, expected, schema } = liskAccount;
+		it('should parse Klayr Account', async () => {
+			const { input, expected, schema } = klayrAccount;
 			const result = parseInputBySchema(input, schema);
 			expect(typeof result).toBe(typeof input);
 			expect(input === result).toBeFalsy(); // Expect result to be a cloned object
 			expect(result).toStrictEqual(expected);
 		});
 
-		it('should parse Lisk Block', async () => {
-			const { input, expected, schema } = liskBlock;
+		it('should parse Klayr Block', async () => {
+			const { input, expected, schema } = klayrBlock;
 			const result = parseInputBySchema(input, schema);
 			expect(typeof result).toBe(typeof input);
 			expect(input === result).toBeFalsy(); // Expect result to be a cloned object
 			expect(result).toStrictEqual(expected);
 		});
 
-		it('should parse Lisk Block Header', async () => {
-			const { input, expected, schema } = liskBlockHeader;
+		it('should parse Klayr Block Header', async () => {
+			const { input, expected, schema } = klayrBlockHeader;
 			const result = parseInputBySchema(input, schema);
 			expect(typeof result).toBe(typeof input);
 			expect(input === result).toBeFalsy(); // Expect result to be a cloned object
 			expect(result).toStrictEqual(expected);
 		});
 
-		it('should parse Lisk Block Header Asset', async () => {
-			const { input, expected, schema } = liskBlockHeaderAsset;
+		it('should parse Klayr Block Header Asset', async () => {
+			const { input, expected, schema } = klayrBlockHeaderAsset;
 			const result = parseInputBySchema(input, schema);
 			expect(typeof result).toBe(typeof input);
 			expect(input === result).toBeFalsy(); // Expect result to be a cloned object
 			expect(result).toStrictEqual(expected);
 		});
 
-		it('should parse Lisk Block Header Asset v3', async () => {
-			const { input, expected, schema } = liskBlockHeaderAssetV3;
+		it('should parse Klayr Block Header Asset v3', async () => {
+			const { input, expected, schema } = klayrBlockHeaderAssetV3;
 			const result = parseInputBySchema(input, schema);
 			expect(typeof result).toBe(typeof input);
 			expect(input === result).toBeFalsy(); // Expect result to be a cloned object
 			expect(result).toStrictEqual(expected);
 		});
 
-		it('should parse Lisk Transaction', async () => {
-			const { input, expected, schema } = liskTransaction;
+		it('should parse Klayr Transaction', async () => {
+			const { input, expected, schema } = klayrTransaction;
 			const result = parseInputBySchema(input, schema);
 			expect(typeof result).toBe(typeof input);
 			expect(input === result).toBeFalsy(); // Expect result to be a cloned object
 			expect(result).toStrictEqual(expected);
 		});
 
-		liskTransactionAssets.forEach(txAsset => {
+		klayrTransactionAssets.forEach(txAsset => {
 			const { moduleName, moduleID, assetName, assetID } = txAsset;
-			it(`should parse Lisk Transaction Assets for module:asset ${moduleName}:${assetName} (${moduleID}:${assetID})`, async () => {
+			it(`should parse Klayr Transaction Assets for module:asset ${moduleName}:${assetName} (${moduleID}:${assetID})`, async () => {
 				const { input, expected, schema } = txAsset;
 				const result = parseInputBySchema(input, schema);
 				expect(typeof result).toBe(typeof input);

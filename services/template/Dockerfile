@@ -1,6 +1,8 @@
+ARG NODEJS_VERSION=18
+
 ##### Stage 1
 
-FROM node:16-alpine AS builder
+FROM node:$NODEJS_VERSION-alpine AS builder
 
 RUN adduser -D builder && \
     mkdir /home/builder/build && \
@@ -9,21 +11,21 @@ RUN adduser -D builder && \
 USER builder
 WORKDIR /home/builder/build
 
-COPY ./package-lock.json ./package.json ./
-RUN npm ci
+COPY ./yarn.lock ./package.json ./
+RUN yarn install --frozen-lockfile
 
 
 ##### Stage 2
 
-FROM node:16-alpine
+FROM node:$NODEJS_VERSION-alpine
 
-RUN adduser -D lisk && \
-    chown -R lisk:lisk /home/lisk/
+RUN adduser -D klayr && \
+    chown -R klayr:klayr /home/klayr/
 
-USER lisk
-WORKDIR /home/lisk/lisk-service/template
+USER klayr
+WORKDIR /home/klayr/klayr-service/template
 
-COPY ./ .
-COPY --from=builder /home/builder/build/node_modules/ ./node_modules/
+COPY --chown=klayr:klayr ./ .
+COPY --chown=klayr:klayr --from=builder /home/builder/build/node_modules/ ./node_modules/
 
 CMD ["node", "app.js"]

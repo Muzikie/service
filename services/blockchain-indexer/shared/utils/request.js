@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,11 +13,11 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { Utils } = require('lisk-service-framework');
+const { Utils } = require('klayr-service-framework');
 
 let app;
 
-const setAppContext = (h) => app = h;
+const setAppContext = h => (app = h);
 
 const getAppContext = () => app;
 
@@ -31,8 +31,11 @@ const requestConnector = async (method, params) => requestRpc('connector', metho
 
 const requestAppRegistry = async (method, params) => requestRpc('app-registry', method, params);
 
+const requestFeeEstimator = async (method, params) => requestRpc('fees', method, params);
+
 module.exports = {
 	setAppContext,
 	requestConnector,
 	requestAppRegistry,
+	requestFeeEstimator,
 };

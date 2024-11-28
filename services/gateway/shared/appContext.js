@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,7 +16,7 @@
 
 let app;
 
-const setAppContext = (h) => app = h;
+const setAppContext = h => (app = h);
 
 const getAppContext = () => app;
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -30,9 +30,9 @@ const events = [
 ];
 
 const webSocket = {
-	// endpoint: `wss://testnet-service-staging.lisk.com/${cliEndpoint}`,
-	// endpoint: `ws://testnet-service-dev.liskdev.net/${cliEndpoint}`,
-	endpoint: `ws://localhost:9901/${cliEndpoint}`,
+	// endpoint: `wss://testnet-service.klayr.xyz/${cliEndpoint}`,
+	// endpoint: `ws://testnet-service.klayr.dev/${cliEndpoint}`,
+	endpoint: `ws://127.0.0.1:9901/${cliEndpoint}`,
 };
 
 module.exports = {

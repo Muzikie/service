@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,8 +15,8 @@
  */
 const {
 	MODULE_NAME_AUTH,
-	EVENT_NAME_MULTISIGNATURE_REGISTERED,
 	EVENT_NAME_INVALID_SIGNATURE,
+	EVENT_NAME_MULTISIGNATURE_REGISTERED,
 
 	MODULE_NAME_VALIDATORS,
 	EVENT_NAME_GENERATOR_KEY_REGISTRATION,
@@ -49,9 +49,10 @@ const {
 	EVENT_NAME_RELAYER_FEE_PROCESSED,
 
 	MODULE_NAME_INTEROPERABILITY,
+	EVENT_NAME_INVALID_CERTIFICATE_SIGNATURE,
 	EVENT_NAME_INVALID_REGISTRATION_SIGNATURE,
 	EVENT_NAME_CHAIN_ACCOUNT_UPDATED,
-	EVENT_NAME_CCM_SENT_SUCCESS,
+	EVENT_NAME_CCM_SEND_SUCCESS,
 	EVENT_NAME_CCM_SENT_FAILED,
 	EVENT_NAME_CCM_PROCESSED,
 	EVENT_NAME_TERMINATED_STATE_CREATED,
@@ -67,33 +68,17 @@ const {
 
 	MODULE_NAME_RANDOM,
 
+	MODULE_NAME_BLOCK_REWARDS,
 	MODULE_NAME_DYNAMIC_BLOCK_REWARDS,
 	EVENT_NAME_REWARD_MINTED,
 
 	MODULE_NAME_LEGACY,
 	EVENT_NAME_ACCOUNT_RECLAIMED,
 	EVENT_NAME_KEYS_REGISTERED,
-
-	MODULE_NAME_SUBSCRIPTION,
-	EVENT_NAME_SUBSCRIPTION_CREATED,
-	EVENT_NAME_SUBSCRIPTION_PURCHASED,
-
-	MODULE_NAME_COLLECTION,
-	EVENT_NAME_COLLECTION_CREATED,
-	EVENT_NAME_COLLECTION_TRANSFERED,
-
-	MODULE_NAME_AUDIO,
-	EVENT_NAME_AUDIO_CREATED,
-	EVENT_NAME_AUDIO_STREAMED,
-	EVENT_NAME_AUDIO_INCOME_RECLAIMED,
-
-	MODULE_NAME_PROFILE,
-	EVENT_NAME_PROFILE_CREATED,
 } = require('./names');
 
 const COMMAND_EXECUTION_RESULT_TOPICS = ['transactionID'];
 
-// TODO: Remove when SDK exposes topics information in metadata
 const EVENT_TOPIC_MAPPINGS_BY_MODULE = {
 	[MODULE_NAME_AUTH]: {
 		[EVENT_NAME_MULTISIGNATURE_REGISTERED]: ['transactionID', 'senderAddress'],
@@ -105,8 +90,13 @@ const EVENT_TOPIC_MAPPINGS_BY_MODULE = {
 	},
 	[MODULE_NAME_TOKEN]: {
 		[EVENT_NAME_TRANSFER]: ['defaultTopic', 'senderAddress', 'recipientAddress'],
-		[EVENT_NAME_TRANSFER_CROSS_CHAIN]: ['defaultTopic', 'senderAddress', 'recipientAddress', 'receivingChainID'],
-		[EVENT_NAME_CCM_TRANSFER]: ['defaultTopic', 'senderAddress', 'recipientAddress', 'ownChainID'],
+		[EVENT_NAME_TRANSFER_CROSS_CHAIN]: [
+			'defaultTopic',
+			'senderAddress',
+			'recipientAddress',
+			'receivingChainID',
+		],
+		[EVENT_NAME_CCM_TRANSFER]: ['transactionID', 'senderAddress', 'recipientAddress'],
 		[EVENT_NAME_MINT]: ['defaultTopic', 'address'],
 		[EVENT_NAME_BURN]: ['defaultTopic', 'address'],
 		[EVENT_NAME_LOCK]: ['transactionID', 'address'],
@@ -127,14 +117,20 @@ const EVENT_TOPIC_MAPPINGS_BY_MODULE = {
 	[MODULE_NAME_FEE]: {
 		[EVENT_NAME_FEE_PROCESSED]: ['transactionID', 'senderAddress', 'generatorAddress'],
 		[EVENT_NAME_INSUFFICIENT_FEE]: ['transactionID'],
-		[EVENT_NAME_RELAYER_FEE_PROCESSED]: ['transactionID', 'ccmID', 'relayerAddress'],
+		[EVENT_NAME_RELAYER_FEE_PROCESSED]: ['ccmID', 'relayerAddress'],
 	},
 	[MODULE_NAME_INTEROPERABILITY]: {
+		[EVENT_NAME_INVALID_CERTIFICATE_SIGNATURE]: ['transactionID', 'chainID'],
 		[EVENT_NAME_INVALID_REGISTRATION_SIGNATURE]: ['transactionID', 'chainID'],
 		[EVENT_NAME_CHAIN_ACCOUNT_UPDATED]: ['transactionID', 'sendingChainID'],
-		[EVENT_NAME_CCM_SENT_SUCCESS]: ['transactionID', 'sendingChainID', 'receivingChainID', 'sentCCMID'],
+		[EVENT_NAME_CCM_SEND_SUCCESS]: [
+			'transactionID',
+			'sendingChainID',
+			'receivingChainID',
+			'sentCCMID',
+		],
 		[EVENT_NAME_CCM_SENT_FAILED]: ['transactionID'],
-		[EVENT_NAME_CCM_PROCESSED]: ['transactionID', 'sendingChainID', 'receivingChainID', 'ccmID'],
+		[EVENT_NAME_CCM_PROCESSED]: ['transactionID', 'sendingChainID', 'receivingChainID'],
 		[EVENT_NAME_TERMINATED_STATE_CREATED]: ['transactionID', 'chainID'],
 		[EVENT_NAME_TERMINATED_OUTBOX_CREATED]: ['transactionID', 'chainID'],
 	},
@@ -149,28 +145,15 @@ const EVENT_TOPIC_MAPPINGS_BY_MODULE = {
 	[MODULE_NAME_RANDOM]: {
 		// No events defined in LIP
 	},
+	[MODULE_NAME_BLOCK_REWARDS]: {
+		[EVENT_NAME_REWARD_MINTED]: ['defaultTopic', 'generatorAddress'],
+	},
 	[MODULE_NAME_DYNAMIC_BLOCK_REWARDS]: {
 		[EVENT_NAME_REWARD_MINTED]: ['defaultTopic', 'generatorAddress'],
 	},
 	[MODULE_NAME_LEGACY]: {
 		[EVENT_NAME_ACCOUNT_RECLAIMED]: ['transactionID', 'legacyAddress', 'newAddress'],
 		[EVENT_NAME_KEYS_REGISTERED]: ['transactionID', 'validatorAddress', 'generatorKey', 'blsKey'],
-	},
-	[MODULE_NAME_SUBSCRIPTION]: {
-		[EVENT_NAME_SUBSCRIPTION_CREATED]: ['transactionID', 'senderAddress'],
-		[EVENT_NAME_SUBSCRIPTION_PURCHASED]: ['transactionID', 'senderAddress'],
-	},
-	[MODULE_NAME_COLLECTION]: {
-		[EVENT_NAME_COLLECTION_CREATED]: ['transactionID', 'senderAddress'],
-		[EVENT_NAME_COLLECTION_TRANSFERED]: ['transactionID', 'senderAddress'],
-	},
-	[MODULE_NAME_AUDIO]: {
-		[EVENT_NAME_AUDIO_CREATED]: ['transactionID', 'senderAddress'],
-		[EVENT_NAME_AUDIO_STREAMED]: ['transactionID', 'senderAddress'],
-		[EVENT_NAME_AUDIO_INCOME_RECLAIMED]: ['transactionID', 'senderAddress'],
-	},
-	[MODULE_NAME_PROFILE]: {
-		[EVENT_NAME_PROFILE_CREATED]: ['transactionID', 'senderAddress'],
 	},
 };
 

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,8 +18,8 @@ const packageJson = require('./package.json');
 const config = {};
 
 // Moleculer broker config
-config.transporter = process.env.SERVICE_BROKER || 'redis://localhost:6379/0';
-config.brokerTimeout = Number(process.env.SERVICE_BROKER_TIMEOUT) || 5; // in seconds
+config.transporter = process.env.SERVICE_BROKER || 'redis://klayr:password@127.0.0.1:6379/0';
+config.brokerTimeout = Number(process.env.SERVICE_BROKER_TIMEOUT) || 10; // in seconds
 
 // Logging
 config.log = {
@@ -44,7 +44,7 @@ config.log.stdout = process.env.SERVICE_LOG_STDOUT || 'true';
 /*
  * Configurable outputs
  * log.file   - outputs to a file (ie. ./logs/app.log)
- * log.gelf   - Writes to GELF-compatible socket (ie. localhost:12201/udp)
+ * log.gelf   - Writes to GELF-compatible socket (ie. 127.0.0.1:12201/udp)
  */
 config.log.gelf = process.env.SERVICE_LOG_GELF || 'false';
 config.log.file = process.env.SERVICE_LOG_FILE || 'false';

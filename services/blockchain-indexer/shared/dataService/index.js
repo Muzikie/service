@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -22,14 +22,25 @@ const {
 	getBlockByHeight,
 	getBlockByID,
 	loadAllPendingTransactions,
+	formatPendingTransaction,
 	getTransactionIDsByBlockID,
 	getTransactionsByIDs,
 	normalizeTransaction,
+	formatTransactionsInBlock,
 	getEventsByHeight,
+	cacheEventsByBlockID,
+	deleteEventsFromCacheByBlockID,
+	getEventsByBlockID,
 	deleteEventsFromCache,
+	isMainchain,
+	resolveMainchainServiceURL,
+	getCurrentChainID,
+	resolveChannelInfo,
+	initFeeEstimates,
 } = require('./business');
 
 const {
+	formatBlock,
 	getBlocks,
 	getBlocksAssets,
 	setLastBlock,
@@ -40,6 +51,7 @@ const {
 
 const {
 	getPosValidators,
+	getAllValidators,
 	reloadValidatorCache,
 	getPosConstants,
 	getPosLockedRewards,
@@ -57,9 +69,11 @@ const {
 
 const {
 	tokenHasUserAccount,
+	getAvailableTokenIDs,
 	getTokenBalances,
 	getTokenSummary,
 	getTokenConstants,
+	getTokenTopBalances,
 } = require('./token');
 
 const {
@@ -69,6 +83,7 @@ const {
 	postTransactions,
 	getTransactionsByBlockID,
 	dryRunTransactions,
+	estimateTransactionFees,
 } = require('./transactions');
 
 const {
@@ -89,17 +104,15 @@ const {
 	getNetworkDisconnectedPeers,
 	getNetworkPeersStatistics,
 } = require('./network');
-const { getIndexStatus } = require('./indexStatus');
+const { getIndexStatus, isBlockchainFullyIndexed } = require('./indexStatus');
 const { getLegacyAccountInfo } = require('./legacy');
 const { getValidator, validateBLSKey } = require('./validator');
 const { getGenerators } = require('./generators');
-const { getSubscriptions } = require('./subscriptions');
-const { getCollections } = require('./collections');
-const { getAudios } = require('./audios');
-const { getProfiles } = require('./profiles');
+const { invokeEndpoint } = require('./invoke');
 
 module.exports = {
 	// Blocks
+	formatBlock,
 	getBlocks,
 	getBlocksAssets,
 	setLastBlock,
@@ -109,6 +122,7 @@ module.exports = {
 
 	// PoS
 	getPosValidators,
+	getAllValidators,
 	reloadValidatorCache,
 	getPosConstants,
 	getPosUnlocks,
@@ -118,17 +132,22 @@ module.exports = {
 
 	// Token
 	tokenHasUserAccount,
+	getAvailableTokenIDs,
 	getTokenBalances,
 	getTokenSummary,
 	getTokenConstants,
+	getTokenTopBalances,
 
 	// Transactions
 	getTransactions,
 	getPendingTransactions,
 	reloadAllPendingTransactions,
+	formatPendingTransaction,
 	postTransactions,
 	getTransactionsByBlockID,
 	dryRunTransactions,
+	estimateTransactionFees,
+	formatTransactionsInBlock,
 
 	// Interoperability
 	getBlockchainApps,
@@ -136,6 +155,8 @@ module.exports = {
 	getChainAccount,
 	getMainchainID,
 	reloadBlockchainAppsStats,
+	getCurrentChainID,
+	resolveChannelInfo,
 
 	// Events
 	getEvents,
@@ -155,6 +176,7 @@ module.exports = {
 
 	// Index Status
 	getIndexStatus,
+	isBlockchainFullyIndexed,
 
 	// Legacy
 	getLegacyAccountInfo,
@@ -166,6 +188,9 @@ module.exports = {
 	// Generators
 	reloadGeneratorsCache,
 	getGenerators,
+
+	// Fee estimates
+	initFeeEstimates,
 
 	isPosModuleRegistered,
 	getNumberOfGenerators,
@@ -179,21 +204,17 @@ module.exports = {
 	normalizeTransaction,
 	getPosLockedRewards,
 	getEventsByHeight,
+	cacheEventsByBlockID,
+	deleteEventsFromCacheByBlockID,
+	getEventsByBlockID,
 	deleteEventsFromCache,
 
 	getAnnualInflation,
 	getDefaultRewardAtHeight,
 	getRewardConstants,
 
-	// Subscriptions
-	getSubscriptions,
+	isMainchain,
+	resolveMainchainServiceURL,
 
-	// Collections
-	getCollections,
-
-	// Audios
-	getAudios,
-
-	// Profiles
-	getProfiles,
+	invokeEndpoint,
 };

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -20,11 +20,9 @@ const regex = require('./regex');
 const getCurrentTime = () => Math.floor(Date.now() / 1000);
 
 const block = {
-	id: Joi.string().pattern(regex.HASH_SHA256)
-		.required(),
+	id: Joi.string().pattern(regex.HASH_SHA256).required(),
 	height: Joi.number().integer().min(0).required(),
-	timestamp: Joi.number().integer().positive().max(getCurrentTime())
-		.required(),
+	timestamp: Joi.number().integer().positive().max(getCurrentTime()).required(),
 };
 
 const eventSchema = {

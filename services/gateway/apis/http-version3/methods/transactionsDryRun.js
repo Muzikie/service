@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,6 +14,8 @@
  *
  */
 const dryRunTransactionsSource = require('../../../sources/version3/transactionsDryRun');
+const envelope = require('../../../sources/version3/mappings/stdEnvelope');
+const regex = require('../../../shared/regex');
 const { getSwaggerDescription } = require('../../../shared/utils');
 
 module.exports = {
@@ -29,19 +31,25 @@ module.exports = {
 				optional: false,
 				type: 'object',
 				props: {
-					id: { type: 'string' },
-					module: { type: 'string' },
-					command: { type: 'string' },
-					fee: { type: 'string' },
-					nonce: { type: 'string' },
-					senderPublicKey: { type: 'string' },
-					signatures: { type: 'array', items: 'string' },
-					params: { type: 'object' },
+					id: { type: 'string', pattern: regex.HASH_SHA256 },
+					module: { type: 'string', pattern: regex.MODULE },
+					command: { type: 'string', pattern: regex.COMMAND },
+					fee: { type: 'string', pattern: regex.FEE },
+					nonce: { type: 'string', min: 1, pattern: regex.NONCE },
+					senderPublicKey: { type: 'string', pattern: regex.PUBLIC_KEY },
+					signatures: {
+						type: 'array',
+						optional: true,
+						min: 0,
+						items: { type: 'string', pattern: regex.HASH_SHA512 },
+					},
+					params: { type: 'object', optional: false, minProps: 0 },
 				},
 			},
 		],
 		skipVerify: { optional: true, type: 'boolean', default: false },
 		skipDecode: { optional: true, type: 'boolean', default: false },
+		strict: { optional: true, type: 'boolean', default: false },
 	},
 	get schema() {
 		const dryRunTransactionSchema = {};
@@ -52,10 +60,12 @@ module.exports = {
 			rpcMethod: this.rpcMethod,
 			description: 'Dry run transactions.',
 		});
-		dryRunTransactionSchema[this.swaggerApiPath].post.parameters = [{ $ref: '#/parameters/dryrunTransaction' }];
+		dryRunTransactionSchema[this.swaggerApiPath].post.parameters = [
+			{ $ref: '#/parameters/dryrunTransaction' },
+		];
 		dryRunTransactionSchema[this.swaggerApiPath].post.responses = {
 			200: {
-				description: 'Dry run transactions. \'errorMessage\' is available only when \'result: -1\'.',
+				description: "Dry run transactions. 'errorMessage' is available only when 'result: -1'.",
 				schema: {
 					$ref: '#/definitions/dryTransactionWithEnvelope',
 				},
@@ -76,4 +86,5 @@ module.exports = {
 		return dryRunTransactionSchema;
 	},
 	source: dryRunTransactionsSource,
+	envelope,
 };

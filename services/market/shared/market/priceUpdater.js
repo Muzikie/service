@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,7 +15,7 @@
  */
 const util = require('util');
 const BluebirdPromise = require('bluebird');
-const { Logger, CacheRedis } = require('lisk-service-framework');
+const { Logger, CacheRedis } = require('klayr-service-framework');
 
 const config = require('../../config');
 
@@ -47,7 +47,8 @@ const calcTargetPairPrices = (rawPricesBySource, targetPairings = targetPairs) =
 	Object.entries(rawPricesBySource).forEach(([source, prices]) => {
 		// Append source name to the price code and push to sourcePrices array
 		// Eg: LSK_BTC from binance results in binance_LSK_EUR
-		if (Array.isArray(prices)) prices.forEach(item => sourcePrices.push({ ...item, code: `${source}_${item.code}` }));
+		if (Array.isArray(prices))
+			prices.forEach(item => sourcePrices.push({ ...item, code: `${source}_${item.code}` }));
 		else if (isWarnMessageDisplayed === false) {
 			logger.warn(`Data from '${source}' is unavailable for market price computation.`);
 			isWarnMessageDisplayed = true;
@@ -78,7 +79,7 @@ const calcTargetPairPrices = (rawPricesBySource, targetPairings = targetPairs) =
 				const [, , intermediateTarget] = rps.code.split('_');
 
 				rawPricesWithMatchingTarget
-					// Eg: if _BTC_ in bittex_BTC_EUR
+					// Eg: if _BTC_ in bittrex_BTC_EUR
 					.filter(rpt => rpt.code.includes(`_${intermediateTarget}_`))
 					.forEach(rpt => {
 						if (rps.code !== rpt.code && rps.sources[0] !== rpt.sources[0]) {
@@ -103,15 +104,18 @@ const calcTargetPairPrices = (rawPricesBySource, targetPairings = targetPairs) =
 	return finalPrices;
 };
 
-const updatePricesCache = (prices) => BluebirdPromise
-	.all(targetPairs.map(pair => pricesCache.set(pair, JSON.stringify(prices[pair]))));
+const updatePricesCache = prices =>
+	BluebirdPromise.all(targetPairs.map(pair => pricesCache.set(pair, JSON.stringify(prices[pair]))));
 
 const updatePrices = async () => {
 	const rawPricesBySource = await getRawPricesBySource();
 	logger.debug('Raw prices by source: ', util.inspect(rawPricesBySource, false, 3, true));
 
 	const targetPairPrices = calcTargetPairPrices(rawPricesBySource);
-	logger.debug('Final calculated prices by target pairs: ', util.inspect(targetPairPrices, false, 3, true));
+	logger.debug(
+		'Final calculated prices by target pairs: ',
+		util.inspect(targetPairPrices, false, 3, true),
+	);
 
 	await updatePricesCache(targetPairPrices);
 	return true;

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,17 +13,19 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	getLisk32AddressFromPublicKey,
-	updateAccountPublicKey,
-} = require('../../../utils/account');
 const { requestConnector } = require('../../../utils/request');
-const { getAddressByName } = require('../../../utils/validator');
+const { getAddressByName } = require('../../utils/validator');
+const { getKlayr32AddressFromPublicKey } = require('../../../utils/account');
+const { indexAccountPublicKey } = require('../../../indexer/accountIndex');
 
 const getPosClaimableRewards = async params => {
 	const claimableRewards = {
 		data: [],
-		meta: {},
+		meta: {
+			count: 0,
+			offset: 0,
+			total: 0,
+		},
 	};
 
 	if (!params.address && params.name) {
@@ -31,10 +33,10 @@ const getPosClaimableRewards = async params => {
 	}
 
 	if (!params.address && params.publicKey) {
-		params.address = getLisk32AddressFromPublicKey(params.publicKey);
+		params.address = getKlayr32AddressFromPublicKey(params.publicKey);
 
 		// Index publicKey
-		updateAccountPublicKey(params.publicKey);
+		indexAccountPublicKey(params.publicKey);
 	}
 
 	if (!params.address) {

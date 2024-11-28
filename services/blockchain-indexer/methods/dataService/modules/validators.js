@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,10 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	getValidator,
-	validateBLSKey,
-} = require('../controllers/validator');
+const { getValidator, validateBLSKey } = require('../controllers/validator');
 
 const regex = require('../../../shared/regex');
 

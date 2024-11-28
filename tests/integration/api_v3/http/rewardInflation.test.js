@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -19,13 +19,9 @@ const { api } = require('../../../helpers/api');
 const baseUrl = config.SERVICE_ENDPOINT;
 const baseUrlV3 = `${baseUrl}/api/v3`;
 
-const {
-	badRequestSchema,
-} = require('../../../schemas/httpGenerics.schema');
+const { badRequestSchema } = require('../../../schemas/httpGenerics.schema');
 
-const {
-	rewardInflationResponseSchema,
-} = require('../../../schemas/api_v3/rewardInflation.schema');
+const { rewardInflationResponseSchema } = require('../../../schemas/api_v3/rewardInflation.schema');
 
 const endpoint = `${baseUrlV3}/reward/annual-inflation`;
 
@@ -42,13 +38,23 @@ describe(`GET ${endpoint}`, () => {
 		expect(response).toMap(rewardInflationResponseSchema);
 	});
 
-	it('should return bad request when called with unsupported param', async () => {
-		const response = await api.get(`${endpoint}?invalidParam=invalid`, 400);
+	it('should return bad request for missing height', async () => {
+		const response = await api.get(endpoint, 400);
 		expect(response).toMap(badRequestSchema);
 	});
 
-	it('should return bad request param when called without param', async () => {
-		const response = await api.get(endpoint, 400);
+	it('should return bad request for a height less than 0', async () => {
+		const response = await api.get(`${endpoint}?height=-1`, 400);
+		expect(response).toMap(badRequestSchema);
+	});
+
+	it('should return bad request for a non-integer height', async () => {
+		const response = await api.get(`${endpoint}?height=abc`, 400);
+		expect(response).toMap(badRequestSchema);
+	});
+
+	it('should return bad request for a invalid param', async () => {
+		const response = await api.get(`${endpoint}?invalidParam=invalid`, 400);
 		expect(response).toMap(badRequestSchema);
 	});
 });

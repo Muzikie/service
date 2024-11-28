@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,40 +17,40 @@ const BluebirdPromise = require('bluebird');
 
 const {
 	Exceptions: { InvalidParamsException },
-	MySQL: { getTableInstance },
-} = require('lisk-service-framework');
+	DB: {
+		MySQL: { getTableInstance },
+	},
+} = require('klayr-service-framework');
 
 const { getBlockByID } = require('./blocks');
 const { getEventsByHeight } = require('./events');
 
-const {
-	getLisk32AddressFromPublicKey,
-	getIndexedAccountInfo,
-} = require('../../utils/account');
+const { getCurrentChainID } = require('./interoperability/chain');
+const { getIndexedAccountInfo } = require('../utils/account');
 const { requestConnector } = require('../../utils/request');
 const { normalizeRangeParam } = require('../../utils/param');
 const { normalizeTransaction, getTransactionExecutionStatus } = require('../../utils/transactions');
 const { getFinalizedHeight } = require('../../constants');
 
-const transactionsIndexSchema = require('../../database/schema/transactions');
+const transactionsTableSchema = require('../../database/schema/transactions');
 const config = require('../../../config');
+const { getKlayr32AddressFromPublicKey } = require('../../utils/account');
 
-const MYSQL_ENDPOINT = config.endpoints.mysql;
+const MYSQL_ENDPOINT = config.endpoints.mysqlReplica;
 
-const getTransactionsIndex = () => getTableInstance(
-	transactionsIndexSchema.tableName,
-	transactionsIndexSchema,
-	MYSQL_ENDPOINT,
-);
+const getTransactionsTable = () => getTableInstance(transactionsTableSchema, MYSQL_ENDPOINT);
 
 const getTransactionIDsByBlockID = async blockID => {
-	const transactionsTable = await getTransactionsIndex();
-	const transactions = await transactionsTable.find({
-		whereIn: {
-			property: 'blockId',
-			values: [blockID],
+	const transactionsTable = await getTransactionsTable();
+	const transactions = await transactionsTable.find(
+		{
+			whereIn: {
+				property: 'blockID',
+				values: [blockID],
+			},
 		},
-	}, ['id']);
+		['id'],
+	);
 	const transactionsIds = transactions.map(t => t.id);
 	return transactionsIds;
 };
@@ -62,11 +62,6 @@ const normalizeTransactions = async txs => {
 		{ concurrency: txs.length },
 	);
 	return normalizedTransactions;
-};
-
-const getTransactionByID = async id => {
-	const response = await requestConnector('getTransactionByID', { id });
-	return normalizeTransaction(response);
 };
 
 const getTransactionsByIDs = async ids => {
@@ -83,14 +78,28 @@ const validateParams = async params => {
 		params = normalizeRangeParam(params, 'timestamp');
 	}
 
-	if (params.nonce && !(params.senderAddress)) {
-		throw new InvalidParamsException('Nonce based retrieval is only possible along with senderAddress');
+	if (params.nonce && !params.senderAddress) {
+		throw new InvalidParamsException(
+			'Nonce based retrieval is only possible along with senderAddress',
+		);
+	}
+
+	// If recieving chainID is current chain ID then return all transactions with receivingChainID = null
+	if (params.receivingChainID) {
+		const currentChainID = await getCurrentChainID();
+
+		if (params.receivingChainID === currentChainID) {
+			params.receivingChainID = null;
+		}
 	}
 
 	if (params.executionStatus) {
 		const { executionStatus, ...remParams } = params;
 		params = remParams;
-		const executionStatuses = executionStatus.split(',').map(e => e.trim()).filter(e => e !== 'any');
+		const executionStatuses = executionStatus
+			.split(',')
+			.map(e => e.trim())
+			.filter(e => e !== 'any');
 		params.whereIn = { property: 'executionStatus', values: executionStatuses };
 	}
 
@@ -106,7 +115,7 @@ const validateParams = async params => {
 };
 
 const getTransactions = async params => {
-	const transactionsTable = await getTransactionsIndex();
+	const transactionsTable = await getTransactionsTable();
 	const transactions = {
 		data: [],
 		meta: {},
@@ -115,35 +124,33 @@ const getTransactions = async params => {
 	params = await validateParams(params);
 
 	const total = await transactionsTable.count(params);
-	const resultSet = await transactionsTable.find(
-		{ ...params, limit: params.limit || total },
-		['id', 'timestamp', 'height', 'blockID', 'executionStatus', 'index'],
-	);
+	const resultSet = await transactionsTable.find({ ...params, limit: params.limit || total }, [
+		'id',
+		'timestamp',
+		'height',
+		'blockID',
+		'executionStatus',
+		'index',
+		'minFee',
+	]);
 	params.ids = resultSet.map(row => row.id);
 
 	if (params.ids.length) {
 		const BATCH_SIZE = 25;
 		for (let i = 0; i < Math.ceil(params.ids.length / BATCH_SIZE); i++) {
 			transactions.data = transactions.data.concat(
-				// eslint-disable-next-line no-await-in-loop
 				await getTransactionsByIDs(params.ids.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE)),
 			);
-		}
-	} else if (params.id) {
-		transactions.data.push(await getTransactionByID(params.id));
-		if ('offset' in params && params.limit) {
-			transactions.data = transactions.data.slice(params.offset, params.offset + params.limit);
 		}
 	}
 
 	transactions.data = await BluebirdPromise.map(
 		transactions.data,
 		async transaction => {
-			const senderAddress = getLisk32AddressFromPublicKey(transaction.senderPublicKey);
-			const senderAccount = await getIndexedAccountInfo(
-				{ address: senderAddress, limit: 1 },
-				['name'],
-			);
+			const senderAddress = getKlayr32AddressFromPublicKey(transaction.senderPublicKey);
+			const senderAccount = await getIndexedAccountInfo({ address: senderAddress, limit: 1 }, [
+				'name',
+			]);
 
 			transaction.sender = {
 				address: senderAddress,
@@ -176,6 +183,7 @@ const getTransactions = async params => {
 
 			transaction.executionStatus = indexedTxInfo.executionStatus;
 			transaction.index = indexedTxInfo.index;
+			transaction.minFee = indexedTxInfo.minFee;
 
 			return transaction;
 		},
@@ -189,17 +197,15 @@ const getTransactions = async params => {
 	return transactions;
 };
 
-const getTransactionsByBlockID = async blockID => {
-	const block = await getBlockByID(blockID);
+const formatTransactionsInBlock = async block => {
 	const transactions = await BluebirdPromise.map(
 		block.transactions,
-		async (transaction) => {
-			const senderAddress = getLisk32AddressFromPublicKey(transaction.senderPublicKey);
+		async (transaction, index) => {
+			const senderAddress = getKlayr32AddressFromPublicKey(transaction.senderPublicKey);
 
-			const senderAccount = await getIndexedAccountInfo(
-				{ address: senderAddress, limit: 1 },
-				['name'],
-			);
+			const senderAccount = await getIndexedAccountInfo({ address: senderAddress, limit: 1 }, [
+				'name',
+			]);
 
 			transaction.sender = {
 				address: senderAddress,
@@ -226,14 +232,13 @@ const getTransactionsByBlockID = async blockID => {
 				id: block.id,
 				height: block.height,
 				timestamp: block.timestamp,
+				isFinal: block.isFinal,
 			};
 
-			// TODO: Check - this information might not be available yet
-			const transactionsTable = await getTransactionsIndex();
-			const [indexedTxInfo = {}] = await transactionsTable.find(
-				{ id: transaction.id, limit: 1 },
-				['executionStatus'],
-			);
+			const transactionsTable = await getTransactionsTable();
+			const [indexedTxInfo = {}] = await transactionsTable.find({ id: transaction.id, limit: 1 }, [
+				'executionStatus',
+			]);
 
 			if (indexedTxInfo.executionStatus) {
 				transaction.executionStatus = indexedTxInfo.executionStatus;
@@ -242,6 +247,7 @@ const getTransactionsByBlockID = async blockID => {
 				transaction.executionStatus = await getTransactionExecutionStatus(transaction, events);
 			}
 
+			transaction.index = index;
 			return transaction;
 		},
 		{ concurrency: block.transactions.length },
@@ -257,10 +263,20 @@ const getTransactionsByBlockID = async blockID => {
 	};
 };
 
+const getTransactionsByBlockID = async blockID => {
+	const block = await getBlockByID(blockID);
+	return formatTransactionsInBlock(block);
+};
+
 module.exports = {
 	getTransactions,
 	getTransactionIDsByBlockID,
 	getTransactionsByBlockID,
 	getTransactionsByIDs,
 	normalizeTransaction,
+	formatTransactionsInBlock,
+
+	// For unit test
+	validateParams,
+	normalizeTransactions,
 };

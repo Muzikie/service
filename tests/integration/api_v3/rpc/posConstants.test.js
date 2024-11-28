@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -28,10 +28,10 @@ const {
 
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
 
-const getPosConstants = async (params) => request(wsRpcUrl, 'get.pos.constants', params);
+const getPosConstants = async params => request(wsRpcUrl, 'get.pos.constants', params);
 
 describe('get.pos.constants', () => {
-	it('returns PoS module constants', async () => {
+	it('should return PoS module constants', async () => {
 		const response = await getPosConstants();
 		expect(response).toMap(jsonRpcEnvelopeSchema);
 
@@ -39,16 +39,20 @@ describe('get.pos.constants', () => {
 		expect(result.data).toMap(posConstantsSchema);
 		expect(result.meta).toMap(posConstantsMetaSchema);
 
-		expect(result.data.roundLength)
-			.toEqual(result.data.numberActiveValidators + result.data.numberStandbyValidators);
+		expect(result.data.roundLength).toEqual(
+			result.data.numberActiveValidators + result.data.numberStandbyValidators,
+		);
 	});
 
-	it('params not supported -> INVALID_PARAMS (-32602)', async () => {
-		const response = await request(
-			wsRpcUrl,
-			'get.pos.constants',
-			{ someparam: 'not_supported' },
-		).catch(e => e);
+	it('should return invalid params for unsupported param', async () => {
+		const response = await request(wsRpcUrl, 'get.pos.constants', {
+			someparam: 'not_supported',
+		}).catch(e => e);
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params for empty param', async () => {
+		const response = await request(wsRpcUrl, 'get.pos.constants', { someparam: '' }).catch(e => e);
 		expect(response).toMap(invalidParamsSchema);
 	});
 });

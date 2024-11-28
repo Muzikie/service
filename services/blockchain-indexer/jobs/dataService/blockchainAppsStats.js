@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,17 +13,18 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const logger = require('lisk-service-framework').Logger();
+const logger = require('klayr-service-framework').Logger();
 
-const {
-	reloadBlockchainAppsStats,
-} = require('../../shared/dataService');
+const config = require('../../config');
+
+const { reloadBlockchainAppsStats } = require('../../shared/dataService');
 
 module.exports = [
 	{
-		name: 'reload.blockchain.apps.statistics',
+		name: 'refresh.blockchain.apps.statistics',
 		description: 'Keep the blockchain apps statistics up-to-date',
-		schedule: '*/15 * * * *', // Every 15 min
+		interval: config.job.refreshBlockchainAppsStats.interval,
+		schedule: config.job.refreshBlockchainAppsStats.schedule,
 		init: async () => {
 			logger.debug('Initializing blockchain apps statistics cache...');
 			try {

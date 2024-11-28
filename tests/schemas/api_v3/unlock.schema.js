@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,16 +17,17 @@ import Joi from 'joi';
 import regex from './regex';
 
 const pendingUnlock = {
-	validatorAddress: Joi.string().pattern(regex.ADDRESS_LISK32).required(),
+	validatorAddress: Joi.string().pattern(regex.ADDRESS_KLAYR32).required(),
 	amount: Joi.string().min(10).required(),
 	tokenID: Joi.string().pattern(regex.TOKEN_ID).required(),
 	unstakeHeight: Joi.number().integer().positive().required(),
 	expectedUnlockableHeight: Joi.number().integer().positive().required(),
+	expectedUnlockTime: Joi.number().integer().positive().required(),
 	isLocked: Joi.boolean().required(),
 };
 
 const unlockSchema = {
-	address: Joi.string().pattern(regex.ADDRESS_LISK32).required(),
+	address: Joi.string().pattern(regex.ADDRESS_KLAYR32).required(),
 	publicKey: Joi.string().pattern(regex.PUBLIC_KEY).required(),
 	name: Joi.string().pattern(regex.NAME).optional(),
 	pendingUnlocks: Joi.array().items(pendingUnlock).max(20).required(),

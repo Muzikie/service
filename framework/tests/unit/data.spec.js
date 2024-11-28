@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,12 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	isProperObject,
-	isEmptyArray,
-	isEmptyObject,
-	isString,
-} = require('../../src/data');
+const { isProperObject, isEmptyArray, isEmptyObject, isString } = require('../../src/data');
 
 describe('isProperObject()', () => {
 	test('returns true on plain objects', async () => {

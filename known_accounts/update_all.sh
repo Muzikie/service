@@ -7,5 +7,5 @@ list=(
 
 for item in "${list[@]}"
 do
-    s3cmd put "${item}" "${STATIC_LISK_S3}/${item}"
+    s3cmd put "${item}" "${STATIC_KLAYR_S3}/${item}"
 done

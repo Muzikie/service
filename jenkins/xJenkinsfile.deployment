@@ -5,20 +5,20 @@ pipeline {
 		}
 	stages {
 		stage('Build docker images') {
-			agent { node { label 'lisk-service-dev' } }
+			agent { node { label 'klayr-service-dev' } }
 			when { branch 'development' }
 			steps {
-				sh 'make build'
+				sh 'make build-images'
 			}
 		}
-		stage('Deploy lisk-service') {
-			agent { node { label 'lisk-service-dev' } }
+		stage('Deploy klayr-service') {
+			agent { node { label 'klayr-service-dev' } }
 			when { branch 'development' }
 			environment {
 				ENABLE_HTTP_API='http-status,http-version3,http-exports'
 				ENABLE_WS_API='blockchain,rpc-v3'
-				LISK_APP_WS='ws://host.docker.internal:7887'
-				USE_LISK_IPC_CLIENT='false'
+				KLAYR_APP_WS='ws://host.docker.internal:7887'
+				USE_KLAYR_IPC_CLIENT='false'
 				TRANSACTION_STATS_HISTORY_LENGTH_DAYS='366'
 				ENABLE_FEE_ESTIMATOR_QUICK='true'
 				GITHUB_ACCESS_TOKEN=''

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,6 +13,10 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const { Signals } = require('klayr-service-framework');
+
+const config = require('../../config');
+
 const {
 	getGenesisHeight,
 	getGenesisBlockID,
@@ -27,11 +31,12 @@ const {
 	getGeneratorStatus,
 	updateGeneratorStatus,
 	getSchemas,
-	getRegisteredActions,
+	getRegisteredEndpoints,
 	getRegisteredEvents,
 	getRegisteredModules,
 	getNodeInfo,
 	getSystemMetadata,
+	getEngineEndpoints,
 } = require('./endpoints');
 
 const {
@@ -52,13 +57,16 @@ const {
 
 const {
 	tokenHasUserAccount,
+	tokenHasEscrowAccount,
 	getTokenBalance,
 	getTokenBalances,
 	getEscrowedAmounts,
 	getSupportedTokens,
 	getTotalSupply,
 	getTokenInitializationFees,
-} = require('./tokens');
+	updateTokenInfo,
+	getTokenBalancesAtGenesis,
+} = require('./token');
 
 const {
 	getAllPosValidators,
@@ -80,20 +88,15 @@ const {
 	cacheRegisteredRewardModule,
 } = require('./dynamicReward');
 
-const {
-	getFeeTokenID,
-	getMinFeePerByte,
-	cacheFeeConstants,
-} = require('./fee');
+const { getFeeTokenID, getMinFeePerByte, cacheFeeConstants } = require('./fee');
 
-const {
-	getAuthAccount,
-	getAuthMultiSigRegMsgSchema,
-} = require('./auth');
+const { getAuthAccount, getAuthMultiSigRegMsgSchema } = require('./auth');
 
 const {
 	getChainAccount,
 	getMainchainID,
+	getChannel,
+	getRegistrationFee,
 } = require('./interoperability');
 
 const { getLegacyAccount } = require('./legacy');
@@ -109,18 +112,33 @@ const {
 	getNetworkPeersStatistics,
 } = require('./network');
 
-const init = async () => {
-	// Initialize the local cache
-	await getNodeInfo(true);
-	await cacheRegisteredRewardModule();
-	await cacheFeeConstants();
+const { cacheCleanup } = require('./cache');
+const { formatTransaction } = require('./formatter');
+const { encodeCCM } = require('./encoder');
 
+const init = async () => {
 	// Cache all the schemas
 	setSchemas(await getSchemas());
 	setMetadata(await getSystemMetadata());
 
+	// Initialize the local cache
+	await getNodeInfo(true);
+	await cacheRegisteredRewardModule();
+	await cacheFeeConstants();
+	await updateTokenInfo();
+	await getTokenInitializationFees();
+	await getRewardTokenID();
+	await getPosConstants();
+	await getAllPosValidators();
+
 	// Download the genesis block, if applicable
-	await getGenesisBlock();
+	await getGenesisBlock().then(() => {
+		Signals.get('genesisBlockDownloaded').dispatch();
+	});
+
+	if (config.appExitDelay) {
+		setTimeout(() => process.exit(0), config.appExitDelay);
+	}
 };
 
 module.exports = {
@@ -139,11 +157,12 @@ module.exports = {
 	getGeneratorStatus,
 	updateGeneratorStatus,
 	getSchemas,
-	getRegisteredActions,
+	getRegisteredEndpoints,
 	getRegisteredEvents,
 	getRegisteredModules,
 	getNodeInfo,
 	getSystemMetadata,
+	getEngineEndpoints,
 
 	// Blocks
 	getLastBlock,
@@ -158,15 +177,18 @@ module.exports = {
 	getTransactionsFromPool,
 	postTransaction,
 	dryRunTransaction,
+	formatTransaction,
 
-	// Tokens
+	// Token
 	tokenHasUserAccount,
+	tokenHasEscrowAccount,
 	getTokenBalance,
 	getTokenBalances,
 	getEscrowedAmounts,
 	getSupportedTokens,
 	getTotalSupply,
 	getTokenInitializationFees,
+	getTokenBalancesAtGenesis,
 
 	// PoS
 	getAllPosValidators,
@@ -197,6 +219,8 @@ module.exports = {
 	// Interoperability
 	getChainAccount,
 	getMainchainID,
+	getChannel,
+	getChainRegistrationFee: getRegistrationFee,
 
 	// Legacy
 	getLegacyAccount,
@@ -221,4 +245,10 @@ module.exports = {
 	getNetworkConnectedPeers,
 	getNetworkDisconnectedPeers,
 	getNetworkPeersStatistics,
+
+	// CCM
+	encodeCCM,
+
+	// Cache
+	cacheCleanup,
 };

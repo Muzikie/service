@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,30 +15,30 @@
  */
 const {
 	address: {
-		getLisk32AddressFromPublicKey: getLisk32AddressFromPublicKeyHelper,
-		getLisk32AddressFromAddress,
+		getKlayr32AddressFromPublicKey: getKlayr32AddressFromPublicKeyHelper,
+		getKlayr32AddressFromAddress,
 	},
-	legacyAddress: {
-		getLegacyAddressFromPublicKey,
-
-	},
-} = require('@liskhq/lisk-cryptography');
+	legacyAddress: { getLegacyAddressFromPublicKey },
+} = require('@klayr/cryptography');
 
 const getLegacyFormatAddressFromPublicKey = publicKey => {
 	const legacyAddress = getLegacyAddressFromPublicKey(Buffer.from(publicKey, 'hex'));
 	return legacyAddress;
 };
 
-const getLisk32AddressFromPublicKey = publicKey => getLisk32AddressFromPublicKeyHelper(Buffer.from(publicKey, 'hex'));
+const getKlayr32AddressFromPublicKey = publicKey =>
+	getKlayr32AddressFromPublicKeyHelper(Buffer.from(publicKey, 'hex'));
 
-const getLisk32AddressFromHexAddress = address => getLisk32AddressFromAddress(Buffer.from(address, 'hex'));
+const getKlayr32AddressFromHexAddress = address =>
+	getKlayr32AddressFromAddress(Buffer.from(address, 'hex'));
 
-// TODO: Remove once SDK returns address in Lisk32 format
-const getLisk32Address = address => address.startsWith('lsk') ? address : getLisk32AddressFromHexAddress(address);
+// TODO: Remove once SDK returns address in Klayr32 format (https://github.com/KlayrHQ/klayr-sdk/issues/7629)
+const getKlayr32Address = address =>
+	address.startsWith('kly') ? address : getKlayr32AddressFromHexAddress(address);
 
 module.exports = {
 	getLegacyAddressFromPublicKey: getLegacyFormatAddressFromPublicKey,
-	getLisk32AddressFromPublicKey,
-	getLisk32AddressFromHexAddress,
-	getLisk32Address,
+	getKlayr32AddressFromPublicKey,
+	getKlayr32AddressFromHexAddress,
+	getKlayr32Address,
 };

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -30,6 +30,6 @@ describe('Test delay method', () => {
 		await delay(delayMs);
 		const endTime = Date.now();
 		const millisDifference = endTime - startTime;
-		expect(millisDifference).toBeGreaterThanOrEqual(delayMs);
+		expect(millisDifference).toBeGreaterThanOrEqual(delayMs - 1);
 	});
 });

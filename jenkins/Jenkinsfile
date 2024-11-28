@@ -5,7 +5,7 @@ def echoBanner(msg) {
 }
 
 pipeline {
-	agent { node { label 'lisk-service' } }
+	agent { node { label 'klayr-service' } }
 	options {
 		timeout(time: 10, unit: 'MINUTES')
 	}
@@ -14,19 +14,20 @@ pipeline {
 			steps {
 				script { echoBanner(STAGE_NAME) }
 				nvm(readFile('.nvmrc').trim()) {
-					dir('./') { sh 'npm ci' }
-					dir('./framework') { sh 'npm ci' }
-					dir('./services/blockchain-app-registry') { sh 'npm ci' }
-					dir('./services/blockchain-connector') { sh 'npm ci' }
-					dir('./services/blockchain-indexer') { sh 'npm ci' }
-					dir('./services/blockchain-coordinator') { sh 'npm ci' }
-					dir('./services/fee-estimator') { sh 'npm ci' }
-					dir('./services/market') { sh 'npm ci' }
-					dir('./services/export') { sh 'npm ci' }
-					dir('./services/gateway') { sh 'npm ci' }
-					dir('./services/template') { sh 'npm ci' }
-					dir('./services/transaction-statistics') { sh 'npm ci' }
-					dir('./tests') { sh 'npm ci' }
+					dir('./') { sh 'npm i -g yarn' }
+					dir('./') { sh 'yarn install --frozen-lockfile' }
+					dir('./framework') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/blockchain-app-registry') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/blockchain-connector') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/blockchain-indexer') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/blockchain-coordinator') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/fee-estimator') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/market') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/export') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/gateway') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/template') { sh 'yarn install --frozen-lockfile' }
+					dir('./services/transaction-statistics') { sh 'yarn install --frozen-lockfile' }
+					dir('./tests') { sh 'yarn install --frozen-lockfile' }
 				}
 			}
 		}
@@ -34,7 +35,22 @@ pipeline {
 			steps {
 				script { echoBanner(STAGE_NAME) }
 				nvm(readFile('.nvmrc').trim()) {
-					sh 'npm run eslint'
+					sh 'yarn lint'
+				}
+			}
+		}
+		stage('Format Service') {
+			steps {
+				nvm(readFile(".nvmrc").trim()) {
+					sh '''
+					yarn format
+					if [ -z "$(git status --untracked-files=no --porcelain)" ]; then
+						echo "All files formatted"
+					else
+						echo "Running format is required"
+						exit 1
+					fi
+					'''
 				}
 			}
 		}
@@ -42,14 +58,14 @@ pipeline {
 			steps {
 				script { echoBanner(STAGE_NAME) }
 				nvm(readFile('.nvmrc').trim()) {
-					dir('./framework') { sh "npm run test:unit" }
-					dir('./services/blockchain-app-registry') { sh "npm run test:unit" }
-					dir('./services/blockchain-connector') { sh "npm run test:unit" }
-					dir('./services/blockchain-indexer') { sh "npm run test:unit" }
-					dir('./services/fee-estimator') { sh "npm run test:unit" }
-					dir('./services/market') { sh "npm run test:unit" }
-					dir('./services/export') { sh "npm run test:unit" }
-					dir('./services/gateway') { sh "npm run test:unit" }
+					dir('./framework') { sh "yarn test:unit" }
+					dir('./services/blockchain-app-registry') { sh "yarn test:unit" }
+					dir('./services/blockchain-connector') { sh "yarn test:unit" }
+					dir('./services/blockchain-indexer') { sh "yarn test:unit" }
+					dir('./services/fee-estimator') { sh "yarn test:unit" }
+					dir('./services/market') { sh "yarn test:unit" }
+					dir('./services/export') { sh "yarn test:unit" }
+					dir('./services/gateway') { sh "yarn test:unit" }
 				}
 			}
 		}
@@ -59,10 +75,10 @@ pipeline {
 			script { echoBanner('Failed to run the pipeline') }
 		}
 		cleanup {
-			script { 
-				echoBanner('Cleaning up...') 
+			script {
+				echoBanner('Cleaning up...')
 				nvm(readFile('.nvmrc').trim()) {
-					echoBanner('Removing dependencies') 
+					echoBanner('Removing dependencies')
 					sh 'make clean-local'
 				}
 			}

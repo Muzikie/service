@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,10 +24,10 @@ module.exports = {
 	rpcMethod: 'get.blocks.assets',
 	tags: ['Blocks'],
 	params: {
-		blockID: { optional: true, type: 'string', min: 1, max: 64, pattern: regex.HASH_SHA256 },
+		blockID: { optional: true, type: 'string', min: 64, max: 64, pattern: regex.BLOCK_ID },
 		height: { optional: true, type: 'string', min: 0, pattern: regex.HEIGHT_RANGE },
 		timestamp: { optional: true, type: 'string', min: 1, pattern: regex.TIMESTAMP_RANGE },
-		module: { optional: true, type: 'string', min: 1, pattern: regex.MODULE },
+		module: { optional: true, type: 'string', min: 1, pattern: regex.MODULE_CSV },
 		limit: { optional: true, type: 'number', min: 1, max: 100, default: 10 },
 		offset: { optional: true, type: 'number', min: 0, default: 0 },
 		sort: {
@@ -44,7 +44,8 @@ module.exports = {
 		blockAssetSchema[this.swaggerApiPath].get.summary = 'Requests block assets data.';
 		blockAssetSchema[this.swaggerApiPath].get.description = getSwaggerDescription({
 			rpcMethod: this.rpcMethod,
-			description: 'Returns block assets data. Assets are always returned empty for the genesis height.',
+			description:
+				'Returns block assets data. Assets are always returned empty for the genesis height.',
 		});
 		blockAssetSchema[this.swaggerApiPath].get.parameters = transformParams('blocks', this.params);
 		blockAssetSchema[this.swaggerApiPath].get.responses = {

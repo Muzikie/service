@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -51,7 +51,7 @@ const networkStatus = {
 			'interoperability:registerSidechain',
 			'interoperability:recoverState',
 			'interoperability:terminateSidechainForLiveness',
-			'legacy:reclaimLSK',
+			'legacy:reclaimKLY',
 			'legacy:registerKeys',
 			'pos:registerValidator',
 			'pos:reportMisbehavior',

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -32,6 +32,5 @@ module.exports = {
 			lastBlockHeight: 'blockHeight,number',
 			lastBlockID: 'blockID,string',
 		},
-		links: {},
 	},
 };

@@ -1,15 +1,7 @@
 {
 	"events": {
 		"type": "object",
-		"required": [
-			"id",
-			"module",
-			"name",
-			"data",
-			"topics",
-			"index",
-			"block"
-		],
+		"required": ["id", "module", "name", "data", "topics", "index", "block"],
 		"properties": {
 			"id": {
 				"type": "string",
@@ -46,10 +38,7 @@
 				"items": {
 					"type": "string"
 				},
-				"example": [
-					"03",
-					"lsksod8bj35gmndy94yehxm25nybg5os6ycysejsm"
-				]
+				"example": ["03", "klysod8bj35gmndy94yehxm25nybg5os6ycysejsm"]
 			},
 			"index": {
 				"type": "number",
@@ -58,16 +47,12 @@
 			},
 			"block": {
 				"type": "object",
-				"required": [
-					"id",
-					"height",
-					"timestamp"
-				],
+				"required": ["id", "height", "timestamp"],
 				"properties": {
 					"id": {
 						"type": "string",
 						"format": "id",
-						"minLength": 1,
+						"minLength": 64,
 						"maxLength": 64,
 						"example": "01967dba384998026fe028119bd099ecf073c05c045381500a93d1a7c7307e5b",
 						"description": "Unique identifier of the block.\nDerived from the block signature."
@@ -89,10 +74,7 @@
 	},
 	"eventsWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "List of events.",

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,14 +15,18 @@
  */
 const {
 	tokenHasUserAccount,
+	getAvailableTokenIDs,
 	getTokenBalances,
 	getTokenSummary,
 	getTokenConstants,
+	getTokenTopBalances,
 } = require('./token');
 
 module.exports = {
 	tokenHasUserAccount,
+	getAvailableTokenIDs,
 	getTokenBalances,
 	getTokenSummary,
 	getTokenConstants,
+	getTokenTopBalances,
 };

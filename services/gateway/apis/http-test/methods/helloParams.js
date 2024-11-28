@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -33,10 +33,13 @@ module.exports = {
 			name: 'path_name',
 		},
 		definition: {
-			data: ['data', {
-				message: '=',
-				name: '=',
-			}],
+			data: [
+				'data',
+				{
+					message: '=',
+					name: '=',
+				},
+			],
 			meta: {
 				count: 'meta.count,number',
 				offset: '=,number',

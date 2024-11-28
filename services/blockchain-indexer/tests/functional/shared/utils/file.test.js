@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,23 +15,14 @@
  */
 const fs = require('fs');
 
-const {
-	getAllDirectories,
-	getAllJSFiles,
-} = require('../../../../shared/utils/file');
+const { getDirectoryNamesInPath, getAllJSFiles } = require('../../../../shared/utils/file');
 
 // Utility functions for the tests
-const mkdir = async (dirPath) => fs.promises.mkdir(
-	dirPath,
-	{ recursive: true },
-);
+const mkdir = async dirPath => fs.promises.mkdir(dirPath, { recursive: true });
 
-const rmdir = async (dirPath) => fs.promises.rmdir(
-	dirPath,
-	{ recursive: true, force: true },
-);
+const rmdir = async dirPath => fs.promises.rmdir(dirPath, { recursive: true, force: true });
 
-const createFile = async (filePath) => fs.promises.writeFile(filePath, '', { flag: 'w' });
+const createFile = async filePath => fs.promises.writeFile(filePath, '', { flag: 'w' });
 
 describe('Unit tests for file utilities', () => {
 	const nonExistentTestDir = `${__dirname}/nonExistentTestDir`;
@@ -60,65 +51,65 @@ describe('Unit tests for file utilities', () => {
 		await rmdir(testDir);
 	});
 
-	describe('Test \'getAllDirectories\'', () => {
+	describe("Test 'getDirectoryNamesInPath'", () => {
 		it('Throws error when the source directory does not exist', async () => {
-			expect(getAllDirectories(nonExistentTestDir)).rejects.toThrow();
+			expect(getDirectoryNamesInPath(nonExistentTestDir)).rejects.toThrow();
 		});
 
 		it('Returns empty list when source directory does not contain sub-directories', async () => {
-			const result = await getAllDirectories(emptyTestDir);
+			const result = await getDirectoryNamesInPath(emptyTestDir);
 			expect(Array.isArray(result)).toBeTruthy();
 			expect(result.length).toBe(0);
 		});
 
 		it('Returns list of sub-directories contained within the source directory', async () => {
-			const result = await getAllDirectories(testDir);
+			const result = await getDirectoryNamesInPath(testDir);
 			expect(Array.isArray(result)).toBeTruthy();
 			expect(result.length).toBe(testSubDirs.length);
-			expect(result).toEqual(testSubDirs);
+			expect(result).toEqual(expect.arrayContaining(testSubDirs));
 		});
 	});
 
-	describe('Test \'getAllJSFiles\'', () => {
+	describe("Test 'getAllJSFiles'", () => {
 		it('Throws error when the source directory does not exist', async () => {
 			expect(getAllJSFiles(nonExistentTestDir)).rejects.toThrow();
 		});
 
-		it('Returns empty list when source directory does not contain \'.js\' files', async () => {
+		it("Returns empty list when source directory does not contain '.js' files", async () => {
 			const result = await getAllJSFiles(emptyTestDir);
 			expect(result).toBeInstanceOf(Object);
 			expect(Object.keys(result).length).toBe(0);
 		});
 
-		it('Returns only list of files without the extenstion when source directory contains sub-directories and \'.js\' files', async () => {
+		it("Returns only list of files without the extenstion when source directory contains sub-directories and '.js' files", async () => {
 			const result = await getAllJSFiles(testDir);
 			expect(result).toBeInstanceOf(Object);
 			expect(Object.keys(result).length).toBe(testFiles.length);
 			expect(Object.keys(result)).toEqual(testFiles.map(f => f.split('.')[0]));
 		});
 
-		it('Returns list of files (camelCase and consecutiveUppercase) without the extension when source directory contains \'.js\' files', async () => {
+		it("Returns list of files (camelCase and consecutiveUppercase) without the extension when source directory contains '.js' files", async () => {
 			const result = await getAllJSFiles(testDir, false, true);
 			expect(result).toBeInstanceOf(Object);
 			expect(Object.keys(result).length).toBe(testFiles.length);
 			expect(Object.keys(result)).toEqual(testFilesCamelConsecutiveUpper);
 		});
 
-		it('Returns list of files (camelCase and no consecutiveUppercase) without the extension when source directory contains \'.js\' files', async () => {
+		it("Returns list of files (camelCase and no consecutiveUppercase) without the extension when source directory contains '.js' files", async () => {
 			const result = await getAllJSFiles(testDir, false, false);
 			expect(result).toBeInstanceOf(Object);
 			expect(Object.keys(result).length).toBe(testFiles.length);
 			expect(Object.keys(result)).toEqual(testFilesCamelNoConsecutiveUpper);
 		});
 
-		it('Returns list of files (pascalCase and consecutiveUppercase) without the extension when source directory contains \'.js\' files', async () => {
+		it("Returns list of files (pascalCase and consecutiveUppercase) without the extension when source directory contains '.js' files", async () => {
 			const result = await getAllJSFiles(testDir, true, true);
 			expect(result).toBeInstanceOf(Object);
 			expect(Object.keys(result).length).toBe(testFiles.length);
 			expect(Object.keys(result)).toEqual(testFilesPascalConsecutiveUpper);
 		});
 
-		it('Returns list of files (pascalCase and no consecutiveUppercase) without the extension when source directory contains \'.js\' files', async () => {
+		it("Returns list of files (pascalCase and no consecutiveUppercase) without the extension when source directory contains '.js' files", async () => {
 			const result = await getAllJSFiles(testDir, true, false);
 			expect(result).toBeInstanceOf(Object);
 			expect(Object.keys(result).length).toBe(testFiles.length);

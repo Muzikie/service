@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -20,7 +20,7 @@ module.exports = {
 	method: 'indexer.blockchain.apps',
 	params: {
 		chainID: '=,string',
-		name: '=,string',
+		chainName: '=,string',
 		search: '=,string',
 		status: '=,string',
 		offset: '=,number',
@@ -33,6 +33,5 @@ module.exports = {
 			offset: '=,number',
 			total: '=,number',
 		},
-		links: {},
 	},
 };

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,7 +18,7 @@ module.exports = {
 	primaryKey: 'chainID',
 	schema: {
 		chainID: { type: 'string' },
-		name: { type: 'string' },
+		chainName: { type: 'string' },
 		status: { type: 'string' },
 		address: { type: 'string' },
 		lastUpdated: { type: 'string' },

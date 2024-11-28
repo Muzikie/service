@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,6 +17,8 @@ const { getBlockchainApps } = require('./blockchainApps');
 const { getChainAccount } = require('./chainAccount');
 const { getMainchainID } = require('./mainchain');
 const { getBlockchainAppsStatistics, reloadBlockchainAppsStats } = require('./blockchainAppsStats');
+const { isMainchain, getCurrentChainID } = require('./chain');
+const { resolveMainchainServiceURL, resolveChannelInfo } = require('./channel');
 
 module.exports = {
 	getBlockchainApps,
@@ -24,4 +26,8 @@ module.exports = {
 	getMainchainID,
 	getBlockchainAppsStatistics,
 	reloadBlockchainAppsStats,
+	isMainchain,
+	resolveMainchainServiceURL,
+	resolveChannelInfo,
+	getCurrentChainID,
 };

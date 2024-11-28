@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -21,14 +21,18 @@ const dryRunTransactions = async params => {
 		data: [],
 		meta: {},
 	};
-	const { transaction, skipVerify, skipDecode } = params;
+	const { transaction, skipVerify, skipDecode, strict } = params;
 
-	const response = await requestConnector('dryRunTransaction', { transaction, skipVerify, skipDecode });
+	const response = await requestConnector('dryRunTransaction', {
+		transaction,
+		skipVerify,
+		skipDecode,
+		strict,
+	});
 
 	dryRunTransactionsRes.data = {
 		...response,
-		status: Object
-			.keys(TRANSACTION_VERIFY_RESULT)
+		status: Object.keys(TRANSACTION_VERIFY_RESULT)
 			.find(e => TRANSACTION_VERIFY_RESULT[e] === response.result)
 			.toLowerCase(),
 	};

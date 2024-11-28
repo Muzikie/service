@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const logger = require('lisk-service-framework').Logger();
+const logger = require('klayr-service-framework').Logger();
 const FileStorage = require('../shared/csvCache');
 
 const config = require('../config');
@@ -25,9 +25,10 @@ module.exports = [
 	{
 		name: 'job.purge.cache',
 		description: 'Cache maintenance',
-		schedule: '45 4 * * *',
+		interval: config.job.purgeCache.interval,
+		schedule: config.job.purgeCache.schedule,
 		controller: () => {
-			logger.info('Performing cache maintenance');
+			logger.info('Running cache maintenance.');
 			partials.purge();
 			staticFiles.purge();
 		},

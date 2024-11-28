@@ -42,8 +42,8 @@
 			"address": {
 				"type": "string",
 				"format": "address",
-				"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
-				"description": "The Lisk Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `lsk`."
+				"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+				"description": "The Klayr Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `kly`."
 			},
 			"publicKey": {
 				"type": "string",
@@ -99,7 +99,7 @@
 			"commission": {
 				"type": "number",
 				"example": 100000,
-				"description": "The reward commission. The percentage is obtained by dividing this value by 100, i.e., a value of 10000 corresponds to 100%. It is set to 10000 on the Lisk Mainchain during the migration."
+				"description": "The reward commission. The percentage is obtained by dividing this value by 100, i.e., a value of 10000 corresponds to 100%. It is set to 10000 on the Klayr Mainchain during the migration."
 			},
 			"lastCommissionIncreaseHeight": {
 				"type": "number",
@@ -153,10 +153,7 @@
 	},
 	"validatorsWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "List of validators.",
@@ -172,17 +169,13 @@
 	},
 	"unlock": {
 		"type": "object",
-		"required": [
-			"address",
-			"publicKey",
-			"name"
-		],
+		"required": ["address", "publicKey", "name"],
 		"properties": {
 			"address": {
 				"type": "string",
 				"format": "address",
-				"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
-				"description": "The Lisk Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `lsk`."
+				"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+				"description": "The Klayr Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `kly`."
 			},
 			"publicKey": {
 				"type": "string",
@@ -197,17 +190,13 @@
 			},
 			"unlocking": {
 				"type": "array",
-				"required": [
-					"validatorAddress",
-					"amount",
-					"unvoteHeight"
-				],
+				"required": ["validatorAddress", "amount", "unvoteHeight"],
 				"items": {
 					"type": "object",
 					"properties": {
 						"validatorAddress": {
 							"type": "string",
-							"example": "lsk24cd35u4jdq8szo3pnsqe5dsxwrnazyqqqg5eu"
+							"example": "kly24cd35u4jdq8szo3pnsqe5dsxwrnazyqqqg5eu"
 						},
 						"amount": {
 							"type": "string",
@@ -215,10 +204,7 @@
 						},
 						"unvoteHeight": {
 							"type": "object",
-							"required": [
-								"start",
-								"end"
-							],
+							"required": ["start", "end"],
 							"properties": {
 								"start": {
 									"type": "integer",
@@ -237,10 +223,7 @@
 	},
 	"unlocksWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "List of validator unlocks.",
@@ -256,17 +239,13 @@
 	},
 	"posUnlock": {
 		"type": "object",
-		"required": [
-			"address",
-			"publicKey",
-			"pendingUnlocks"
-		],
+		"required": ["address", "publicKey", "pendingUnlocks"],
 		"properties": {
 			"address": {
 				"type": "string",
 				"format": "address",
-				"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
-				"description": "Address of the staker. The Lisk Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `lsk`."
+				"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+				"description": "Address of the staker. The Klayr Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `kly`."
 			},
 			"publicKey": {
 				"type": "string",
@@ -289,13 +268,14 @@
 						"tokenID",
 						"unstakeHeight",
 						"expectedUnlockableHeight",
+						"expectedUnlockTime",
 						"isLocked"
 					],
 					"properties": {
 						"validatorAddress": {
 							"type": "string",
-							"example": "lsk24cd35u4jdq8szo3pnsqe5dsxwrnazyqqqg5eu",
-							"description": "Address of the validator against whom the stake was made."
+							"example": "kly24cd35u4jdq8szo3pnsqe5dsxwrnazyqqqg5eu",
+							"description": "Address of the validator against which the stake was made."
 						},
 						"amount": {
 							"type": "string",
@@ -305,7 +285,7 @@
 						"tokenID": {
 							"type": "string",
 							"example": "0000000000000000",
-							"description": "The universal identifier for the token within the Lisk ecosystem for PoS module."
+							"description": "The universal identifier for the token within the Klayr ecosystem for PoS module."
 						},
 						"unstakeHeight": {
 							"type": "integer",
@@ -317,10 +297,15 @@
 							"example": 270000,
 							"description": "The block height at which the corresponding unstaked (locked) amount is available to be unlocked."
 						},
+						"expectedUnlockTime": {
+							"type": "integer",
+							"example": 1556100060,
+							"description": "The timestamp at which the corresponding unstaked (locked) amount is available to be unlocked."
+						},
 						"isLocked": {
 							"type": "boolean",
 							"example": true,
-							"description": "A boolean flag indicating if the corresponding (previously) un-staked amount is available to be unlocked. When `isLocked: false`, the amount be unlocked with a `pos:unlock` transaction."
+							"description": "A boolean flag indicating if the corresponding (previously) un-staked amount is available to be unlocked. When `isLocked: false`, the amount can be unlocked with a `pos:unlock` transaction."
 						}
 					}
 				}
@@ -329,10 +314,7 @@
 	},
 	"posUnlocksWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "Array of PoS unlocks data.",
@@ -345,16 +327,12 @@
 	},
 	"posStake": {
 		"type": "object",
-		"required": [
-			"address",
-			"amount",
-			"name"
-		],
+		"required": ["address", "amount", "name"],
 		"properties": {
 			"address": {
 				"type": "string",
 				"format": "address",
-				"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+				"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
 				"description": "Address of the validator."
 			},
 			"amount": {
@@ -365,17 +343,14 @@
 			"name": {
 				"type": "string",
 				"format": "username",
-				"example": "liskhq",
+				"example": "klayrhq",
 				"description": "Name of the validator against whom the stake was made."
 			}
 		}
 	},
 	"posStakesMeta": {
 		"type": "object",
-		"required": [
-			"staker",
-			"count"
-		],
+		"required": ["staker", "count"],
 		"properties": {
 			"staker": {
 				"type": "object",
@@ -383,8 +358,8 @@
 					"address": {
 						"type": "string",
 						"format": "address",
-						"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
-						"description": "Address of the queried staker. The Lisk Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `lsk`."
+						"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+						"description": "Address of the queried staker. The Klayr Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `kly`."
 					},
 					"publicKey": {
 						"type": "string",
@@ -410,10 +385,7 @@
 	},
 	"posStakesWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "List of stakes for the queried staker.",
@@ -434,15 +406,12 @@
 	},
 	"posStaker": {
 		"type": "object",
-		"required": [
-			"address",
-			"amount"
-		],
+		"required": ["address", "amount"],
 		"properties": {
 			"address": {
 				"type": "string",
 				"format": "address",
-				"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+				"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
 				"description": "Address of the staker."
 			},
 			"amount": {
@@ -453,33 +422,24 @@
 			"name": {
 				"type": "string",
 				"format": "username",
-				"example": "liskhq",
+				"example": "klayrhq",
 				"description": "Name of the staker. Available only when registered as a validator."
 			}
 		}
 	},
 	"posStakersMeta": {
 		"type": "object",
-		"required": [
-			"validator",
-			"count",
-			"offset",
-			"total"
-		],
+		"required": ["validator", "count", "offset", "total"],
 		"properties": {
 			"validator": {
 				"type": "object",
-				"required": [
-					"address",
-					"publicKey",
-					"name"
-				],
+				"required": ["address", "publicKey", "name"],
 				"properties": {
 					"address": {
 						"type": "string",
 						"format": "address",
-						"example": "lskdwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
-						"description": "Address of the queried validator. The Lisk Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `lsk`."
+						"example": "klydwsyfmcko6mcd357446yatromr9vzgu7eb8y99",
+						"description": "Address of the queried validator. The Klayr Address is the human-readable representation of a blockchain account.\nIt is 41 character long identifier that begins with `kly`."
 					},
 					"publicKey": {
 						"type": "string",
@@ -516,17 +476,12 @@
 	},
 	"posStakersWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "List of stakers for the queried validator.",
 				"type": "object",
-				"required": [
-					"stakers"
-				],
+				"required": ["stakers"],
 				"properties": {
 					"stakers": {
 						"type": "array",
@@ -543,10 +498,7 @@
 	},
 	"posConstantsWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "PoS module constants.",
@@ -558,7 +510,8 @@
 					"maxNumberPendingUnlocks",
 					"failSafeMissedBlocks",
 					"failSafeInactiveWindow",
-					"punishmentWindow",
+					"punishmentWindowStaking",
+					"punishmentWindowSelfStaking",
 					"roundLength",
 					"minWeightStandby",
 					"numberActiveValidators",
@@ -567,6 +520,13 @@
 					"maxBFTWeightCap",
 					"commissionIncreasePeriod",
 					"maxCommissionIncreaseRate",
+					"useInvalidBLSKey",
+					"baseStakeAmount",
+					"lockingPeriodStaking",
+					"lockingPeriodSelfStaking",
+					"reportMisbehaviorReward",
+					"reportMisbehaviorLimitBanned",
+					"weightScaleFactor",
 					"extraCommandFees"
 				],
 				"properties": {
@@ -600,10 +560,15 @@
 						"example": 260000,
 						"description": "The length of the inactivity window used in the fail-safe banning mechanism."
 					},
-					"punishmentWindow": {
+					"punishmentWindowStaking": {
 						"type": "integer",
-						"example": 780000,
-						"description": "The punishment time for punished delegates."
+						"example": 241920,
+						"description": "The punishment period for regular stakes, i.e., how many blocks after misbehavior report stakers can unlock tokens unstaked from a punished validator."
+					},
+					"punishmentWindowSelfStaking": {
+						"type": "integer",
+						"example": 725760,
+						"description": "The punishment period for self-stakes, i.e., how many blocks after misbehavior report punished validators can unlock their self-unstaked tokens."
 					},
 					"roundLength": {
 						"type": "integer",
@@ -620,7 +585,7 @@
 						"example": 101,
 						"description": "The number of active validators in a round."
 					},
-					"numberStandbyDelegates": {
+					"numberStandbyValidators": {
 						"type": "integer",
 						"example": 2,
 						"description": "The number of standby validators in a round."
@@ -628,7 +593,7 @@
 					"posTokenID": {
 						"type": "string",
 						"example": "0000000000000000",
-						"description": "The universal identifier for the token within the Lisk ecosystem for PoS module."
+						"description": "The universal identifier for the token within the Klayr ecosystem for PoS module."
 					},
 					"maxBFTWeightCap": {
 						"type": "number",
@@ -638,19 +603,52 @@
 					"commissionIncreasePeriod": {
 						"type": "number",
 						"example": 260000,
-						"description": "Determines how frequently (after how many blocks) a validator can increase their commission.  It is set to 260000 blocks on the Lisk Mainchain."
+						"description": "Determines how frequently (after how many blocks) a validator can increase their commission.  It is set to 260000 blocks on the Klayr Mainchain."
 					},
 					"maxCommissionIncreaseRate": {
 						"type": "number",
 						"example": 500,
-						"description": "Determines the maximum allowed increase on the commission per transaction. It is set to 5% on the Lisk Mainchain."
+						"description": "Determines the maximum allowed increase on the commission per transaction. It is set to 5% on the Klayr Mainchain."
+					},
+					"useInvalidBLSKey": {
+						"type": "boolean",
+						"example": false,
+						"description": "This value determines if the function registerValidatorKeys or registerValidatorWithoutBLSKey from the validators module should be used when registering validators listed in a genesis block."
+					},
+					"baseStakeAmount": {
+						"type": "string",
+						"example": "1000000000",
+						"description": "The minimum staking amount. All staked amounts should be multiples of this value."
+					},
+					"lockingPeriodStaking": {
+						"type": "number",
+						"example": 26000,
+						"description": "The locking period for regular staked tokens, measured in number of blocks."
+					},
+					"lockingPeriodSelfStaking": {
+						"type": "number",
+						"example": 260000,
+						"description": "The locking period for self-staked tokens."
+					},
+					"reportMisbehaviorReward": {
+						"type": "string",
+						"example": "100000000",
+						"description": "The reward for a sender of a report misbehavior transaction."
+					},
+					"reportMisbehaviorLimitBanned": {
+						"type": "number",
+						"example": 5,
+						"description": "The number of report misbehavior transactions against a validator for getting banned."
+					},
+					"weightScaleFactor": {
+						"type": "string",
+						"example": "100000000000",
+						"description": "Determines the factor by which BFT weights are divided."
 					},
 					"extraCommandFees": {
 						"description": "Extra fees associated (beyond the usual transaction fees) for the listed commands.",
 						"type": "object",
-						"required": [
-							"validatorRegistrationFee"
-						],
+						"required": ["validatorRegistrationFee"],
 						"properties": {
 							"validatorRegistrationFee": {
 								"type": "string",
@@ -668,25 +666,19 @@
 	},
 	"posRewardsLockedWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "PoS Locked Rewards.",
 				"type": "array",
 				"items": {
 					"type": "object",
-					"required": [
-						"tokenID",
-						"reward"
-					],
+					"required": ["tokenID", "reward"],
 					"properties": {
 						"tokenID": {
 							"type": "string",
 							"example": "0000000000000000",
-							"description": "The universal identifier for the token within the Lisk ecosystem used for rewards."
+							"description": "The universal identifier for the token within the Klayr ecosystem used for rewards."
 						},
 						"reward": {
 							"type": "string",
@@ -703,25 +695,19 @@
 	},
 	"posClaimableRewardsWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "PoS claimable Rewards.",
 				"type": "array",
 				"items": {
 					"type": "object",
-					"required": [
-						"tokenID",
-						"reward"
-					],
+					"required": ["tokenID", "reward"],
 					"properties": {
 						"tokenID": {
 							"type": "string",
 							"example": "0000000000000000",
-							"description": "The universal identifier for the token within the Lisk ecosystem used for rewards."
+							"description": "The universal identifier for the token within the Klayr ecosystem used for rewards."
 						},
 						"reward": {
 							"type": "string",

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,31 +24,32 @@ module.exports = {
 	rpcMethod: 'get.pos.rewards.claimable',
 	tags: ['PoS'],
 	params: {
-		address: { optional: true, type: 'string', pattern: regex.ADDRESS_LISK32 },
+		address: { optional: true, type: 'string', pattern: regex.ADDRESS_KLAYR32 },
 		publicKey: { optional: true, type: 'string', pattern: regex.PUBLIC_KEY },
 		name: { optional: true, type: 'string', pattern: regex.NAME, altSwaggerKey: 'validatorName' },
 		limit: { optional: true, type: 'number', min: 1, max: 100, default: 10 },
 		offset: { optional: true, type: 'number', min: 0, default: 0 },
 	},
 	paramsRequired: true,
-	validParamPairings: [
-		['address'],
-		['name'],
-		['publicKey'],
-	],
+	validParamPairings: [['address'], ['name'], ['publicKey']],
 	get schema() {
 		const claimableRewardsSchema = {};
 		claimableRewardsSchema[this.swaggerApiPath] = { get: {} };
 		claimableRewardsSchema[this.swaggerApiPath].get.tags = this.tags;
-		claimableRewardsSchema[this.swaggerApiPath].get.summary = 'Requests claimable rewards data from the PoS module.';
+		claimableRewardsSchema[this.swaggerApiPath].get.summary =
+			'Requests claimable rewards data from the PoS module.';
 		claimableRewardsSchema[this.swaggerApiPath].get.description = getSwaggerDescription({
 			rpcMethod: this.rpcMethod,
 			description: 'Returns claimable rewards data from the PoS module.',
 		});
-		claimableRewardsSchema[this.swaggerApiPath].get.parameters = transformParams('PoS', this.params);
+		claimableRewardsSchema[this.swaggerApiPath].get.parameters = transformParams(
+			'PoS',
+			this.params,
+		);
 		claimableRewardsSchema[this.swaggerApiPath].get.responses = {
 			200: {
-				description: 'Returns a list of claimable rewards from the PoS module for the specified address, publicKey or validator name.',
+				description:
+					'Returns a list of claimable rewards from the PoS module for the specified address, publicKey or validator name.',
 				schema: {
 					$ref: '#/definitions/posClaimableRewardsWithEnvelope',
 				},

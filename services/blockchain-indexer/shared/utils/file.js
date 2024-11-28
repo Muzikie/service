@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,15 +13,18 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { promises: { readdir } } = require('fs');
+const {
+	Utils: {
+		fs: { getDirectories },
+	},
+} = require('klayr-service-framework');
 
 const camelCase = require('camelcase');
 const requireAll = require('require-all');
 
-const getAllDirectories = async (sourceDirPath) => {
-	const dirEntries = await readdir(sourceDirPath, { withFileTypes: true });
-	const directories = dirEntries.filter(dirent => dirent.isDirectory());
-	const dirNames = directories.map(dirent => dirent.name);
+const getDirectoryNamesInPath = async sourceDirPath => {
+	const directories = await getDirectories(sourceDirPath, { withFileTypes: true });
+	const dirNames = directories.map(path => path.split('/').pop());
 	return dirNames;
 };
 
@@ -29,21 +32,19 @@ const getAllJSFiles = async (
 	sourceDirPath,
 	pascalCase = false,
 	preserveConsecutiveUppercase = true,
-) => requireAll({
-	dirname: sourceDirPath,
-	filter: /(.+)\.js$/,
-	excludeDirs: /^\.(git|svn)$/,
-	recursive: false,
-	map: (fileName) => {
-		const formattedFileName = camelCase(
-			fileName,
-			{ pascalCase, preserveConsecutiveUppercase },
-		);
-		return formattedFileName;
-	},
-});
+) =>
+	requireAll({
+		dirname: sourceDirPath,
+		filter: /(.+)\.js$/,
+		excludeDirs: /^\.(git|svn)$/,
+		recursive: false,
+		map: fileName => {
+			const formattedFileName = camelCase(fileName, { pascalCase, preserveConsecutiveUppercase });
+			return formattedFileName;
+		},
+	});
 
 module.exports = {
-	getAllDirectories,
+	getDirectoryNamesInPath,
 	getAllJSFiles,
 };

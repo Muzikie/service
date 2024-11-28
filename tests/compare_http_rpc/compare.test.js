@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,8 +18,8 @@ import config from './config';
 
 const { request } = require('../helpers/socketIoRpcRequest');
 
-const httpUrl = config.SERVICE_HTTP || 'http://localhost:9901';
-const wsUrl = config.SERVICE_WS || 'ws://localhost:9901/rpc';
+const httpUrl = config.SERVICE_HTTP || 'http://127.0.0.1:9901';
+const wsUrl = config.SERVICE_WS || 'ws://127.0.0.1:9901/rpc';
 
 const tests = require('./tests');
 

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,9 +14,11 @@
  *
  */
 const {
-	HTTP: { StatusCodes: { BAD_REQUEST } },
+	HTTP: {
+		StatusCodes: { BAD_REQUEST },
+	},
 	Exceptions: { ValidationException, InvalidParamsException },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
 const dataService = require('../../../shared/dataService');
 
@@ -93,7 +95,7 @@ const getStakers = async params => {
 	return stakers;
 };
 
-const getPosClaimableRewards = async (params) => {
+const getPosClaimableRewards = async params => {
 	const claimableRewards = {
 		data: [],
 		meta: {},
@@ -106,7 +108,7 @@ const getPosClaimableRewards = async (params) => {
 	return claimableRewards;
 };
 
-const getPosLockedRewards = async (params) => {
+const getPosLockedRewards = async params => {
 	try {
 		const rewardsLocked = {
 			data: [],

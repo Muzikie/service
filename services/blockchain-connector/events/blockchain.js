@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -23,53 +23,79 @@ const {
 	chainValidatorsChangeController,
 	chainNewBlockController,
 	chainDeleteBlockController,
+	systemNodeInfoEventController,
 } = require('./controller/blockchain');
 
 const sdkEvents = [
 	{
 		name: 'appReady',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: appReadyController,
 	},
 	{
 		name: 'appShutdown',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: appShutdownController,
 	},
 	{
 		name: 'appNetworkReady',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: appNetworkReadyController,
 	},
 	{
 		name: 'appNetworkEvent',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: appNetworkEventController,
 	},
 	{
 		name: 'txpoolNewTransaction',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: txpoolNewTransactionController,
 	},
 	{
 		name: 'chainForked',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: chainForkedController,
 	},
 	{
 		name: 'chainValidatorsChange',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: chainValidatorsChangeController,
 	},
 	{
 		name: 'chainNewBlock',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: chainNewBlockController,
 	},
 	{
 		name: 'chainDeleteBlock',
-		get description() { return `Event ${this.name}`; },
+		get description() {
+			return `Event ${this.name}`;
+		},
 		controller: chainDeleteBlockController,
+	},
+	{
+		name: 'systemNodeInfo',
+		get description() {
+			return `Event ${this.name}`;
+		},
+		controller: systemNodeInfoEventController,
 	},
 ];
 

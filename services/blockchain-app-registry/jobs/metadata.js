@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,15 +13,17 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const logger = require('lisk-service-framework').Logger();
+const logger = require('klayr-service-framework').Logger();
 
+const config = require('../config');
 const { syncWithRemoteRepo } = require('../shared/utils/downloadRepository');
 
 module.exports = [
 	{
 		name: 'update.application.metadata',
 		description: 'Keep the blockchain applications metadata up-to-date',
-		schedule: '*/10 * * * *', // Every 10 minutes
+		interval: config.job.updateApplicationMetadata.interval,
+		schedule: config.job.updateApplicationMetadata.schedule,
 		controller: async () => {
 			logger.debug('Refreshing blockchain application metadata...');
 			try {

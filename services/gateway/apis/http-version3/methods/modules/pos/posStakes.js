@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,22 +24,25 @@ module.exports = {
 	rpcMethod: 'get.pos.stakes',
 	tags: ['PoS'],
 	params: {
-		address: { optional: true, type: 'string', pattern: regex.ADDRESS_LISK32 },
+		address: { optional: true, type: 'string', pattern: regex.ADDRESS_KLAYR32 },
 		publicKey: { optional: true, type: 'string', pattern: regex.PUBLIC_KEY },
 		name: { optional: true, type: 'string', pattern: regex.NAME, altSwaggerKey: 'validatorName' },
-		search: { optional: true, type: 'string', min: 1 },
+		search: {
+			optional: true,
+			type: 'string',
+			min: 1,
+			pattern: regex.PARTIAL_SEARCH,
+			altSwaggerKey: 'searchByNameAddressPubKey',
+		},
 	},
 	paramsRequired: true,
-	validParamPairings: [
-		['address'],
-		['publicKey'],
-		['name'],
-	],
+	validParamPairings: [['address'], ['publicKey'], ['name']],
 	get schema() {
 		const stakesSchema = {};
 		stakesSchema[this.swaggerApiPath] = { get: {} };
 		stakesSchema[this.swaggerApiPath].get.tags = this.tags;
-		stakesSchema[this.swaggerApiPath].get.summary = 'Requests the list of stakes for the specified staker.';
+		stakesSchema[this.swaggerApiPath].get.summary =
+			'Requests the list of stakes for the specified staker.';
 		stakesSchema[this.swaggerApiPath].get.description = getSwaggerDescription({
 			rpcMethod: this.rpcMethod,
 			description: 'Returns a list of stakes for the specified staker.',
@@ -47,7 +50,8 @@ module.exports = {
 		stakesSchema[this.swaggerApiPath].get.parameters = transformParams('PoS', this.params);
 		stakesSchema[this.swaggerApiPath].get.responses = {
 			200: {
-				description: 'Returns a list of stakes for the specified staker address, publicKey or name.',
+				description:
+					'Returns a list of stakes for the specified staker address, publicKey or name.',
 				schema: {
 					$ref: '#/definitions/posStakesWithEnvelope',
 				},

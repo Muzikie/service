@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,10 +15,7 @@
  */
 const { getDefaultRewardAtHeight } = require('./defaultReward');
 const { getAnnualInflation } = require('./annualInflation');
-const {
-	getRewardTokenID,
-	getRewardConstants,
-} = require('./constants');
+const { getRewardTokenID, getRewardConstants } = require('./constants');
 
 module.exports = {
 	getDefaultRewardAtHeight,

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,10 +24,24 @@ module.exports = {
 	rpcMethod: 'get.events',
 	tags: ['Events'],
 	params: {
-		transactionID: { optional: true, type: 'string', min: 1, max: 64, pattern: regex.HASH_SHA256 },
-		senderAddress: { optional: true, type: 'string', min: 3, max: 41, pattern: regex.ADDRESS_LISK32 },
-		topic: { optional: true, type: 'string', min: 1, pattern: regex.TOPIC },
-		blockID: { optional: true, type: 'string', min: 1, max: 64, pattern: regex.HASH_SHA256 },
+		transactionID: { optional: true, type: 'string', min: 64, max: 64, pattern: regex.HASH_SHA256 },
+		senderAddress: {
+			optional: true,
+			type: 'string',
+			min: 41,
+			max: 41,
+			pattern: regex.ADDRESS_KLAYR32,
+		},
+		topic: { optional: true, type: 'string', pattern: regex.TOPIC_CSV },
+		module: { optional: true, type: 'string', min: 1, pattern: regex.MODULE },
+		name: {
+			optional: true,
+			type: 'string',
+			min: 1,
+			pattern: regex.EVENT_NAME,
+			altSwaggerKey: 'eventName',
+		},
+		blockID: { optional: true, type: 'string', min: 64, max: 64, pattern: regex.BLOCK_ID },
 		height: { optional: true, type: 'string', min: 1, pattern: regex.HEIGHT_RANGE },
 		timestamp: { optional: true, type: 'string', min: 1, pattern: regex.TIMESTAMP_RANGE },
 		limit: { optional: true, type: 'number', min: 1, max: 100, default: 10 },
@@ -35,15 +49,15 @@ module.exports = {
 		sort: {
 			optional: true,
 			type: 'string',
-			enum: [
-				'height:asc',
-				'height:desc',
-				'timestamp:asc',
-				'timestamp:desc',
-			],
+			enum: ['height:asc', 'height:desc', 'timestamp:asc', 'timestamp:desc'],
 			default: 'timestamp:desc',
 		},
-		order: { optional: true, type: 'string', enum: ['index:asc', 'index:desc'], default: 'index:asc' },
+		order: {
+			optional: true,
+			type: 'string',
+			enum: ['index:asc', 'index:desc'],
+			default: 'index:asc',
+		},
 	},
 	get schema() {
 		const eventsSchema = {};

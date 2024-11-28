@@ -1,23 +1,17 @@
 {
 	"rewardDefaultWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "Default reward for a block height.",
 				"type": "object",
-				"required": [
-					"tokenID",
-					"defaultReward"
-				],
+				"required": ["tokenID", "defaultReward"],
 				"properties": {
 					"tokenID": {
 						"type": "string",
 						"example": "0000000000000000",
-						"description": "The universal identifier for the token within the Lisk ecosystem used for rewards."
+						"description": "The universal identifier for the token within the Klayr ecosystem used for rewards."
 					},
 					"defaultReward": {
 						"type": "string",
@@ -34,22 +28,17 @@
 	},
 	"rewardConstantsWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "Reward constants.",
 				"type": "object",
-				"required": [
-					"rewardTokenID"
-				],
+				"required": ["rewardTokenID"],
 				"properties": {
 					"rewardTokenID": {
 						"type": "string",
 						"example": "0000000000000000",
-						"description": "The universal identifier for the token within the Lisk ecosystem used for rewards."
+						"description": "The universal identifier for the token within the Klayr ecosystem used for rewards."
 					}
 				}
 			},
@@ -61,10 +50,7 @@
 	},
 	"rewardInflationWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "Current inflation rate for the specified reward token.",
@@ -73,7 +59,7 @@
 					"tokenID": {
 						"type": "string",
 						"example": "0000000000000000",
-						"description": "The universal identifier for the token within the Lisk ecosystem used for rewards."
+						"description": "The universal identifier for the token within the Klayr ecosystem used for rewards."
 					},
 					"rate": {
 						"type": "string",

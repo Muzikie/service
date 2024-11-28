@@ -1,10 +1,7 @@
 {
 	"Peer": {
 		"type": "object",
-		"required": [
-			"wsPort",
-			"state"
-		],
+		"required": ["wsPort", "state"],
 		"properties": {
 			"ip": {
 				"type": "string",
@@ -22,7 +19,7 @@
 				"type": "string",
 				"example": "2.0",
 				"format": "networkVersion",
-				"description": "Network version of Lisk Core that the peer node runs on."
+				"description": "Network version of Klayr Core that the peer node runs on."
 			},
 			"chainID": {
 				"type": "string",
@@ -50,10 +47,7 @@
 	},
 	"PeersWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"description": "List of peers.",

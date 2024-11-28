@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,14 +16,13 @@
 import Joi from 'joi';
 
 const regex = require('./regex');
+const {
+	TRANSACTION_VERIFY_RESULT,
+} = require('../../../services/blockchain-indexer/shared/constants');
 
-const TRANSACTION_VERIFY_RESULT = {
-	INVALID: -1,
-	PENDING: 0,
-	OK: 1,
-};
-
-const TRANSACTION_VERIFY_STATUSES = Object.keys(TRANSACTION_VERIFY_RESULT);
+const TRANSACTION_VERIFY_STATUSES = Object.keys(TRANSACTION_VERIFY_RESULT).map(e =>
+	e.toLowerCase(),
+);
 
 const event = {
 	data: Joi.object().required(),
@@ -32,7 +31,7 @@ const event = {
 	name: Joi.string().pattern(regex.EVENT_NAME).required(),
 	topics: Joi.array().items(Joi.string().pattern(regex.TOPIC)).required(),
 	height: Joi.number().integer().min(0).required(),
-	id: Joi.string().pattern(regex.HEX).required(),
+	id: Joi.string().pattern(regex.HASH_SHA256).required(),
 };
 
 const eventSchemaWithSkipDecode = {
@@ -41,41 +40,55 @@ const eventSchemaWithSkipDecode = {
 };
 
 const dryrunTransactionSuccessResponseSchema = {
-	result: Joi.number().integer().valid(TRANSACTION_VERIFY_RESULT.OK).required(),
-	status: Joi.string().valid(...TRANSACTION_VERIFY_STATUSES).required(),
+	result: Joi.number().integer().valid(TRANSACTION_VERIFY_RESULT.VALID).required(),
+	status: Joi.string()
+		.valid(...TRANSACTION_VERIFY_STATUSES)
+		.required(),
 	events: Joi.array().items(Joi.object(event).required()).min(1).required(),
 };
 
 const dryrunTxSuccessSchemaWithSkipDecode = {
-	result: Joi.number().integer().valid(TRANSACTION_VERIFY_RESULT.OK).required(),
-	status: Joi.string().valid(...TRANSACTION_VERIFY_STATUSES).required(),
+	result: Joi.number().integer().valid(TRANSACTION_VERIFY_RESULT.VALID).required(),
+	status: Joi.string()
+		.valid(...TRANSACTION_VERIFY_STATUSES)
+		.required(),
 	events: Joi.array().items(Joi.object(eventSchemaWithSkipDecode).required()).min(1).required(),
 };
 
 const dryrunTransactionPendingResponseSchema = {
 	result: Joi.number().integer().valid(TRANSACTION_VERIFY_RESULT.PENDING).required(),
-	status: Joi.string().valid(...TRANSACTION_VERIFY_STATUSES).required(),
+	status: Joi.string()
+		.valid(...TRANSACTION_VERIFY_STATUSES)
+		.required(),
 	events: Joi.array().items(Joi.object(event).required()).min(1).required(),
 };
 const dryrunTransactionInvalidResponseSchema = {
 	result: Joi.number().integer().valid(TRANSACTION_VERIFY_RESULT.INVALID).required(),
-	status: Joi.string().valid(...TRANSACTION_VERIFY_STATUSES).required(),
+	status: Joi.string()
+		.valid(...TRANSACTION_VERIFY_STATUSES)
+		.required(),
 	events: Joi.array().length(0).required(),
 	errorMessage: Joi.string().required(),
+};
+
+const goodRequestSchemaForTransactionsDryRun = {
+	data: Joi.object().required(),
+	meta: Joi.object().optional(),
 };
 
 module.exports = {
 	dryrunTransactionSuccessResponseSchema: Joi.object(
 		dryrunTransactionSuccessResponseSchema,
 	).required(),
-	dryrunTxSuccessSchemaWithSkipDecode: Joi.object(
-		dryrunTxSuccessSchemaWithSkipDecode,
-	).required(),
+	dryrunTxSuccessSchemaWithSkipDecode: Joi.object(dryrunTxSuccessSchemaWithSkipDecode).required(),
 	dryrunTransactionPendingResponseSchema: Joi.object(
 		dryrunTransactionPendingResponseSchema,
 	).required(),
 	dryrunTransactionInvalidResponseSchema: Joi.object(
 		dryrunTransactionInvalidResponseSchema,
 	).required(),
-	metaSchema: Joi.object().required(),
+	metaSchema: Joi.object().optional(),
+	goodRequestSchemaForTransactionsDryRun: Joi.object(
+		goodRequestSchemaForTransactionsDryRun,
+	).required(),
 };

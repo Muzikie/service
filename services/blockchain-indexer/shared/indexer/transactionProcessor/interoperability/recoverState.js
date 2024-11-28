@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,10 +17,10 @@
 const COMMAND_NAME = 'recoverState';
 
 // eslint-disable-next-line no-unused-vars
-const applyTransaction = async (blockHeader, tx, events, dbTrx) => { };
+const applyTransaction = async (blockHeader, tx, events, dbTrx) => {};
 
 // eslint-disable-next-line no-unused-vars
-const revertTransaction = async (blockHeader, tx, events, dbTrx) => { };
+const revertTransaction = async (blockHeader, tx, events, dbTrx) => {};
 
 module.exports = {
 	COMMAND_NAME,

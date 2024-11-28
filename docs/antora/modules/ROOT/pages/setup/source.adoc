@@ -1,12 +1,12 @@
 = Installation from source code
 Mona Bärenfänger <mona@lightcurve.io>
-:description: Describes all necessary steps and requirements to install Lisk Service from source.
+:description: Describes all necessary steps and requirements to install Klayr Service from source.
 :toc:
-:page-previous: /lisk-service/index.html
-:page-previous-title: Setup
-:page-next: /lisk-service/configuration/source.html
-:page-next-title: Configuration with PM2
+:source-language: bash
 // URLs
+:url_klayr_service_redis_auth: https://github.com/KlayrHQ/klayr-service/blob/development/docs/redis_authentication.md
+:url_redis_install_ubuntu: https://redis.io/docs/install/install-redis/install-redis-on-linux/
+:url_redis_install_mac: https://redis.io/docs/install/install-redis/install-redis-on-mac-os/
 :url_docker_install_linux: https://docs.docker.com/engine/install
 :url_docker_install_linux_compose: https://docs.docker.com/compose/install/
 :url_docker_install_mac: https://docs.docker.com/docker-for-mac/install/
@@ -17,7 +17,7 @@ Mona Bärenfänger <mona@lightcurve.io>
 :url_xcode: https://developer.apple.com/xcode/features/
 :url_geojs: https://www.geojs.io/
 :url_git: https://github.com/git/git
-:url_github_service: https://github.com/LiskHQ/lisk-service
+:url_github_service: https://github.com/KlayrHQ/klayr-service
 :url_nodejs: https://nodejs.org/
 :url_nvm: https://github.com/creationix/nvm
 :url_nvm_instructions: https://github.com/creationix/nvm#install&#45;&#45;update-script
@@ -29,17 +29,51 @@ Mona Bärenfänger <mona@lightcurve.io>
 :url_setup_docker_docker: setup/docker.adoc#docker
 :url_config: configuration/source.adoc
 :url_management_pm2: management/source.adoc
-:url_references_config: reference/configuration.adoc
+:url_references_config: configuration/index.adoc
+:url_core_setup_npm: klayr-core::setup/npm.adoc
 
-TIP: Install from source code if you want to customize the codebase of Lisk Service, e.g. if you want to adjust the API to be fully compatible with your blockchain application.
 
-As an alternative to the Docker image setup, it is also possible to install Lisk Service from source code.
+As an alternative to the Docker image setup, it is also possible to install Klayr Service from source code.
 
-This setup requires more steps than the Docker image installation, however this provides the developer with the possibility to customize the Lisk Service codebase.
+TIP: Install from source code if you want to customize the codebase of Klayr Service, e.g. if you want to adjust the API to be fully compatible with your blockchain application.
+
+This setup requires more steps than the Docker image installation, however this provides the developer with the possibility to customize the Klayr Service codebase.
+
+[NOTE]
+====
+*Pre-requisite*
+
+Klayr Service is a web application middleware that allows interaction with various blockchain networks based on the Klayr protocol.
+It is recommended to set up a blockchain node first, before setting up Klayr Service.
+
+* To set up a Klayr-Core node, see any of our setup guides, such as xref:{url_core_setup_npm}[].
+* Alternatively, you can set up a sidechain node to connect to Klayr Service.
+* Please make sure to set `system.keepEventsForHeights: -1` in the node config before synchronizing the node with the network.
+====
 
 == Prerequisites
 
-The following dependencies are required to install and run Lisk Service from Source.
+The following dependencies are required to install and run Klayr Service from Source.
+
+=== Requirements
+
+Supported Platforms::
+* Ubuntu 20.04 (LTS) x86_64
+* Ubuntu 22.04 (LTS) x86_64
+* MacOS x86_64
+
+Node.js::
+* 18
+
+The following system requirements are recommended:
+
+Memory::
+* Machines with a minimum of 16 GB RAM for the Mainnet.
+
+* Machines with a minimum of 16 GB RAM for the Testnet.
+
+Storage::
+* Machines with a minimum of 40 GB HDD.
 
 === Update packages
 
@@ -50,7 +84,6 @@ Ubuntu::
 --
 In Ubuntu and its derivatives APT is the base package management application. Ensure your local APT registry is up-to-date.
 
-[source,bash]
 ----
 apt update
 ----
@@ -62,9 +95,11 @@ Install https://brew.sh/[Brew] by following the https://brew.sh/[latest instruct
 
 Next, ensure your package sources are up to date:
 
-[source,bash]
 ----
 brew update
+----
+
+----
 brew doctor
 ----
 --
@@ -78,8 +113,6 @@ Ubuntu::
 +
 --
 Install the `build-essential` package alongside with several development tools.
-
-[source,bash]
 ----
 sudo apt-get install -y build-essential git make
 ----
@@ -87,7 +120,6 @@ sudo apt-get install -y build-essential git make
 macOS::
 +
 --
-[source,bash]
 ----
 xcode-select --install
 ----
@@ -109,18 +141,16 @@ It is recommended to use a Node version manager such as {url_nvm}[NVM^].
 NVM is a bash script that enables the management of multiple active Node.js versions.
 
 . Install NVM by following the {url_nvm_instructions}[official instructions^].
-. Install v16 of Node.js using NVM.
+. Install v18 of Node.js using NVM.
 
 .Check for the latest LTS version
-[source,bash]
 ----
 nvm ls-remote
 ----
 
 .Install the latest LTS version
-[source,bash]
 ----
-nvm install 16
+nvm install 18
 ----
 --
 Option B - Node.js package::
@@ -130,9 +160,11 @@ If NVM or other package managers are not required, it is possible to install the
 
 *Ubuntu*
 
-[source,bash]
 ----
-curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+----
+
+----
 sudo apt-get install -y nodejs
 ----
 
@@ -140,9 +172,8 @@ sudo apt-get install -y nodejs
 
 For macOS, please execute the following command below:
 
-[source,bash]
 ----
-brew install node@16
+brew install node@18
 ----
 --
 ====
@@ -152,9 +183,9 @@ MySQL is used for storing persistent data.
 
 [NOTE]
 ====
-Lisk Service, by default, expects a MySQL user `lisk` with the password `password` and a database `lisk`.
+Klayr Service, by default, expects a MySQL user `klayr` with the password `password` and a database `klayr`.
 
-**The MySQL user `lisk` needs to be manually created** after installing MySQL.
+**The MySQL user `klayr` needs to be manually created** after installing MySQL.
 
 You can choose to create a custom database with a different user and password. These values can be updated by setting the following environment variables (specific to each microservice): `SERVICE_INDEXER_MYSQL`, `SERVICE_APP_REGISTRY_MYSQL` and `SERVICE_STATISTICS_MYSQL` with the appropriate MySQL connection string. See the xref:{url_references_config}[]
 ====
@@ -164,10 +195,15 @@ You can choose to create a custom database with a different user and password. T
 Ubuntu::
 +
 --
-[source,bash]
 ----
 sudo apt update
+----
+
+----
 sudo apt install mysql-server=8.0*
+----
+
+----
 sudo mysql_secure_installation
 ----
 
@@ -175,10 +211,15 @@ sudo mysql_secure_installation
 macOS::
 +
 --
-[source,bash]
 ----
 brew tap homebrew/services
+----
+
+----
 brew install mysql@8.0
+----
+
+----
 brew services start mysql@8.0
 ----
 
@@ -197,7 +238,9 @@ Open up `my.cnf` .
 
 If you are unsure where to find your `my.cnf`, run the following command:
 
- $ mysql --verbose --help | grep my.cnf
+----
+mysql --verbose --help | grep my.cnf
+----
 
 Add the following at the end of the file:
 
@@ -207,11 +250,15 @@ Save and exit.
 
 Next, login via the terminal:
 
- $ mysql -uroot
+----
+mysql -uroot
+----
 
 Then run the following command to update the root password:
 
- ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
+----
+ALTER USER 'root'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '';
+----
 
 Now you should be able to login to your MySQL 8 via your MySQL Client.
 
@@ -232,21 +279,22 @@ Follow the steps described in the xref:{url_setup_docker_docker}[Prerequisites >
 **Installation**
 
 .How to install and start Redis with Docker
-[source,bash]
 ----
-docker run --name redis_service --port 6379:6379 -d redis:5-alpine
+docker run --name redis_service --port 6379:6379 -d redis:7-alpine
 ----
+
 .How to use the custom redis.conf file
-[source,bash]
 ----
-docker run --name redis_service -v /path/to/custom_redis.conf:/usr/local/etc/redis/redis.conf --port 6379:6379 -d redis:5-alpine
+docker run --name redis_service -v /path/to/custom_redis.conf:/usr/local/etc/redis/redis.conf --port 6379:6379 -d redis:7-alpine
 ----
-The above commands should be enough to start Redis which is ready to use with Lisk Service.
+NOTE: Starting with the Klayr Service version `0.7.2`, we strongly recommend using custom authentication in Redis.
+To learn more about it, please check the {url_klayr_service_redis_auth}[Redis Authentication README^] in the Klayr Service repository.
+
+The above commands should be enough to start Redis which is ready to use with Klayr Service.
 
 To stop the Docker container again, execute the following commands below:
 
 .How to stop Redis with Docker
-[source,bash]
 ----
 docker stop redis_service
 ----
@@ -256,29 +304,23 @@ Redis system-wide::
 --
 *Ubuntu*
 
-[source, bash]
-----
-sudo apt-get install redis-server
-----
+To install Redis on Ubuntu, please follow the {url_redis_install_ubuntu}[official Redis installation guide^].
 
 *macOS*
 
-[source, bash]
-----
-brew install redis
-----
+To install Redis on MacOS, please follow the {url_redis_install_mac}[official Redis installation guide^].
 --
 ====
 
 
 ////
-Lisk Service is not compatible with this service right now.
-we should encourage community to make Lisk Service compatible with this service, then they can use it as alternative GeoIP service.
+Klayr Service is not compatible with this service right now.
+we should encourage community to make Klayr Service compatible with this service, then they can use it as alternative GeoIP service.
 === GeoJS
 
 {url_geojs}[GeoJS] is used by the Network Monitor for IP address geo-location.
 
-[source,bash]
+
 ----
 #todo
 ----
@@ -287,56 +329,53 @@ we should encourage community to make Lisk Service compatible with this service,
 
 === PM2
 
-{url_pm2}[PM2] helps manage the node processes for Lisk Service and also offers easy log rotation (Highly Recommended).
+{url_pm2}[PM2] helps manage the node processes for Klayr Service and also offers easy log rotation (Highly Recommended).
 
-[source,bash]
 ----
 npm install -g pm2
 ----
 
 == Installation
 
-[IMPORTANT]
-====
-It is strongly recommended that you synchronize your Lisk Core node with the network **before** starting the Lisk Service.
-====
+If you have not already done so, clone the {url_github_service}[klayr-service^] GitHub repository and then navigate into the project folder and check out the latest release.
 
-If you have not already done so, clone the {url_github_service}[lisk-service^] GitHub repository and then navigate into the project folder and check out the latest release.
-
-[source,bash]
+.Clone Klayr Service repository
 ----
-# Clone Lisk Service repository
-git clone https://github.com/LiskHQ/lisk-service.git
+git clone https://github.com/KlayrHQ/klayr-service.git
+----
 
-# Change directory to the new repository
-cd lisk-service
+.Change directory to the new repository
+----
+cd klayr-service
+----
 
-# Switch to the recent stable as a base
-git checkout v0.7.0
+.Switch to the recent stable as a base
+----
+git checkout v0.7.8
+----
 
-# ...or use the development branch
+.\...or use the development branch
+----
 git checkout development
 ----
 
 Install all npm dependencies from the root directory.
 
-[source,bash]
 ----
 make build-local
 ----
 
-Now it is possible to start Lisk Service.
+Now it is possible to start Klayr Service.
 
-.Start Lisk Service from Source code
-[source,bash]
+.Start Klayr Service from Source code
 ----
-npm run start
+yarn run start
 ----
 
 The default configuration in `ecosystem.config.js` should suffice in most of the cases. If necessary, please modify the file to configure the necessary environment variables for each microservice as per your requirements.
 
-To change the default configuration, check out the page xref:{url_config}[Configuration with PM2].
+To change the default configuration, check out the page xref:{url_config}[].
 
-// TODO: More commands about how to manage Lisk Service are described on the xref:{url_management_pm2}[PM2 commands] page.
+More commands about how to manage Klayr Service are described on the xref:{url_management_pm2}[] page.
 
-// TODO: TIP: Check the xref:{url_index_usage}[Usage] section for examples of how to use and interact with Lisk Service.
+// TODO: TIP: Check the xref:{url_index_usage}[Usage] section for examples of how to use and interact with Klayr Service.

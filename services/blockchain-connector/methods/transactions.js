@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -50,15 +50,13 @@ module.exports = [
 	},
 	{
 		name: 'dryRunTransaction',
-		controller: async ({
-			transaction,
-			skipVerify,
-			skipDecode,
-		}) => dryRunTransaction({ transaction, skipVerify, skipDecode }),
+		controller: async ({ transaction, skipVerify, skipDecode, strict }) =>
+			dryRunTransaction({ transaction, skipVerify, skipDecode, strict }),
 		params: {
 			transaction: { optional: false, type: 'any' },
 			skipVerify: { optional: true, type: 'boolean', default: false },
 			skipDecode: { optional: true, type: 'boolean', default: false },
+			strict: { optional: true, type: 'boolean', default: false },
 		},
 	},
 ];

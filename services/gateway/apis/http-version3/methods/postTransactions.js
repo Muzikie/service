@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,6 +15,7 @@
  */
 const postTransactionsSource = require('../../../sources/version3/postTransactions');
 const { getSwaggerDescription } = require('../../../shared/utils');
+const regex = require('../../../shared/regex');
 
 module.exports = {
 	version: '2.0',
@@ -23,7 +24,7 @@ module.exports = {
 	rpcMethod: 'post.transactions',
 	tags: ['Transactions'],
 	params: {
-		transaction: { optional: false, type: 'string', min: 1, pattern: /^\b[0-9a-fA-F]+\b$/ },
+		transaction: { optional: false, type: 'string', min: 1, pattern: regex.TRANSACTION },
 	},
 	get schema() {
 		const postTransactionSchema = {};
@@ -34,7 +35,9 @@ module.exports = {
 			rpcMethod: this.rpcMethod,
 			description: 'Post transactions and return transactionID',
 		});
-		postTransactionSchema[this.swaggerApiPath].post.parameters = [{ $ref: '#/parameters/transaction' }];
+		postTransactionSchema[this.swaggerApiPath].post.parameters = [
+			{ $ref: '#/parameters/transaction' },
+		];
 		postTransactionSchema[this.swaggerApiPath].post.responses = {
 			200: {
 				description: 'Broadcast transaction',

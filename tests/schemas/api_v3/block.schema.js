@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -19,9 +19,9 @@ import regex from './regex';
 const EMPTY_STRING = '';
 
 const generator = {
-	address: Joi.string().pattern(regex.ADDRESS_LISK32).required(),
+	address: Joi.string().pattern(regex.ADDRESS_KLAYR32).required(),
 	publicKey: Joi.string().pattern(regex.PUBLIC_KEY).allow(null).optional(),
-	name: Joi.string().pattern(regex.NAME).optional(),
+	name: Joi.string().pattern(regex.NAME).allow(null).optional(),
 };
 
 const aggregateCommit = {
@@ -38,6 +38,7 @@ const blockSchema = {
 	generator: Joi.object(generator).required(),
 	assetRoot: Joi.string().pattern(regex.HASH_SHA256).required(),
 	stateRoot: Joi.string().pattern(regex.HASH_SHA256).required(),
+	eventRoot: Joi.string().pattern(regex.HASH_SHA256).required(),
 	transactionRoot: Joi.string().pattern(regex.HASH_SHA256).required(),
 	previousBlockID: Joi.string().pattern(regex.HASH_SHA256).required(),
 	signature: Joi.string().allow(EMPTY_STRING).pattern(regex.HASH_SHA512).required(),
@@ -51,8 +52,8 @@ const blockSchema = {
 	maxHeightPrevoted: Joi.number().required(),
 	validatorsHash: Joi.string().pattern(regex.HASH_SHA256).required(),
 	numberOfTransactions: Joi.number().integer().min(0).required(),
-	numberOfAssets: Joi.number().integer().min(1).required(),
-	numberOfEvents: Joi.number().integer().min(1).required(),
+	numberOfAssets: Joi.number().integer().min(0).required(),
+	numberOfEvents: Joi.number().integer().min(0).required(),
 };
 
 const block = {

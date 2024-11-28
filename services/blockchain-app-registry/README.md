@@ -1,8 +1,8 @@
-# Lisk Service Blockchain Application Registry
+# Klayr Service Blockchain Application Registry
 
-The Blockchain Application Registry service is responsible to serve the off-chain application metadata from the [Lisk Application Registry](https://github.com/LiskHQ/app-registry) via an API.
+The Blockchain Application Registry service is responsible to serve the off-chain application metadata from the [Klayr Application Registry](https://github.com/KlayrHQ/app-registry) via an API.
 
-> Note that this installation instruction is required only for development activities. For a regular Lisk Service user, the official [documentation](https://lisk.com/documentation/lisk-service/) is sufficient to run an instance. The global readme file present in the root directory describes how to run all the microservices simultaneously.
+> Note that this installation instruction is required only for development activities. For a regular Klayr Service user, the official [documentation](https://klayr.xyz/documentation/klayr-service/) is sufficient to run an instance. The global readme file present in the root directory describes how to run all the microservices simultaneously.
 
 ## Installation
 
@@ -12,31 +12,38 @@ Please refer to the [README](../../README.md) in the project root directory.
 
 ## Installation
 
-Clone the Lisk Service Repository:
+Clone the Klayr Service Repository:
 
 ```bash
-git clone https://github.com/LiskHQ/lisk-service.git # clone repository
-cd lisk-service/services/blockchain-app-registry # move into blockchain-app-registry microservice directory
-npm ci # install required Node.js dependencies
+git clone https://github.com/KlayrHQ/klayr-service.git # clone repository
+cd klayr-service/services/blockchain-app-registry # move into blockchain-app-registry microservice directory
+yarn install --frozen-lockfile # install required Node.js dependencies
 ```
 
 ## Configuration
 
-To configure the different microservices, there are several environment variables the user can define to customize the configurations. 
+To configure the different microservices, there are several environment variables the user can define to customize the configurations.
 
 A list of the most commonly used environment variables is presented below:
 
 - `SERVICE_BROKER`: URL of the microservice message broker (NATS or Redis).
 - `SERVICE_APP_REGISTRY_MYSQL`: Connection string of the MySQL instance that the microservice connects to.
 - `ENABLE_REBUILD_INDEX_AT_INIT`: Boolean flag to truncate the index and rebuild at application init.
+- `DEFAULT_APPS`: Default blockchain applications. By default, it is set to `klayr_mainchain`.
+- `JOB_INTERVAL_DELETE_NON_METADATA_FILES`: Job run interval to delete non-metadata files. By default, it is set to `0`.
+- `JOB_SCHEDULE_DELETE_NON_METADATA_FILES`: Job run cron schedule to delete non-metadata files. By default, it is set to run every day at midnight (`0 0 * * *`).
+- `JOB_INTERVAL_UPDATE_METADATA`: Job run interval to update off-chain metadata. By default, it is set to `0`.
+- `JOB_SCHEDULE_UPDATE_METADATA`: Job run cron schedule to update off-chain metadata. By default, it is set to run every 10 minutes (`*/10 * * * *`).
+
+> **Note**: `interval` takes priority over `schedule` and must be greater than 0 to be valid for all the moleculer job configurations.
 
 ## Management
 
 ### Start
 
 ```bash
-cd lisk-service/services/blockchain-app-registry # move into the root directory of the blockchain-app-registry microservice
-npm start # start the microservice
+cd klayr-service/services/blockchain-app-registry # move into the root directory of the blockchain-app-registry microservice
+yarn start # start the microservice
 ```
 
 Use the `framework/bin/moleculer_client.js` and `framework/bin/moleculer_subscribe.js` clients to test specific service endpoints.
@@ -49,7 +56,7 @@ Press `Ctrl+C` in the terminal to stop the process.
 
 ## Contributors
 
-https://github.com/LiskHQ/lisk-service/graphs/contributors
+https://github.com/KlayrHQ/klayr-service/graphs/contributors
 
 ## License
 
@@ -67,4 +74,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-[lisk documentation site]: https://lisk.com/documentation
+[klayr documentation site]: https://klayr.xyz/documentation

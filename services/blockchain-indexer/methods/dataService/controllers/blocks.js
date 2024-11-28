@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,9 +16,11 @@
 const {
 	HTTP,
 	Exceptions: { ValidationException },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
-const { StatusCodes: { BAD_REQUEST } } = HTTP;
+const {
+	StatusCodes: { BAD_REQUEST },
+} = HTTP;
 
 const dataService = require('../../../shared/dataService');
 

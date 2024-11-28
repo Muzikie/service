@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,8 +16,6 @@
 import Joi from 'joi';
 import regex from './regex';
 
-const getCurrentTimestamp = () => Math.floor(Date.now() / 1000);
-
 const genesisBlockSchema = {
 	fromFile: Joi.string().required(),
 };
@@ -27,6 +25,7 @@ const genesisSchema = {
 	bftBatchSize: Joi.number().integer().positive().required(),
 	blockTime: Joi.number().integer().positive().required(),
 	chainID: Joi.string().pattern(regex.CHAIN_ID).required(),
+	minimumCertifyHeight: Joi.number().integer().min(1).required(),
 	maxTransactionsSize: Joi.number().integer().positive().required(),
 };
 
@@ -45,24 +44,22 @@ const networkStatusSchema = {
 	version: Joi.string().pattern(regex.SEMVER).required(),
 	networkVersion: Joi.string().required(),
 	chainID: Joi.string().pattern(regex.CHAIN_ID).required(),
-	lastBlockID: Joi.string().pattern(regex.HASH_SHA256)
-		.required(),
+	lastBlockID: Joi.string().pattern(regex.HASH_SHA256).required(),
 	height: Joi.number().integer().min(0).required(),
 	finalizedHeight: Joi.number().min(0).integer().required(),
 	syncing: Joi.boolean().required(),
 	unconfirmedTransactions: Joi.number().integer().min(0).required(),
 	genesis: Joi.object(genesisSchema).required(),
+	genesisHeight: Joi.number().integer().min(0).required(),
 	registeredModules: Joi.array().items(Joi.string()).required(),
 	moduleCommands: Joi.array().items(Joi.string().pattern(regex.MODULE_COMMAND)).required(),
 	network: Joi.object(networkSchema).required(),
 };
 
 const metaSchema = {
-	lastUpdate: Joi.number().integer().min(0).max(getCurrentTimestamp())
-		.required(),
+	lastUpdate: Joi.number().integer().min(0).required(),
 	lastBlockHeight: Joi.number().integer().min(0).required(),
-	lastBlockID: Joi.string().min(1).max(64).pattern(regex.HASH_SHA256)
-		.required(),
+	lastBlockID: Joi.string().min(1).max(64).pattern(regex.HASH_SHA256).required(),
 };
 
 module.exports = {

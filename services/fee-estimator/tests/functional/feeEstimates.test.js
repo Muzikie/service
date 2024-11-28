@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,10 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	emptyBlock,
-	nonEmptyBlock,
-} = require('../constants/blocks');
+const { emptyBlock, nonEmptyBlock } = require('../constants/blocks');
 
 const {
 	calculateFeePerByte,
@@ -58,14 +55,7 @@ describe('Fee estimation tests', () => {
 	});
 
 	describe('getEstimateFeePerByteForBlock', () => {
-		const feeEstPerByteKeys = [
-			'low',
-			'med',
-			'high',
-			'updated',
-			'blockHeight',
-			'blockID',
-		];
+		const feeEstPerByteKeys = ['low', 'med', 'high', 'updated', 'blockHeight', 'blockID'];
 
 		describe('Zero prevFeeEstPerByte', () => {
 			const prevFeeEstPerByte = {};

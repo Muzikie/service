@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -31,11 +31,9 @@ const feeEstimateSchema = {
 };
 
 const metaSchema = {
-	lastUpdate: Joi.number().integer().min(0).max(getCurrentTimestamp())
-		.required(),
+	lastUpdate: Joi.number().integer().min(0).max(getCurrentTimestamp()).required(),
 	lastBlockHeight: Joi.number().integer().min(1).required(),
-	lastBlockID: Joi.string().min(1).max(64).pattern(regex.HASH_SHA256)
-		.required(),
+	lastBlockID: Joi.string().min(1).max(64).pattern(regex.HASH_SHA256).required(),
 };
 
 const goodRequestSchema = {

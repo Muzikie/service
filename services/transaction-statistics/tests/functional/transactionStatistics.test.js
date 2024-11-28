@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,8 +16,10 @@
 const moment = require('moment');
 
 const {
-	MySQL: { getTableInstance },
-} = require('lisk-service-framework');
+	DB: {
+		MySQL: { getTableInstance },
+	},
+} = require('klayr-service-framework');
 
 const { networkStatus } = require('../constants/networkStatus');
 const { DATE_FORMAT } = require('../../shared/utils/constants');
@@ -29,16 +31,12 @@ const {
 	getDistributionByType,
 } = require('../../shared/transactionStatistics');
 
-const txStatisticsIndexSchema = require('../../shared/database/schemas/transactionStatistics');
+const txStatsTableSchema = require('../../shared/database/schemas/transactionStatistics');
 const config = require('../../config');
 
 const MYSQL_ENDPOINT = config.endpoints.mysql;
 
-const getDBInstance = () => getTableInstance(
-	txStatisticsIndexSchema.tableName,
-	txStatisticsIndexSchema,
-	MYSQL_ENDPOINT,
-);
+const getTransactionStatisticsTable = () => getTableInstance(txStatsTableSchema, MYSQL_ENDPOINT);
 
 jest.mock('../../shared/utils/request');
 
@@ -53,7 +51,7 @@ describe('Tests transactionStatistics', () => {
 		dateFrom: moment().startOf(),
 	};
 	let testData;
-	let db;
+	let transactionStatisticsTable;
 
 	beforeAll(async () => {
 		jest.spyOn(request, 'requestIndexer').mockReturnValue(networkStatus);
@@ -67,12 +65,12 @@ describe('Tests transactionStatistics', () => {
 			volume: BigInt('100'),
 		};
 
-		db = await getDBInstance();
-		await db.upsert(testData);
+		transactionStatisticsTable = await getTransactionStatisticsTable();
+		await transactionStatisticsTable.upsert(testData);
 	});
 
 	afterAll(async () => {
-		await db.deleteByPrimaryKey(testData.id);
+		await transactionStatisticsTable.deleteByPrimaryKey(testData.id);
 		await jest.clearAllMocks();
 	});
 
@@ -88,11 +86,13 @@ describe('Tests transactionStatistics', () => {
 				expect(result).toMatchObject({
 					sort: 'date:desc',
 					limit: (networkStatus.data.moduleCommands.length + 1) * 366,
-					propBetweens: [{
-						property: 'date',
-						from: params.dateFrom.unix(),
-						to: params.dateTo.unix(),
-					}],
+					propBetweens: [
+						{
+							property: 'date',
+							from: params.dateFrom.unix(),
+							to: params.dateTo.unix(),
+						},
+					],
 				});
 			});
 
@@ -105,10 +105,12 @@ describe('Tests transactionStatistics', () => {
 				expect(result).toMatchObject({
 					sort: 'date:desc',
 					limit: (networkStatus.data.moduleCommands.length + 1) * 366,
-					propBetweens: [{
-						property: 'date',
-						from: params.dateFrom.unix(),
-					}],
+					propBetweens: [
+						{
+							property: 'date',
+							from: params.dateFrom.unix(),
+						},
+					],
 				});
 			});
 
@@ -121,10 +123,12 @@ describe('Tests transactionStatistics', () => {
 				expect(result).toMatchObject({
 					sort: 'date:desc',
 					limit: (networkStatus.data.moduleCommands.length + 1) * 366,
-					propBetweens: [{
-						property: 'date',
-						to: params.dateTo.unix(),
-					}],
+					propBetweens: [
+						{
+							property: 'date',
+							to: params.dateTo.unix(),
+						},
+					],
 				});
 			});
 
@@ -138,10 +142,12 @@ describe('Tests transactionStatistics', () => {
 				expect(result).toMatchObject({
 					sort: 'date:desc',
 					limit: params.limit,
-					propBetweens: [{
-						property: 'date',
-						to: params.dateTo.unix(),
-					}],
+					propBetweens: [
+						{
+							property: 'date',
+							to: params.dateTo.unix(),
+						},
+					],
 				});
 			});
 		});
@@ -178,9 +184,7 @@ describe('Tests transactionStatistics', () => {
 
 				const params = {
 					dateFormat,
-					dateTo: moment()
-						.endOf(interval)
-						.subtract(offset, interval),
+					dateTo: moment().endOf(interval).subtract(offset, interval),
 					dateFrom: moment(moment().startOf(interval).subtract(offset, interval))
 						.startOf(interval)
 						.subtract(limit - 1, interval),
@@ -219,9 +223,7 @@ describe('Tests transactionStatistics', () => {
 
 				const params = {
 					dateFormat,
-					dateTo: moment()
-						.endOf(interval)
-						.subtract(offset, interval),
+					dateTo: moment().endOf(interval).subtract(offset, interval),
 					dateFrom: moment(moment().startOf(interval).subtract(offset, interval))
 						.startOf(interval)
 						.subtract(limit - 1, interval),
@@ -280,9 +282,7 @@ describe('Tests transactionStatistics', () => {
 
 				const params = {
 					dateFormat,
-					dateTo: moment()
-						.endOf(interval)
-						.subtract(offset, interval),
+					dateTo: moment().endOf(interval).subtract(offset, interval),
 					dateFrom: moment(moment().startOf(interval).subtract(offset, interval))
 						.startOf(interval)
 						.subtract(limit - 1, interval),
@@ -309,9 +309,7 @@ describe('Tests transactionStatistics', () => {
 
 				const params = {
 					dateFormat,
-					dateTo: moment()
-						.endOf(interval)
-						.subtract(offset, interval),
+					dateTo: moment().endOf(interval).subtract(offset, interval),
 					dateFrom: moment(moment().startOf(interval).subtract(offset, interval))
 						.startOf(interval)
 						.subtract(limit - 1, interval),
@@ -358,9 +356,7 @@ describe('Tests transactionStatistics', () => {
 
 				const params = {
 					dateFormat,
-					dateTo: moment()
-						.endOf(interval)
-						.subtract(offset, interval),
+					dateTo: moment().endOf(interval).subtract(offset, interval),
 					dateFrom: moment(moment().startOf(interval).subtract(offset, interval))
 						.startOf(interval)
 						.subtract(limit - 1, interval),
@@ -369,9 +365,11 @@ describe('Tests transactionStatistics', () => {
 
 				const result = await getDistributionByType(params);
 				expect(typeof result).toBe('object');
-				expect(result).toEqual(expect.objectContaining({
-					[testData.moduleCommand]: testData.count,
-				}));
+				expect(result).toEqual(
+					expect.objectContaining({
+						[testData.moduleCommand]: testData.count,
+					}),
+				);
 			});
 
 			it(`should return correct response with valid params -> interval: 10 ${interval}`, async () => {
@@ -381,9 +379,7 @@ describe('Tests transactionStatistics', () => {
 
 				const params = {
 					dateFormat,
-					dateTo: moment()
-						.endOf(interval)
-						.subtract(offset, interval),
+					dateTo: moment().endOf(interval).subtract(offset, interval),
 					dateFrom: moment(moment().startOf(interval).subtract(offset, interval))
 						.startOf(interval)
 						.subtract(limit - 1, interval),
@@ -392,9 +388,11 @@ describe('Tests transactionStatistics', () => {
 
 				const result = await getDistributionByType(params);
 				expect(typeof result).toBe('object');
-				expect(result).toEqual(expect.objectContaining({
-					[testData.moduleCommand]: testData.count,
-				}));
+				expect(result).toEqual(
+					expect.objectContaining({
+						[testData.moduleCommand]: testData.count,
+					}),
+				);
 			});
 		});
 

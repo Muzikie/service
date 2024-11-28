@@ -1,10 +1,10 @@
-# Lisk Service Development Dependencies for MacOS
+# Klayr Service Development Dependencies for MacOS
 
-Note that those requirements are needed only if you want to build the project from sources, without support for Docker. This is useful if you are going to develop the project for your own blockchain or you cannot run Docker on your target machine. In other scenarios such as running a stable version of Lisk Service against the mainnet network, it is highly recommended to follow [the Docker-based instruction](./prerequisites_docker_macos.md).
+Note that those requirements are needed only if you want to build the project from sources, without support for Docker. This is useful if you are going to develop the project for your own blockchain or you cannot run Docker on your target machine. In other scenarios such as running a stable version of Klayr Service against the mainnet network, it is highly recommended to follow [the Docker-based instruction](./prerequisites_docker_macos.md).
 
 ## Prerequisites
 
-These programs and resources are required to install and run Lisk Service.
+These programs and resources are required to install and run Klayr Service.
 
 ### Only on M1 Mac
 
@@ -44,7 +44,7 @@ brew install redis
 
 ### MySQL
 
-[MySQL 5.7](https://dev.mysql.com/downloads/mysql/5.7.html) is used for storing persistent data.
+[MySQL 8](https://dev.mysql.com/downloads/mysql) is used for storing persistent data.
 
 ```bash
 brew tap homebrew/services
@@ -54,17 +54,22 @@ brew services start mysql@8
 
 ### Node.js
 
-3. [Node.js 12.x](<https://nodejs.org/>) serves as the underlying engine for code execution.
+3. [Node.js 18](https://nodejs.org/) serves as the underlying engine for code execution. We recommend using [NVM](https://github.com/nvm-sh/nvm) to easily manage various Node.js versions locally.
 
-```bash
-brew install node@12
+Follow the official documentation to install the most recent version of [NVM](https://github.com/nvm-sh/nvm) on macOS.
+After installing nvm, navigate to the klayr-service repository and use the following commands to install the necessary Node.js version and set it as default:
+
+```
+nvm install
+nvm alias default 18
+npm i -g yarn
 ```
 
 > Having Node.js installed makes it possible to install [npm](https://www.npmjs.com/) packages.
 
 ### PM2
 
-[PM2](https://github.com/Unitech/pm2) manages the node process for Lisk Service and handles log rotation.
+[PM2](https://github.com/Unitech/pm2) manages the node process for Klayr Service and handles log rotation.
 
 ```bash
 npm install -g pm2

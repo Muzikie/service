@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,21 +14,15 @@
  *
  */
 const path = require('path');
-const {
-	Microservice,
-	Logger,
-	LoggerConfig,
-	Signals,
-} = require('lisk-service-framework');
+const { Microservice, Logger, LoggerConfig, Signals } = require('klayr-service-framework');
 
 const config = require('./config');
+const packageJson = require('./package.json');
+
+const { init } = require('./shared/scheduler');
+const { setAppContext } = require('./shared/utils/request');
 
 LoggerConfig(config.log);
-
-const packageJson = require('./package.json');
-const { setAppContext } = require('./shared/utils/request');
-const { init } = require('./shared/scheduler');
-
 const logger = Logger();
 
 const app = Microservice({
@@ -37,23 +31,28 @@ const app = Microservice({
 	brokerTimeout: config.brokerTimeout, // in seconds
 	logger: config.log,
 	events: {
-		chainNewBlock: async (payload) => {
-			logger.debug('Received a \'chainNewBlock\' event from connecter.');
+		chainNewBlock: async payload => {
+			logger.debug("Received a 'chainNewBlock' moleculer event from connecter.");
 			Signals.get('newBlock').dispatch(payload);
 		},
-		chainDeleteBlock: async (payload) => {
-			logger.debug('Received a \'chainDeleteBlock\' event from connecter.');
+		chainDeleteBlock: async payload => {
+			logger.debug("Received a 'chainDeleteBlock' moleculer event from connecter.");
 			Signals.get('deleteBlock').dispatch(payload);
 		},
-		chainValidatorsChange: async (payload) => {
-			logger.debug('Received a \'chainValidatorsChange\' event from connecter.');
+		chainValidatorsChange: async payload => {
+			logger.debug("Received a 'chainValidatorsChange' moleculer event from connecter.");
 			Signals.get('newRound').dispatch(payload);
 		},
+		systemNodeInfo: async payload => {
+			logger.debug("Received a 'systemNodeInfo' moleculer event from connecter.");
+			Signals.get('nodeInfo').dispatch(payload);
+		},
+		txpoolNewTransaction: async payload => {
+			logger.debug("Received a 'txpoolNewTransaction' moleculer event from connecter.");
+			Signals.get('txpoolNewTransaction').dispatch(payload);
+		},
 	},
-	dependencies: [
-		'connector',
-		'indexer',
-	],
+	dependencies: ['connector', 'indexer'],
 });
 
 setAppContext(app);
@@ -61,11 +60,15 @@ setAppContext(app);
 app.addJobs(path.join(__dirname, 'jobs'));
 
 // Run the application
-app.run().then(async () => {
-	logger.info(`Service started ${packageJson.name}`);
-	await init();
-}).catch(err => {
-	logger.fatal(`Could not start the service ${packageJson.name} + ${err.message}`);
-	logger.fatal(err.stack);
-	process.exit(1);
-});
+app
+	.run()
+	.then(async () => {
+		logger.info(`Service started ${packageJson.name}.`);
+		logger.info('Initializing coordinator activities.');
+		await init();
+	})
+	.catch(err => {
+		logger.fatal(`Failed to start service ${packageJson.name} due to: ${err.message}`);
+		logger.fatal(err.stack);
+		process.exit(1);
+	});

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,20 +13,18 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const dataService = require('./business');
+const business = require('./business');
+const { TRANSACTION_STATUS } = require('../constants');
 
-const isIncludePendingTransactions = (executionStatus) => {
+const isIncludePendingTransactions = executionStatus => {
 	if (!executionStatus) return false;
 
-	const INCLUDE_PENDING_WHEN_STATUSES = ['pending'];
+	const INCLUDE_PENDING_WHEN_STATUSES = [TRANSACTION_STATUS.PENDING];
 	const execStatuses = executionStatus.split(',');
-	const isIncludePending = execStatuses.reduce(
-		(isInclude, status) => {
-			isInclude = isInclude || INCLUDE_PENDING_WHEN_STATUSES.includes(status);
-			return isInclude;
-		},
-		false,
-	);
+	const isIncludePending = execStatuses.reduce((isInclude, status) => {
+		isInclude = isInclude || INCLUDE_PENDING_WHEN_STATUSES.includes(status);
+		return isInclude;
+	}, false);
 	return isIncludePending;
 };
 
@@ -36,14 +34,14 @@ const getPendingTransactions = async params => {
 		meta: {},
 	};
 
-	const response = await dataService.getPendingTransactions(params);
+	const response = await business.getPendingTransactions(params);
 	if (response.data) pendingTransactions.data = response.data;
 	if (response.meta) pendingTransactions.meta = response.meta;
 
 	return pendingTransactions;
 };
 
-const mergeTransactions = async (params) => {
+const mergeTransactions = async params => {
 	const allTransactions = {
 		data: [],
 		meta: {},
@@ -68,7 +66,7 @@ const mergeTransactions = async (params) => {
 			offset: Math.max(0, offset - numTotalPendingTx),
 		};
 
-		const response = await dataService.getTransactions(params);
+		const response = await business.getTransactions(params);
 		if (response.data) transactions.data = response.data;
 		if (response.meta) transactions.meta = response.meta;
 	} catch (error) {
@@ -77,9 +75,10 @@ const mergeTransactions = async (params) => {
 		transactions.meta.total = transactions.meta.total || 0;
 	}
 
-	allTransactions.data = pendingTxs.data.length === limit
-		? pendingTxs.data
-		: pendingTxs.data.concat(transactions.data).slice(0, limit);
+	allTransactions.data =
+		pendingTxs.data.length === limit
+			? pendingTxs.data
+			: pendingTxs.data.concat(transactions.data).slice(0, limit);
 
 	allTransactions.meta.count = allTransactions.data.length;
 	allTransactions.meta.offset = offset;
@@ -96,7 +95,7 @@ const getTransactions = async params => {
 
 	const response = isIncludePendingTransactions(params.executionStatus)
 		? await mergeTransactions(params)
-		: await dataService.getTransactions(params);
+		: await business.getTransactions(params);
 
 	if (response.data) transactions.data = response.data;
 	if (response.meta) transactions.meta = response.meta;
@@ -105,16 +104,17 @@ const getTransactions = async params => {
 
 const postTransactions = async params => {
 	try {
-		const response = await dataService.postTransactions(params);
+		const response = await business.postTransactions(params);
 		return {
-			message: 'Transaction payload was successfully passed to the network node',
+			message: 'Transaction payload was successfully passed to the network node.',
 			transactionID: response.transactionId,
 		};
 	} catch (err) {
-		if (err.message.includes('ECONNREFUSED')) return {
-			data: { error: 'Unable to reach a network node' },
-			status: 'INTERNAL_SERVER_ERROR',
-		};
+		if (err.message.includes('ECONNREFUSED'))
+			return {
+				data: { error: 'Unable to reach a network node.' },
+				status: 'INTERNAL_SERVER_ERROR',
+			};
 
 		return {
 			data: { error: `Transaction payload was rejected by the network node: ${err.message}` },
@@ -123,13 +123,39 @@ const postTransactions = async params => {
 	}
 };
 
-const initPendingTransactionsList = () => dataService.loadAllPendingTransactions();
+const initPendingTransactionsList = () => business.loadAllPendingTransactions();
 
-const reload = () => dataService.loadAllPendingTransactions();
+const reload = () => business.loadAllPendingTransactions();
 
 const dryRunTransactions = async params => {
-	const response = await dataService.dryRunTransactions(params);
-	return response;
+	try {
+		const response = await business.dryRunTransactions(params);
+		return response;
+	} catch (err) {
+		if (err.message.includes('ECONNREFUSED'))
+			return {
+				data: { error: 'Unable to reach a network node.' },
+				status: 'INTERNAL_SERVER_ERROR',
+			};
+
+		return {
+			data: { error: `Failed to dry run transaction: ${err.message}` },
+			status: 'BAD_REQUEST',
+		};
+	}
+};
+
+const estimateTransactionFees = async params => {
+	const estimateTransactionFeesRes = {
+		data: {},
+		meta: {},
+	};
+
+	const response = await business.estimateTransactionFees(params);
+	if (response.data) estimateTransactionFeesRes.data = response.data;
+	if (response.meta) estimateTransactionFeesRes.meta = response.meta;
+
+	return estimateTransactionFeesRes;
 };
 
 module.exports = {
@@ -138,6 +164,10 @@ module.exports = {
 	initPendingTransactionsList,
 	reloadAllPendingTransactions: reload,
 	postTransactions,
-	getTransactionsByBlockID: dataService.getTransactionsByBlockID,
+	getTransactionsByBlockID: business.getTransactionsByBlockID,
 	dryRunTransactions,
+	estimateTransactionFees,
+
+	// Export for the unit tests
+	isIncludePendingTransactions,
 };

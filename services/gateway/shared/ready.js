@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,12 +13,17 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const BluebirdPromise = require('bluebird');
-const { MoleculerError } = require('moleculer').Errors;
+const {
+	Errors: { MoleculerError, ServiceNotFoundError },
+} = require('moleculer');
+const { Logger } = require('klayr-service-framework');
 
-const logger = require('lisk-service-framework').Logger();
+const BluebirdPromise = require('bluebird');
+
 const { getAppContext } = require('./appContext');
 const config = require('../config');
+
+const logger = Logger();
 
 const currentSvcStatus = {
 	indexer: false,
@@ -30,18 +35,20 @@ const currentSvcStatus = {
 };
 
 const updateSvcStatus = async () => {
-	await BluebirdPromise.map(
-		Object.keys(currentSvcStatus),
-		async microservice => {
-			const broker = (await getAppContext()).getBroker();
-			currentSvcStatus[microservice] = await broker.call(`${microservice}.status`)
-				.then((res) => res.isReady)
-				.catch((err) => {
+	await BluebirdPromise.map(Object.keys(currentSvcStatus), async microservice => {
+		const broker = (await getAppContext()).getBroker();
+		currentSvcStatus[microservice] = await broker
+			.call(`${microservice}.status`)
+			.then(res => res.isReady)
+			.catch(err => {
+				if (err instanceof ServiceNotFoundError) {
+					logger.warn(err);
+				} else {
 					logger.error(err);
-					return false;
-				});
-		},
-	);
+				}
+				return false;
+			});
+	});
 };
 
 const getReady = () => {
@@ -53,7 +60,7 @@ const getReady = () => {
 		});
 		return { services: includeSvcForReadiness };
 	} catch (_) {
-		logger.error(`Current service status: ${currentSvcStatus}`);
+		logger.error(`Current service status:\n${JSON.stringify(currentSvcStatus, null, '\t')}`);
 		throw new MoleculerError('Service Unavailable', 503, 'SERVICES_NOT_READY');
 	}
 };

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,26 +13,13 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { Signals } = require('lisk-service-framework');
+const { Signals } = require('klayr-service-framework');
 
 const getCurrentTimestamp = () => Math.floor(Date.now() / 1000);
 
 let indexStatsCache = {};
 let isIndexingInProgress = false;
 let lastUpdate = getCurrentTimestamp();
-
-const indexStatUpdateListener = _indexStats => {
-	indexStatsCache = _indexStats;
-	lastUpdate = getCurrentTimestamp();
-};
-
-const indexingProgressListener = numJobsInProgress => {
-	isIndexingInProgress = numJobsInProgress > 0;
-	lastUpdate = getCurrentTimestamp();
-};
-
-Signals.get('indexStatUpdate').add(indexStatUpdateListener);
-Signals.get('numJobsInProgressUpdate').add(indexingProgressListener);
 
 const getIndexStatus = async () => {
 	const {
@@ -60,6 +47,29 @@ const getIndexStatus = async () => {
 	};
 };
 
+const indexStatUpdateListener = async _indexStats => {
+	indexStatsCache = _indexStats;
+	lastUpdate = getCurrentTimestamp();
+
+	const indexStatus = await getIndexStatus();
+	Signals.get('updateIndexStatus').dispatch(indexStatus);
+};
+
+const indexingProgressListener = numJobsInProgress => {
+	isIndexingInProgress = numJobsInProgress > 0;
+	lastUpdate = getCurrentTimestamp();
+};
+
+Signals.get('indexStatUpdate').add(indexStatUpdateListener);
+Signals.get('numJobsInProgressUpdate').add(indexingProgressListener);
+
+const isBlockchainFullyIndexed = () => Number(indexStatsCache.percentage) === 100;
+
 module.exports = {
 	getIndexStatus,
+	isBlockchainFullyIndexed,
+
+	// Testing
+	indexStatUpdateListener,
+	indexingProgressListener,
 };

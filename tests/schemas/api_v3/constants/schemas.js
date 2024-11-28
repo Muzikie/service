@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -36,15 +36,11 @@ const blockSchema = {
 			fieldNumber: 3,
 		},
 	},
-	required: [
-		'header',
-		'transactions',
-		'assets',
-	],
+	required: ['header', 'transactions', 'assets'],
 };
 
 const headerSchema = {
-	$id: '/block/header/3',
+	$id: '/block/header/3/without-id',
 	type: 'object',
 	properties: {
 		version: {
@@ -66,7 +62,7 @@ const headerSchema = {
 		generatorAddress: {
 			dataType: 'bytes',
 			fieldNumber: 5,
-			format: 'lisk32',
+			format: 'klayr32',
 		},
 		transactionRoot: {
 			dataType: 'bytes',
@@ -103,11 +99,7 @@ const headerSchema = {
 		aggregateCommit: {
 			type: 'object',
 			fieldNumber: 14,
-			required: [
-				'height',
-				'aggregationBits',
-				'certificateSignature',
-			],
+			required: ['height', 'aggregationBits', 'certificateSignature'],
 			properties: {
 				height: {
 					dataType: 'uint32',
@@ -150,10 +142,7 @@ const headerSchema = {
 const assetSchema = {
 	$id: '/block/asset/3',
 	type: 'object',
-	required: [
-		'module',
-		'data',
-	],
+	required: ['module', 'data'],
 	properties: {
 		module: {
 			dataType: 'string',
@@ -167,16 +156,9 @@ const assetSchema = {
 };
 
 const transactionSchema = {
-	$id: '/lisk/transaction',
+	$id: '/klayr/transaction',
 	type: 'object',
-	required: [
-		'module',
-		'command',
-		'nonce',
-		'fee',
-		'senderPublicKey',
-		'params',
-	],
+	required: ['module', 'command', 'nonce', 'fee', 'senderPublicKey', 'params'],
 	properties: {
 		module: {
 			dataType: 'string',
@@ -221,14 +203,7 @@ const transactionSchema = {
 const eventSchema = {
 	$id: '/block/event',
 	type: 'object',
-	required: [
-		'module',
-		'name',
-		'data',
-		'topics',
-		'height',
-		'index',
-	],
+	required: ['module', 'name', 'data', 'topics', 'height', 'index'],
 	properties: {
 		module: {
 			dataType: 'string',
@@ -249,6 +224,7 @@ const eventSchema = {
 		topics: {
 			type: 'array',
 			fieldNumber: 4,
+			maxItems: 4,
 			items: {
 				dataType: 'bytes',
 			},
@@ -260,6 +236,7 @@ const eventSchema = {
 		index: {
 			dataType: 'uint32',
 			fieldNumber: 6,
+			maximum: 1073741823,
 		},
 	},
 };
@@ -267,9 +244,7 @@ const eventSchema = {
 const standardEventSchema = {
 	$id: '/block/event/standard',
 	type: 'object',
-	required: [
-		'success',
-	],
+	required: ['success'],
 	properties: {
 		success: {
 			dataType: 'boolean',
@@ -343,13 +318,7 @@ const ccmSchema = {
 const messageSchema = {
 	$id: '/auth/command/regMultisigMsg',
 	type: 'object',
-	required: [
-		'address',
-		'nonce',
-		'numberOfSignatures',
-		'mandatoryKeys',
-		'optionalKeys',
-	],
+	required: ['address', 'nonce', 'numberOfSignatures', 'mandatoryKeys', 'optionalKeys'],
 	properties: {
 		address: {
 			dataType: 'bytes',

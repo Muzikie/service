@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -31,7 +31,7 @@ const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
 const requestFeeEstimate = async () => request(wsRpcUrl, 'get.fees');
 
 describe('get.fees', () => {
-	it('returns estimated fees, when supported', async () => {
+	it('should return fees estimate', async () => {
 		const response = await requestFeeEstimate();
 		expect(response).toMap(jsonRpcEnvelopeSchema);
 		const { result } = response;
@@ -40,9 +40,16 @@ describe('get.fees', () => {
 		expect(result.meta).toMap(metaSchema);
 	});
 
-	it('params not supported -> INVALID_PARAMS (-32602)', async () => {
+	it('should return invalid params when requested with unsupported param', async () => {
 		const response = await request(wsRpcUrl, 'get.fees', {
 			someparam: 'not_supported',
+		}).catch(e => e);
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params when requested with an empty param', async () => {
+		const response = await request(wsRpcUrl, 'get.fees', {
+			someparam: '',
 		}).catch(e => e);
 		expect(response).toMap(invalidParamsSchema);
 	});

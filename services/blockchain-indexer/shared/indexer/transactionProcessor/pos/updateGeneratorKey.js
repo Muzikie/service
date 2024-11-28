@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,12 +15,16 @@
  */
 const {
 	Logger,
-	MySQL: { getTableInstance },
-} = require('lisk-service-framework');
+	DB: {
+		MySQL: { getTableInstance },
+	},
+} = require('klayr-service-framework');
 
-const { getLisk32AddressFromPublicKey } = require('../../../utils/account');
+const { getKlayr32AddressFromPublicKey } = require('../../../utils/account');
 
 const config = require('../../../../config');
+
+const { TRANSACTION_STATUS } = require('../../../constants');
 
 const logger = Logger();
 
@@ -28,28 +32,21 @@ const MYSQL_ENDPOINT = config.endpoints.mysql;
 const accountsTableSchema = require('../../../database/schema/accounts');
 const validatorsTableSchema = require('../../../database/schema/validators');
 
-const getAccountsTable = () => getTableInstance(
-	accountsTableSchema.tableName,
-	accountsTableSchema,
-	MYSQL_ENDPOINT,
-);
-
-const getValidatorsTable = () => getTableInstance(
-	validatorsTableSchema.tableName,
-	validatorsTableSchema,
-	MYSQL_ENDPOINT,
-);
+const getAccountsTable = () => getTableInstance(accountsTableSchema, MYSQL_ENDPOINT);
+const getValidatorsTable = () => getTableInstance(validatorsTableSchema, MYSQL_ENDPOINT);
 
 // Command specific constants
 const COMMAND_NAME = 'updateGeneratorKey';
 
 // eslint-disable-next-line no-unused-vars
 const applyTransaction = async (blockHeader, tx, events, dbTrx) => {
+	if (tx.executionStatus !== TRANSACTION_STATUS.SUCCESSFUL) return;
+
 	const accountsTable = await getAccountsTable();
 	const validatorsTable = await getValidatorsTable();
 
 	const validator = {
-		address: getLisk32AddressFromPublicKey(tx.senderPublicKey),
+		address: getKlayr32AddressFromPublicKey(tx.senderPublicKey),
 		publicKey: tx.senderPublicKey,
 		isValidator: true,
 		generatorKey: tx.params.generatorKey,
@@ -66,10 +63,12 @@ const applyTransaction = async (blockHeader, tx, events, dbTrx) => {
 
 // eslint-disable-next-line no-unused-vars
 const revertTransaction = async (blockHeader, tx, events, dbTrx) => {
+	if (tx.executionStatus !== TRANSACTION_STATUS.SUCCESSFUL) return;
+
 	const validatorsTable = await getValidatorsTable();
 
 	const validator = {
-		address: getLisk32AddressFromPublicKey(tx.senderPublicKey),
+		address: getKlayr32AddressFromPublicKey(tx.senderPublicKey),
 		generatorKey: null,
 	};
 

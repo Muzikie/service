@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,7 +13,9 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { address: { getAddressFromLisk32Address } } = require('@liskhq/lisk-cryptography');
+const {
+	address: { getAddressFromKlayr32Address },
+} = require('@klayr/cryptography');
 
 const parseToJSONCompatObj = obj => {
 	if (typeof obj === 'boolean' || !obj) return obj;
@@ -21,16 +23,20 @@ const parseToJSONCompatObj = obj => {
 	if (['string', 'number'].includes(typeof obj)) return obj;
 	if (obj instanceof Buffer) return Buffer.from(obj).toString('hex');
 	if (typeof obj === 'bigint') return String(obj);
-	if (typeof obj === 'object' && Array.isArray(obj)) return (() => { obj.forEach((o, i) => obj[i] = parseToJSONCompatObj(o)); return obj; })();
+	if (typeof obj === 'object' && Array.isArray(obj))
+		return (() => {
+			obj.forEach((o, i) => (obj[i] = parseToJSONCompatObj(o)));
+			return obj;
+		})();
 
-	Object.entries(obj)
-		.forEach(([k, v]) => {
-			if (v instanceof Buffer) obj[k] = Buffer.from(v).toString('hex');
-			else if (typeof v === 'bigint') obj[k] = String(v);
-			else if (typeof v === 'object' && Array.isArray(v)) obj[k].forEach((o, i) => obj[k][i] = parseToJSONCompatObj(o));
-			else if (typeof v === 'object' && v !== null) obj[k] = parseToJSONCompatObj(v);
-			else obj[k] = v;
-		});
+	Object.entries(obj).forEach(([k, v]) => {
+		if (v instanceof Buffer) obj[k] = Buffer.from(v).toString('hex');
+		else if (typeof v === 'bigint') obj[k] = String(v);
+		else if (typeof v === 'object' && Array.isArray(v))
+			obj[k].forEach((o, i) => (obj[k][i] = parseToJSONCompatObj(o)));
+		else if (typeof v === 'object' && v !== null) obj[k] = parseToJSONCompatObj(v);
+		else obj[k] = v;
+	});
 	return obj;
 };
 
@@ -41,8 +47,8 @@ const parseInputBySchema = (input, schema) => {
 		if (schemaDataType === 'string') return String(input);
 		if (schemaDataType === 'boolean') return Boolean(input);
 		if (schemaDataType === 'bytes') {
-			if (schema.format === 'lisk32' && input.startsWith('lsk')) {
-				return getAddressFromLisk32Address(input);
+			if (schema.format === 'klayr32' && input.startsWith('kly')) {
+				return getAddressFromKlayr32Address(input);
 			}
 			return Buffer.from(input, 'hex');
 		}
@@ -58,13 +64,15 @@ const parseInputBySchema = (input, schema) => {
 			if (type === 'array') {
 				acc[key] = currValue.map(item => parseInputBySchema(item, itemsSchema));
 			} else {
-				const innerSchema = (typeof currValue === 'object') ? schema.properties[key] : { dataType, format };
+				const innerSchema =
+					typeof currValue === 'object' ? schema.properties[key] : { dataType, format };
 				acc[key] = parseInputBySchema(currValue, innerSchema);
 			}
 			return acc;
 		}, {});
 		return formattedObj;
-	} if (schemaType === 'array') {
+	}
+	if (schemaType === 'array') {
 		const formattedArray = input.map(item => parseInputBySchema(item, schemaItemsSchema));
 		return formattedArray;
 	}

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -23,7 +23,13 @@ module.exports = {
 	rpcMethod: 'get.reward.annual-inflation',
 	tags: ['(Dynamic) Reward'],
 	params: {
-		height: { optional: false, type: 'number', min: 0, altSwaggerKey: 'blockHeight' },
+		height: {
+			optional: false,
+			type: 'number',
+			min: 0,
+			integer: true,
+			altSwaggerKey: 'blockHeightRequired',
+		},
 	},
 	get schema() {
 		const rewardAnnualInflationSchema = {};
@@ -34,7 +40,10 @@ module.exports = {
 			rpcMethod: this.rpcMethod,
 			description: 'Returns inflation rate.',
 		});
-		rewardAnnualInflationSchema[this.swaggerApiPath].get.parameters = transformParams('reward', this.params);
+		rewardAnnualInflationSchema[this.swaggerApiPath].get.parameters = transformParams(
+			'reward',
+			this.params,
+		);
 		rewardAnnualInflationSchema[this.swaggerApiPath].get.responses = {
 			200: {
 				description: 'Returns current inflation rate.',

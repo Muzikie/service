@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,18 +14,16 @@
  *
  */
 const path = require('path');
-const {
-	Microservice,
-	LoggerConfig,
-	Logger,
-} = require('lisk-service-framework');
+const { Microservice, LoggerConfig, Logger } = require('klayr-service-framework');
 
 const config = require('./config');
 
 LoggerConfig(config.log);
 
 const packageJson = require('./package.json');
+
 const { init } = require('./shared/init');
+const { initDatabase } = require('./shared/database/init');
 const { setAppContext } = require('./shared/utils/request');
 
 const logger = Logger();
@@ -37,9 +35,7 @@ const app = Microservice({
 	timeout: config.brokerTimeout,
 	packageJson,
 	logger: config.log,
-	dependencies: [
-		'indexer',
-	],
+	dependencies: ['indexer'],
 });
 
 setAppContext(app);
@@ -50,11 +46,20 @@ app.addJobs(path.join(__dirname, 'jobs'));
 app.addEvents(path.join(__dirname, 'events'));
 
 // Run the application
-app.run().then(async () => {
-	await init();
-	logger.info(`Service started ${packageJson.name}.`);
-}).catch(err => {
-	logger.fatal(`Could not start the service ${packageJson.name}: ${err.message}`);
+const reportErrorAndExitProcess = err => {
+	logger.fatal(`Failed to start service ${packageJson.name} due to: ${err.message}`);
 	logger.fatal(err.stack);
 	process.exit(1);
-});
+};
+
+initDatabase()
+	.then(() =>
+		app
+			.run()
+			.then(async () => {
+				await init();
+				logger.info(`Service started ${packageJson.name}.`);
+			})
+			.catch(reportErrorAndExitProcess),
+	)
+	.catch(reportErrorAndExitProcess);

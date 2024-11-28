@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,14 +16,9 @@
 const config = require('../../../config');
 const { api } = require('../../../helpers/api');
 
-const {
-	badRequestSchema,
-} = require('../../../schemas/httpGenerics.schema');
+const { badRequestSchema } = require('../../../schemas/httpGenerics.schema');
 
-const {
-	networkStatusSchema,
-	metaSchema,
-} = require('../../../schemas/api_v3/networkStatus.schema');
+const { networkStatusSchema, metaSchema } = require('../../../schemas/api_v3/networkStatus.schema');
 
 const baseUrl = config.SERVICE_ENDPOINT;
 const baseUrlV3 = `${baseUrl}/api/v3`;
@@ -31,18 +26,18 @@ const endpoint = `${baseUrlV3}/network/status`;
 
 describe('Network Status API', () => {
 	describe(`GET ${endpoint}`, () => {
-		it('retrieves network status -> 200 OK', async () => {
+		it('should network status', async () => {
 			const response = await api.get(endpoint);
 			expect(response.data).toMap(networkStatusSchema);
 			expect(response.meta).toMap(metaSchema);
 		});
 
-		it('params not supported -> 400 BAD REQUEST', async () => {
+		it('should return bad request for unsupported param', async () => {
 			const response = await api.get(`${endpoint}?someparam='not_supported'`, 400);
 			expect(response).toMap(badRequestSchema);
 		});
 
-		it('params (empty) not supported -> 400 BAD REQUEST', async () => {
+		it('should return bad request for empty param', async () => {
 			const response = await api.get(`${endpoint}?emptyparam=`, 400);
 			expect(response).toMap(badRequestSchema);
 		});

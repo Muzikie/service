@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,7 +14,7 @@
  *
  */
 // Command specific constants
-const COMMAND_NAME = 'reclaimLSK';
+const COMMAND_NAME = 'reclaimKLY';
 
 // eslint-disable-next-line no-unused-vars
 const applyTransaction = async (blockHeader, tx, events, dbTrx) => {

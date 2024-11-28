@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,9 +18,9 @@ module.exports = {
 	primaryKey: 'address',
 	schema: {
 		address: { type: 'string' },
-		name: { type: 'string', null: true },
+		name: { type: 'string' },
 		blsKey: { type: 'string', null: true },
-		proofOfPosession: { type: 'string', null: true },
+		proofOfPossession: { type: 'string', null: true },
 		generatorKey: { type: 'string', null: true },
 		generatedBlocks: { type: 'integer', null: false, defaultValue: 0 },
 		totalCommission: { type: 'bigInteger', null: false, defaultValue: 0 },

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -82,16 +82,12 @@ module.exports = [
 	},
 	{
 		name: 'getPoSGenesisStakers',
-		controller: async ({ height }) => getPoSGenesisStakers(height),
-		params: {
-			height: { optional: false, type: 'number' },
-		},
+		controller: async () => getPoSGenesisStakers(),
+		params: {},
 	},
 	{
 		name: 'getPoSGenesisValidators',
-		controller: async ({ height }) => getPoSGenesisValidators(height),
-		params: {
-			height: { optional: false, type: 'number' },
-		},
+		controller: async () => getPoSGenesisValidators(),
+		params: {},
 	},
 ];

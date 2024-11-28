@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -20,6 +20,7 @@ const {
 	postTransactions,
 	getSchemas,
 	dryRunTransactions,
+	estimateTransactionFees,
 } = require('./controllers/transactions');
 
 module.exports = [
@@ -32,6 +33,7 @@ module.exports = [
 			address: { optional: true, type: 'string' },
 			senderAddress: { optional: true, type: 'string' },
 			recipientAddress: { optional: true, type: 'string' },
+			receivingChainID: { optional: true, type: 'string' },
 			timestamp: { optional: true, type: 'string' },
 			nonce: { optional: true, type: 'string' },
 			blockID: { optional: true, type: 'string' },
@@ -68,6 +70,14 @@ module.exports = [
 			transaction: { optional: false, type: 'any' },
 			skipVerify: { optional: true, type: 'boolean', default: false },
 			skipDecode: { optional: true, type: 'boolean', default: false },
+			strict: { optional: true, type: 'boolean', default: false },
+		},
+	},
+	{
+		name: 'transactions.estimate-fees',
+		controller: estimateTransactionFees,
+		params: {
+			transaction: { optional: false, type: 'object' },
 		},
 	},
 ];

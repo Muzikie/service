@@ -1,45 +1,46 @@
 {
-  "name": "lisk-service-gateway",
-  "version": "0.7.0-beta.0",
-  "description": "Lisk Service Gateway",
-  "keywords": [
-    "lisk",
-    "blockchain"
-  ],
-  "homepage": "https://github.com/LiskHQ/lisk-service",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:LiskHQ/lisk-service.git"
-  },
-  "bugs": {
-    "url": "https://github.com/LiskHQ/lisk-service/issues"
-  },
-  "private": true,
-  "author": "Lisk Foundation <admin@lisk.com>, lightcurve GmbH <admin@lightcurve.io>",
-  "license": "Apache-2.0",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js",
-    "clean": "rm -rf ./node_modules",
-    "test": "npm run test:unit",
-    "test:unit": "jest --config=jest.config.unit.js --detectOpenHandles --forceExit",
-    "watch": "supervisor -w . -i ./node_modules app.js"
-  },
-  "engines": {
-    "node": ">=16.15.0 <=16",
-    "npm": ">=8.5.0"
-  },
-  "dependencies": {
-    "bluebird": "^3.7.2",
-    "fastest-validator": "^1.10.1",
-    "ioredis": "^4.27.1",
-    "lisk-service-framework": "https://github.com/LiskHQ/lisk-service/raw/30e8e8df1948ccb049e2dd54f779187445aeb7ad/framework/dist/lisk-service-framework-1.4.13.tgz",
-    "moleculer": "^0.14.13",
-    "moment": "^2.29.4",
-    "rate-limiter-flexible": "^2.2.4",
-    "socket.io": "^4.4.1"
-  },
-  "devDependencies": {
-    "jest": "^27.3.0"
-  }
+	"name": "klayr-service-gateway",
+	"version": "0.7.8",
+	"description": "Klayr Service Gateway",
+	"keywords": [
+		"klayr",
+		"blockchain"
+	],
+	"homepage": "https://github.com/KlayrHQ/klayr-service",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:KlayrHQ/klayr-service.git"
+	},
+	"bugs": {
+		"url": "https://github.com/KlayrHQ/klayr-service/issues"
+	},
+	"private": true,
+	"author": "Lisk Foundation <admin@lisk.com>, lightcurve GmbH <admin@lightcurve.io>",
+	"license": "Apache-2.0",
+	"main": "app.js",
+	"scripts": {
+		"start": "node app.js",
+		"clean": "rm -rf ./node_modules",
+		"test": "yarn run test:unit",
+		"test:unit": "jest --config=jest.config.unit.js --detectOpenHandles --forceExit",
+		"watch": "supervisor -w . -i ./node_modules app.js"
+	},
+	"engines": {
+		"node": ">=18.20.2 <=18",
+		"npm": ">=8.5.0"
+	},
+	"dependencies": {
+		"bluebird": "^3.7.2",
+		"fastest-validator": "^1.10.1",
+		"ioredis": "^5.3.2",
+		"klayr-service-framework": "https://github.com/klayrHQ/klayr-service/raw/development/framework/dist/klayr-service-framework-1.6.15.tgz",
+		"moleculer": "^0.14.13",
+		"moment": "^2.29.4",
+		"rate-limiter-flexible": "^2.2.4",
+		"safe-regex": "^2.1.1",
+		"socket.io": "^4.4.1"
+	},
+	"devDependencies": {
+		"jest": "^29.7.0"
+	}
 }

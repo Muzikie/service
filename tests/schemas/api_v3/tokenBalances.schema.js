@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -22,7 +22,7 @@ const lockedBalance = {
 };
 
 const tokenBalancesMetaSchema = {
-	address: Joi.string().pattern(regex.ADDRESS_LISK32).required(),
+	address: Joi.string().pattern(regex.ADDRESS_KLAYR32).required(),
 	count: Joi.number().integer().min(0).required(),
 	offset: Joi.number().integer().min(0).required(),
 	total: Joi.number().integer().min(0).required(),

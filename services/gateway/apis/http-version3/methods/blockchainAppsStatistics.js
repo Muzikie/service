@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -27,14 +27,15 @@ module.exports = {
 		const blockchainAppsStatsSchema = {};
 		blockchainAppsStatsSchema[this.swaggerApiPath] = { get: {} };
 		blockchainAppsStatsSchema[this.swaggerApiPath].get.tags = this.tags;
-		blockchainAppsStatsSchema[this.swaggerApiPath].get.summary = 'Requests blockchain application statistics';
+		blockchainAppsStatsSchema[this.swaggerApiPath].get.summary =
+			'Requests blockchain application statistics';
 		blockchainAppsStatsSchema[this.swaggerApiPath].get.description = getSwaggerDescription({
 			rpcMethod: this.rpcMethod,
 			description: 'Returns blockchain applications statistics',
 		});
 		blockchainAppsStatsSchema[this.swaggerApiPath].get.responses = {
 			200: {
-				description: 'Returns statistics for the blockchain applications in the Lisk ecosystem',
+				description: 'Returns statistics for the blockchain applications in the Klayr ecosystem',
 				schema: {
 					$ref: '#/definitions/blockchainAppsStatsEnvelope',
 				},

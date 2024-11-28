@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,4 +14,4 @@
  *
  */
 // eslint-disable-next-line no-console
-console.log('Use \'npm test\' to run tests');
+console.log("Use 'npm test' to run tests");

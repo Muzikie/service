@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,38 +13,19 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	Exceptions: { TimeoutException },
-	Logger,
-} = require('lisk-service-framework');
-
-const { timeoutMessage, invokeEndpoint } = require('./client');
-
-const logger = Logger();
+const { invokeEndpoint } = require('./client');
 
 const validateBLSKey = async ({ blsKey, proofOfPossession }) => {
-	try {
-		const response = await invokeEndpoint('validators_validateBLSKey', { blsKey, proofOfPossession });
-		return response;
-	} catch (err) {
-		if (err.message.includes(timeoutMessage)) {
-			logger.warn(`Request timed out when calling 'validateBLSKey' with:\nblsKey: ${blsKey}\nproofOfPossession: ${proofOfPossession}`);
-			throw new TimeoutException('Request timed out when calling \'validateBLSKey\'.');
-		}
-		throw err;
-	}
+	const response = await invokeEndpoint('validators_validateBLSKey', {
+		blsKey,
+		proofOfPossession,
+	});
+	return response;
 };
 
-const getValidator = async (address) => {
-	try {
-		const validatorInfo = await invokeEndpoint('validators_getValidator', { address });
-		return validatorInfo;
-	} catch (err) {
-		if (err.message.includes(timeoutMessage)) {
-			throw new TimeoutException('Request timed out when calling \'getValidator\'.');
-		}
-		throw err;
-	}
+const getValidator = async address => {
+	const validatorInfo = await invokeEndpoint('validators_getValidator', { address });
+	return validatorInfo;
 };
 
 module.exports = {

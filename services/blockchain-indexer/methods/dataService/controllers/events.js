@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,13 +14,15 @@
  *
  */
 const {
-	HTTP: { StatusCodes: { NOT_FOUND } },
+	HTTP: {
+		StatusCodes: { NOT_FOUND },
+	},
 	Exceptions: { NotFoundException },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
 const dataService = require('../../../shared/dataService');
 
-const getEvents = async (params) => {
+const getEvents = async params => {
 	const events = {
 		data: {},
 		meta: {},

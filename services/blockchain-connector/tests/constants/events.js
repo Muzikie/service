@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -28,8 +28,8 @@ const transferEventInput = Object.freeze({
 
 const decodedTransferEvent = Object.freeze({
 	data: {
-		senderAddress: 'lskguo9kqnea2zsfo3a6qppozsxsg92nuuma3p7ad',
-		recipientAddress: 'lsknhwcwdqnvgesx9vmjabnthovt8bsfd2cqsj9mj',
+		senderAddress: 'klyguo9kqnea2zsfo3a6qppozsxsg92nuuma3p7ad',
+		recipientAddress: 'klynhwcwdqnvgesx9vmjabnthovt8bsfd2cqsj9mj',
 		tokenID: '0400000000000000',
 		amount: '99822000',
 		result: 0,
@@ -39,8 +39,8 @@ const decodedTransferEvent = Object.freeze({
 	name: 'transfer',
 	topics: [
 		'66870fa27b22c361094ff2d72a794b3d7e531c02a488271c38d02180c05e3c69',
-		'lskguo9kqnea2zsfo3a6qppozsxsg92nuuma3p7ad',
-		'lsknhwcwdqnvgesx9vmjabnthovt8bsfd2cqsj9mj',
+		'klyguo9kqnea2zsfo3a6qppozsxsg92nuuma3p7ad',
+		'klynhwcwdqnvgesx9vmjabnthovt8bsfd2cqsj9mj',
 	],
 	height: 6,
 	id: 'e4fccc02c331a71b2d36a44f2cb7358e161ce6e11d8d7ee312af4e56a21e7fe4',

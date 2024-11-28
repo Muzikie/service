@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,13 +13,20 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const {
+	DB: {
+		MySQL: {
+			KVStore: { getKeyValueTable },
+		},
+	},
+} = require('klayr-service-framework');
 const { getPosTokenID } = require('../dataService/business/pos/constants');
-
-const keyValueTable = require('../database/mysqlKVStore');
 
 const { KV_STORE_KEY } = require('../constants');
 
-const getStakeInfo = async (keyPrefix) => {
+const keyValueTable = getKeyValueTable();
+
+const getStakeInfo = async keyPrefix => {
 	const [row] = await keyValueTable.getByPattern(keyPrefix);
 	const stakeAmount = row && row.value ? row.value.toString() : '0';
 

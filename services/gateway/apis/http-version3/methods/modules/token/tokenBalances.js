@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -23,8 +23,14 @@ module.exports = {
 	swaggerApiPath: '/token/balances',
 	rpcMethod: 'get.token.balances',
 	tags: ['Token'],
+	eTag: false,
 	params: {
-		address: { optional: false, type: 'string', pattern: regex.ADDRESS_LISK32 },
+		address: {
+			optional: false,
+			type: 'string',
+			pattern: regex.ADDRESS_KLAYR32,
+			altSwaggerKey: 'addressRequired',
+		},
 		tokenID: { optional: true, type: 'string', pattern: regex.TOKEN_ID },
 		limit: { optional: true, type: 'number', min: 1, max: 100, default: 10, pattern: regex.LIMIT },
 		offset: { optional: true, type: 'number', min: 0, default: 0, pattern: regex.OFFSET },

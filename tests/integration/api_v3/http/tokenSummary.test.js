@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -29,7 +29,7 @@ const baseUrlV3 = `${baseUrl}/api/v3`;
 const endpoint = `${baseUrlV3}/token/summary`;
 
 describe('Tokens API', () => {
-	it('Retrieves tokens summary -> ok', async () => {
+	it('should return tokens summary', async () => {
 		const response = await api.get(endpoint);
 		expect(response).toMap(goodResponseSchema);
 		expect(response.data).toBeInstanceOf(Object);
@@ -37,9 +37,13 @@ describe('Tokens API', () => {
 		expect(response.meta).toMap(tokenSummaryMetaResponseSchema);
 	});
 
-	it('Invalid request param -> bad request', async () => {
+	it('should return bad request when requested with invalid param', async () => {
 		const response = await api.get(`${endpoint}?invalidParam=invalid`, 400);
 		expect(response).toMap(badRequestSchema);
 	});
-});
 
+	it('should return bad request when requested with empty invalid params', async () => {
+		const response = await api.get(`${endpoint}?invalidParam=`, 400);
+		expect(response).toMap(badRequestSchema);
+	});
+});

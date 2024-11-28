@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,6 +14,7 @@
  *
  */
 import moment from 'moment';
+import { invalidLimits, invalidOffsets } from '../constants/invalidInputs';
 
 const config = require('../../../config');
 const regex = require('../../../schemas/api_v3/regex');
@@ -32,21 +33,24 @@ const {
 } = require('../../../schemas/api_v3/transactionStatistics.schema');
 
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
-const requestTransactionStatistics = async (params) => request(wsRpcUrl, 'get.transactions.statistics', params);
+const requestTransactionStatistics = async params =>
+	request(wsRpcUrl, 'get.transactions.statistics', params);
 
 describe('get.transactions.statistics', () => {
-	[{
-		interval: 'day',
-		dateFormat: 'YYYY-MM-DD',
-	},
-	{
-		interval: 'month',
-		dateFormat: 'YYYY-MM',
-	}].forEach(({ interval, dateFormat }) => {
+	[
+		{
+			interval: 'day',
+			dateFormat: 'YYYY-MM-DD',
+		},
+		{
+			interval: 'month',
+			dateFormat: 'YYYY-MM',
+		},
+	].forEach(({ interval, dateFormat }) => {
 		describe(`get.transactions.statistics by interval as ${interval}`, () => {
 			const startOfIntervalInUTC = moment().utc().startOf(interval);
 
-			it(`returns stats for aggregated by ${interval}, if called without any params`, async () => {
+			it(`should return stats for aggregated by ${interval}, if called without any params`, async () => {
 				const response = await requestTransactionStatistics({ interval });
 				expect(response).toMap(jsonRpcEnvelopeSchema);
 				const { result } = response;
@@ -66,7 +70,7 @@ describe('get.transactions.statistics', () => {
 				expect(result.meta).toMap(metaSchema);
 			});
 
-			it(`returns stats for this ${interval} if called with ?limit=1`, async () => {
+			it(`should return stats for this ${interval} if called with ?limit=1`, async () => {
 				const limit = 1;
 				const response = await requestTransactionStatistics({ interval, limit });
 				expect(response).toMap(jsonRpcEnvelopeSchema);
@@ -77,16 +81,17 @@ describe('get.transactions.statistics', () => {
 				tokensListEntries.forEach(([tokenID, timeline]) => {
 					expect(tokenID).toMatch(regex.TOKEN_ID);
 					expect(timeline).toHaveLength(1);
-					timeline.forEach(timelineItem => expect(timelineItem)
-						.toMap(timelineItemSchema, {
+					timeline.forEach(timelineItem =>
+						expect(timelineItem).toMap(timelineItemSchema, {
 							date: startOfIntervalInUTC.format(dateFormat),
 							timestamp: startOfIntervalInUTC.unix(),
-						}));
+						}),
+					);
 				});
 				expect(result.meta).toMap(metaSchema, { limit });
 			});
 
-			it(`returns stats for previous ${interval} if called with ?limit=1&offset=1`, async () => {
+			it(`should return stats for previous ${interval} if called with ?limit=1&offset=1`, async () => {
 				if (interval === 'day') {
 					const limit = 1;
 					const offset = 1;
@@ -102,11 +107,12 @@ describe('get.transactions.statistics', () => {
 						expect(tokenID).toMatch(regex.TOKEN_ID);
 						expect(timeline.length).toBeGreaterThanOrEqual(0);
 						expect(timeline.length).toBeLessThanOrEqual(limit);
-						timeline.forEach(timelineItem => expect(timelineItem)
-							.toMap(timelineItemSchema, {
+						timeline.forEach(timelineItem =>
+							expect(timelineItem).toMap(timelineItemSchema, {
 								date: startOfYesterday.format(dateFormat),
 								timestamp: startOfYesterday.unix(),
-							}));
+							}),
+						);
 					});
 
 					expect(result.meta.duration).toMatchObject({
@@ -118,7 +124,7 @@ describe('get.transactions.statistics', () => {
 				}
 			});
 
-			it(`returns stats for previous ${interval} and the ${interval} before if called with ?limit=2&offset=1`, async () => {
+			it(`should return stats for previous ${interval} and the ${interval} before if called with ?limit=2&offset=1`, async () => {
 				if (interval === 'day') {
 					const limit = 2;
 					const offset = 1;
@@ -147,15 +153,35 @@ describe('get.transactions.statistics', () => {
 				}
 			});
 
-			it('returns invalid param error (-32602) if called with ?limit=101 or higher', async () => {
+			it('should return invalid param error (-32602) if called with ?limit=101 or higher', async () => {
 				const response = await requestTransactionStatistics({ interval, limit: 101 });
 				expect(response).toMap(invalidParamsSchema);
+			});
+
+			it('should return invalid params if called with invalid limits', async () => {
+				for (let i = 0; i < invalidLimits.length; i++) {
+					const response = await requestTransactionStatistics({
+						interval,
+						limit: invalidLimits[i],
+					});
+					expect(response).toMap(invalidParamsSchema);
+				}
+			});
+
+			it('should return invalid params if called with invalid offset', async () => {
+				for (let i = 0; i < invalidOffsets.length; i++) {
+					const response = await requestTransactionStatistics({
+						interval,
+						offset: invalidOffsets[i],
+					});
+					expect(response).toMap(invalidParamsSchema);
+				}
 			});
 		});
 	});
 
-	describe('GET get.transactions.statistics with interval: \'year\'', () => {
-		it('returns invalid param error (-32602) if called without any params as years are not supported', async () => {
+	describe("GET get.transactions.statistics with interval: 'year'", () => {
+		it('should return invalid param error if called without any params as years are not supported', async () => {
 			const response = await requestTransactionStatistics({ interval: 'year' });
 			expect(response).toMap(invalidParamsSchema);
 		});

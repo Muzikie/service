@@ -15,4 +15,4 @@ logs:
 clean: down
 
 cli:
-	$(compose) exec mysql mysql -u root -ppassword lisk
+	$(compose) exec mysql mysql -u root -ppassword klayr

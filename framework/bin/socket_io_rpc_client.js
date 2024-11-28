@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -21,7 +21,7 @@ const colorize = require('json-colorizer');
 const { events } = require('../constants/event');
 
 /* Usage:
- * node socket_io_rpc_client.js http://localhost:9901/rpc-test get.hello.param '{"path_name1": "user1"}'
+ * node socket_io_rpc_client.js http://127.0.0.1:9901/rpc-test get.hello.param '{"path_name1": "user1"}'
  */
 
 if (process.argv.length < 4) {

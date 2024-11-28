@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,7 +24,7 @@ module.exports = {
 	rpcMethod: 'get.pos.unlocks',
 	tags: ['PoS'],
 	params: {
-		address: { optional: true, type: 'string', pattern: regex.ADDRESS_LISK32 },
+		address: { optional: true, type: 'string', pattern: regex.ADDRESS_KLAYR32 },
 		publicKey: { optional: true, type: 'string', pattern: regex.PUBLIC_KEY },
 		name: { optional: true, type: 'string', pattern: regex.NAME, altSwaggerKey: 'accountName' },
 		isLocked: { optional: true, type: 'boolean' },

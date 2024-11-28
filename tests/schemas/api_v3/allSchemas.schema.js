@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -28,8 +28,7 @@ const schema = {
 
 const commandsParamsSchemasSchema = {
 	moduleCommand: Joi.string().pattern(regex.MODULE_COMMAND).required(),
-	// TODO: Update schema to required when all schemas are available from SDK
-	schema: Joi.object(schema).optional(),
+	schema: Joi.object(schema).required(),
 };
 
 const messagesSchema = {
@@ -41,15 +40,13 @@ const messagesSchema = {
 const eventsSchema = {
 	module: Joi.string().pattern(regex.MODULE).required(),
 	name: Joi.string().pattern(regex.EVENT_NAME).required(),
-	// TODO: Update schema to required when all schemas are available from SDK
-	schema: Joi.object(schema).optional(),
+	schema: Joi.object(schema).required(),
 };
 
 const assetsSchema = {
 	module: Joi.string().pattern(regex.MODULE).required(),
 	version: Joi.string().required(),
-	// TODO: Update schema to required when all schemas are available from SDK
-	schema: Joi.object(schema).optional(),
+	schema: Joi.object(schema).required(),
 };
 
 const genericSchema = {

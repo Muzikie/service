@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019-2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -43,12 +43,10 @@ const getStatus = async broker => {
 		version = networkStatistics.data.networkVersion;
 	}
 	const versionCount = Object.values(version);
-	const networkNodeVersion = Object.keys(version)[
-		versionCount.indexOf(Math.max(...versionCount))
-	];
+	const networkNodeVersion = Object.keys(version)[versionCount.indexOf(Math.max(...versionCount))];
 	return {
 		build: buildTimestamp,
-		description: 'Lisk Service Gateway',
+		description: 'Klayr Service Gateway',
 		name: packageJson.name,
 		version: packageJson.version,
 		networkNodeVersion,

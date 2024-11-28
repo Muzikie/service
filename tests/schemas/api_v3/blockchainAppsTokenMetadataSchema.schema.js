@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -30,7 +30,7 @@ const denomUnit = {
 };
 
 const blockchainAppsTokenMetadataSchema = {
-	chainName: Joi.string().pattern(regex.NAME).required(),
+	chainName: Joi.string().pattern(regex.CHAIN_NAME).required(),
 	chainID: Joi.string().required(),
 	tokenName: Joi.string().pattern(regex.NAME).required(),
 	tokenID: Joi.string().required(),

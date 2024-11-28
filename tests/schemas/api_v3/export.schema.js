@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,14 +18,13 @@ import Joi from 'joi';
 const regex = require('./regex');
 
 const exportSchemaAccepted = {
-	address: Joi.string().pattern(regex.ADDRESS_LISK32).required(),
-	publicKey: Joi.string().pattern(regex.PUBLIC_KEY).required(),
-	interval: Joi.string().pattern(regex.INTERVAL).required(),
+	address: Joi.string().pattern(regex.ADDRESS_KLAYR32).required(),
+	publicKey: Joi.string().pattern(regex.PUBLIC_KEY).optional(),
+	interval: Joi.string().pattern(regex.DATE_INTERVAL).required(),
 };
 
 const exportSchema = {
 	...exportSchemaAccepted,
-	fileName: Joi.string().pattern(regex.FILE_NAME).required(),
 	fileUrl: Joi.string().pattern(regex.FILE_URL).required(),
 };
 

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -35,7 +35,7 @@ const get = name => {
 		add: listener => {
 			const isListenerAdded = signal.has(listener, signal);
 			if (!isListenerAdded) {
-				logger.info(`Adding listener: '${listener.name}' to signal: '${name}'`);
+				logger.info(`Attaching listener: '${listener.name}' to signal: '${name}'`);
 				const binding = signal.add(listener, signal);
 				return binding;
 			}

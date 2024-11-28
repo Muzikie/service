@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,14 +14,18 @@
  *
  */
 module.exports = {
-	name: '=,string',
+	chainName: '=,string',
 	chainID: '=,string',
 	status: '=,string',
 	address: '=,string',
 	lastCertificateHeight: '=,number',
 	lastUpdated: '=,number',
-	escrow: ['escrow', {
-		tokenID: '=,string',
-		amount: '=,string',
-	}],
+	escrowedKLY: '=,string',
+	escrow: [
+		'escrow',
+		{
+			tokenID: '=,string',
+			amount: '=,string',
+		},
+	],
 };

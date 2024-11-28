@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -29,7 +29,7 @@ const cliParams = process.argv[3] ? JSON.parse(process.argv[3]) : undefined;
 const TIMEOUT = 15 * 1000;
 
 const broker = new ServiceBroker({
-	transporter: 'redis://localhost:6379',
+	transporter: 'redis://klayr:password@127.0.0.1:6379',
 	logLevel: 'info',
 	requestTimeout: 15 * 1000,
 	logger: console,

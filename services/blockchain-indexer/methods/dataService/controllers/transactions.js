@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,27 +14,24 @@
  *
  */
 const {
-	Exceptions: {
-		InvalidParamsException,
-		ValidationException,
+	Exceptions: { InvalidParamsException, ValidationException },
+	HTTP: {
+		StatusCodes: { NOT_FOUND, BAD_REQUEST },
 	},
-	HTTP: { StatusCodes: { NOT_FOUND, BAD_REQUEST } },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
-const { confirmAddress } = require('../../../shared/accountUtils');
+const { confirmAddress } = require('../../../shared/dataService/utils/account');
 
 const dataService = require('../../../shared/dataService');
 
-const getTransactions = async (params) => {
+const getTransactions = async params => {
 	try {
-		const addressParam = [
-			'senderAddress',
-			'recipientAddress',
-			'address',
-		].filter((item) => typeof params[item] === 'string');
+		const addressParam = ['senderAddress', 'recipientAddress', 'address'].filter(
+			item => typeof params[item] === 'string',
+		);
 
 		const addressLookupResult = await Promise.all(
-			addressParam.map(async (param) => {
+			addressParam.map(async param => {
 				const paramVal = params[param];
 				const address = await confirmAddress(paramVal);
 				return address;
@@ -72,7 +69,7 @@ const getTransactions = async (params) => {
 	}
 };
 
-const getPendingTransactions = async (params) => {
+const getPendingTransactions = async params => {
 	const result = await dataService.getPendingTransactions(params);
 	return {
 		data: result.data,
@@ -80,11 +77,31 @@ const getPendingTransactions = async (params) => {
 	};
 };
 
-const postTransactions = async (params) => dataService.postTransactions(params);
+const postTransactions = async params => dataService.postTransactions(params);
 
 const getSchemas = async () => dataService.getSchemas();
 
-const dryRunTransactions = async (params) => dataService.dryRunTransactions(params);
+const dryRunTransactions = async params => dataService.dryRunTransactions(params);
+
+const estimateTransactionFees = async params => {
+	const estimateTransactionFeesRes = {
+		data: {},
+		meta: {},
+	};
+
+	try {
+		const response = await dataService.estimateTransactionFees(params);
+		if (response.data) estimateTransactionFeesRes.data = response.data;
+		if (response.meta) estimateTransactionFeesRes.meta = response.meta;
+
+		return estimateTransactionFeesRes;
+	} catch (error) {
+		let status;
+		if (error instanceof ValidationException) status = BAD_REQUEST;
+		if (status) return { status, data: { error: error.message } };
+		throw error;
+	}
+};
 
 module.exports = {
 	getTransactions,
@@ -92,4 +109,5 @@ module.exports = {
 	postTransactions,
 	getSchemas,
 	dryRunTransactions,
+	estimateTransactionFees,
 };

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,14 +13,16 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const requireAll = require('require-all');
 const path = require('path');
+const requireAll = require('require-all');
 
-const requireAllJs = absolutePath => requireAll({
-	filter: /(.+)\.js$/,
-	excludeDirs: /^\.(git|svn)$/,
-	recursive: false,
-	dirname: path.resolve(absolutePath),
-});
+const requireAllJs = absolutePath =>
+	// eslint-disable-next-line implicit-arrow-linebreak
+	requireAll({
+		filter: /(.+)\.js$/,
+		excludeDirs: /^\.(git|svn)$/,
+		recursive: false,
+		dirname: path.resolve(absolutePath),
+	});
 
 module.exports = requireAllJs;

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -28,6 +28,7 @@ module.exports = [
 		params: {
 			chainID: { optional: true, type: 'string' },
 			chainName: { optional: true, type: 'string' },
+			displayName: { optional: true, type: 'string' },
 			isDefault: { optional: true, type: 'boolean' },
 			network: { optional: true, type: 'string', pattern: regex.NETWORK },
 			search: { optional: true, type: 'string' },

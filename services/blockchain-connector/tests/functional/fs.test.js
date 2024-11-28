@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,13 +15,7 @@
  */
 const { resolve, dirname } = require('path');
 
-const {
-	exists,
-	extractTarBall,
-	mkdir,
-	read,
-	rm,
-} = require('../../shared/utils/fs');
+const { exists, extractTarBall, mkdir, read, rm } = require('../../shared/utils/fs');
 
 const { genesisBlock } = require('../constants/blocks');
 

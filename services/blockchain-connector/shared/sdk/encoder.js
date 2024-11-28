@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,22 +13,19 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { codec } = require('@liskhq/lisk-codec');
-const { validator } = require('@liskhq/lisk-validator');
+const { codec } = require('@klayr/codec');
+const { validator } = require('@klayr/validator');
 const {
 	Logger,
 	Exceptions: { InvalidParamsException },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
 const { parseInputBySchema } = require('../utils/parser');
-const {
-	getTransactionSchema,
-	getTransactionParamsSchema,
-} = require('./schema');
+const { getTransactionSchema, getTransactionParamsSchema, getCCMSchema } = require('./schema');
 
 const logger = Logger();
 
-const encodeTransaction = (transaction) => {
+const encodeTransaction = transaction => {
 	// Handle the transaction params
 	const txParamsSchema = getTransactionParamsSchema(transaction);
 	const txSchema = getTransactionSchema();
@@ -51,14 +48,28 @@ const encodeTransaction = (transaction) => {
 		throw new InvalidParamsException(err);
 	}
 
-	const txBuffer = codec.encode(
-		txSchema,
-		{ ...parsedTx, params: txParamsBuffer },
-	);
+	const txBuffer = codec.encode(txSchema, { ...parsedTx, params: txParamsBuffer });
 
 	return txBuffer.toString('hex');
 };
 
+const encodeCCM = ccm => {
+	const ccmSchema = getCCMSchema();
+	const parsedCCM = parseInputBySchema(ccm, ccmSchema);
+
+	try {
+		validator.validate(ccmSchema, parsedCCM);
+	} catch (err) {
+		logger.warn(`CCM schema validation failed.\nError:${err}`);
+		throw new InvalidParamsException(err);
+	}
+
+	const ccmBuffer = codec.encode(ccmSchema, parsedCCM);
+
+	return ccmBuffer.toString('hex');
+};
+
 module.exports = {
 	encodeTransaction,
+	encodeCCM,
 };

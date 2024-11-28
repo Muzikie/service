@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -32,15 +32,19 @@ module.exports = {
 		const validateBLSKeySchema = {};
 		validateBLSKeySchema[this.swaggerApiPath] = { post: {} };
 		validateBLSKeySchema[this.swaggerApiPath].post.tags = this.tags;
-		validateBLSKeySchema[this.swaggerApiPath].post.summary = 'Validates a BLS key against its corresponding Proof of Possession.';
+		validateBLSKeySchema[this.swaggerApiPath].post.summary =
+			'Validates a BLS key against its corresponding Proof of Possession.';
 		validateBLSKeySchema[this.swaggerApiPath].post.description = getSwaggerDescription({
 			rpcMethod: this.rpcMethod,
 			description: 'Validates a BLS key against its corresponding Proof of Possession.',
 		});
-		validateBLSKeySchema[this.swaggerApiPath].post.parameters = [{ $ref: '#/parameters/validateBLSKeyParams' }];
+		validateBLSKeySchema[this.swaggerApiPath].post.parameters = [
+			{ $ref: '#/parameters/validateBLSKeyParams' },
+		];
 		validateBLSKeySchema[this.swaggerApiPath].post.responses = {
 			200: {
-				description: 'Returns a boolean representing the validity of the supplied BLS key and Proof of Possession.',
+				description:
+					'Returns a boolean representing the validity of the supplied BLS key and Proof of Possession.',
 				schema: {
 					$ref: '#/definitions/blsKeyValidationWithEnvelope',
 				},

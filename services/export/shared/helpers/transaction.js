@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,45 +13,69 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const MODULE_ASSET_ID_TOKEN_TRANSFER = '2:0';
-const MODULE_ASSET_ID_RECLAIM_TRANSACTION = '1000:0';
+const { MODULE, COMMAND, TRANSACTION_STATUS } = require('./constants');
 
-const beddowsToLsk = (beddows) => (beddows / 10 ** 8).toFixed(8);
+const normalizeTransactionAmount = (address, tx, currentChainID) => {
+	// Amount normalization is only done for token:transfer & token:transferCrossChain transaction types only
+	if (
+		![
+			`${MODULE.TOKEN}:${COMMAND.TRANSFER}`,
+			`${MODULE.TOKEN}:${COMMAND.TRANSFER_CROSS_CHAIN}`,
+		].includes(tx.moduleCommand) ||
+		tx.executionStatus !== TRANSACTION_STATUS.SUCCESSFUL
+	) {
+		return null;
+	}
 
-const normalizeTransactionAmount = (address, tx) => {
-	if (!('amount' in tx.asset)) return beddowsToLsk(0);
+	const amount = BigInt(tx.params.amount);
 
-	const isReclaim = tx.moduleAssetId === MODULE_ASSET_ID_RECLAIM_TRANSACTION;
-	const isTokenTransfer = tx.moduleAssetId === MODULE_ASSET_ID_TOKEN_TRANSFER;
+	// Always a deduction for a successful token:transferCrossChain transaction
+	if (tx.moduleCommand === `${MODULE.TOKEN}:${COMMAND.TRANSFER_CROSS_CHAIN}`) {
+		const sign = tx.params.receivingChainID !== currentChainID ? BigInt('-1') : BigInt('1');
+		return (sign * amount).toString();
+	}
 
-	const isSender = address === tx.senderId;
-	const isRecipient = isTokenTransfer && address === tx.asset.recipient.address;
-	const isSelfTransfer = isTokenTransfer && tx.senderId === tx.asset.recipient.address;
+	const isTokenTransfer = tx.moduleCommand === `${MODULE.TOKEN}:${COMMAND.TRANSFER}`;
 
-	const { isSelfTokenTransferCredit } = tx;
-	const sign = (isReclaim && isSender)
-		|| (isTokenTransfer && isRecipient && !isSelfTransfer)
-		|| (isTokenTransfer && isRecipient && isSelfTransfer && isSelfTokenTransferCredit)
-		? 1 : -1;
-	return beddowsToLsk(sign * tx.asset.amount);
+	const isRecipient = isTokenTransfer && address === tx.params.recipientAddress;
+	const isSelfTransfer = isTokenTransfer && tx.sender.address === tx.params.recipientAddress;
+	const { isSelfTokenTransferCredit, isIncomingCrossChainTransferTransaction } = tx;
+
+	const sign =
+		(isTokenTransfer && isRecipient && !isSelfTransfer) ||
+		(isTokenTransfer && isRecipient && isSelfTransfer && isSelfTokenTransferCredit) ||
+		isIncomingCrossChainTransferTransaction
+			? BigInt('1')
+			: BigInt('-1'); // Outgoing amount reduces the balance
+
+	return (sign * amount).toString();
 };
 
-const normalizeTransactionFee = (address, tx) => {
-	const isTokenTransfer = tx.moduleAssetId === MODULE_ASSET_ID_TOKEN_TRANSFER;
-	if (!isTokenTransfer) return beddowsToLsk(tx.fee);
+const normalizeTransactionFee = (addressFromParams, tx) => {
+	const txFee = (BigInt('-1') * BigInt(tx.fee)).toString(); // Fee reduces the balance
 
-	const isRecipient = address === tx.asset.recipient.address;
-	return isRecipient ? beddowsToLsk(0) : beddowsToLsk(tx.fee);
+	const isTokenTransfer = tx.moduleCommand === `${MODULE.TOKEN}:${COMMAND.TRANSFER}`;
+	if (!isTokenTransfer) return txFee;
+
+	const { isIncomingCrossChainTransferTransaction } = tx;
+	const isRecipient = addressFromParams === tx.params.recipientAddress;
+	return isRecipient || isIncomingCrossChainTransferTransaction ? BigInt('0').toString() : txFee;
 };
 
-const checkIfSelfTokenTransfer = (tx) => {
-	const isTokenTransfer = tx.moduleAssetId === MODULE_ASSET_ID_TOKEN_TRANSFER;
-	return isTokenTransfer && tx.senderId === tx.asset.recipient.address;
+const normalizeMessageFee = tx => {
+	const { messageFee } = tx.params;
+	const normalizedMessageFee = (BigInt('-1') * BigInt(messageFee)).toString(); // Message fee reduces the balance
+	return normalizedMessageFee;
+};
+
+const checkIfSelfTokenTransfer = tx => {
+	const isTokenTransfer = tx.moduleCommand === `${MODULE.TOKEN}:${COMMAND.TRANSFER}`;
+	return isTokenTransfer && tx.sender.address === tx.params.recipientAddress;
 };
 
 module.exports = {
-	beddowsToLsk,
 	normalizeTransactionAmount,
 	normalizeTransactionFee,
+	normalizeMessageFee,
 	checkIfSelfTokenTransfer,
 };

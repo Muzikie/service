@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,12 +24,8 @@ const rootObj = {
 		],
 		supportedTokens: {
 			isSupportAllTokens: false,
-			exactTokenIDs: [
-				'0400000000000000',
-			],
-			patternTokenIDs: [
-
-			],
+			exactTokenIDs: ['0400000000000000'],
+			patternTokenIDs: [],
 		},
 		totalSupply: [
 			{
@@ -38,9 +34,7 @@ const rootObj = {
 			},
 		],
 	},
-	meta: {
-
-	},
+	meta: {},
 };
 
 const definitionObj = {
@@ -66,12 +60,8 @@ const definitionObj = {
 			},
 		],
 	},
-	meta: {
-
-	},
-	links: {
-
-	},
+	meta: {},
+	links: {},
 };
 
 const mapObjectExpectedResponse = {
@@ -85,12 +75,8 @@ const mapObjectExpectedResponse = {
 		],
 		supportedTokens: {
 			isSupportAllTokens: false,
-			patternTokenIDs: [
-
-			],
-			exactTokenIDs: [
-				'0400000000000000',
-			],
+			patternTokenIDs: [],
+			exactTokenIDs: ['0400000000000000'],
 		},
 		totalSupply: [
 			{

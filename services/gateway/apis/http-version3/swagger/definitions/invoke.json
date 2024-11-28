@@ -1,10 +1,7 @@
 {
 	"invokeWithEnvelope": {
 		"type": "object",
-		"required": [
-			"data",
-			"meta"
-		],
+		"required": ["data", "meta"],
 		"properties": {
 			"data": {
 				"type": "object",
@@ -15,7 +12,7 @@
 							"id": {
 								"type": "string",
 								"format": "id",
-								"minLength": 1,
+								"minLength": 64,
 								"maxLength": 64,
 								"example": "01967dba384998026fe028119bd099ecf073c05c045381500a93d1a7c7307e5b",
 								"description": "Unique identifier of the block.\nDerived from the block signature."
@@ -24,12 +21,12 @@
 								"type": "integer",
 								"example": 0,
 								"minimum": 0,
-								"description": "Lisk protocol version to which this block adheres to."
+								"description": "Klayr protocol version to which this block adheres to."
 							},
 							"height": {
 								"type": "integer",
 								"example": 8344448,
-								"minimum": 1,
+								"minimum": 0,
 								"description": "Height of the network, when the block got forged.\nThe height of the networks represents the number of blocks, that have been forged on the network since Genesis Block."
 							},
 							"timestamp": {
@@ -62,7 +59,7 @@
 							"stateRoot": {
 								"type": "string",
 								"example": "95d9b1773b78034b8df9ac741c903b881da761d8ba002a939de28a4b86982c04",
-								"description": "The root of the sparse Merkle tree that is computed from the state of the blockchain."
+								"description": "The root of the Sparse Merkle Tree that is computed from the state of the blockchain."
 							},
 							"maxHeightGenerated": {
 								"type": "integer",
@@ -75,7 +72,7 @@
 							"validatorsHash": {
 								"type": "string",
 								"example": "ad0076aa444f6cda608bb163c3bd77d9bf172f1d2803d53095bc0f277db6bcb3",
-								"description": "Hash to authenticates the active set of validators"
+								"description": "Hash to authenticate the active set of validators."
 							},
 							"aggregateCommit": {
 								"type": "object",
@@ -184,12 +181,12 @@
 					"amount": {
 						"type": "string",
 						"example": "100003490",
-						"description": "Amount of Lisk (in Beddows) to be transferred in this transaction."
+						"description": "Amount of Klayr (in Beddows) to be transferred in this transaction."
 					},
 					"recipientAddress": {
 						"type": "string",
 						"example": "0f16f2cd587679d5fd686584b5018d4f844348ac",
-						"description": "Lisk base32 address."
+						"description": "Klayr base32 address."
 					},
 					"data": {
 						"type": "string",

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,7 +15,6 @@
  */
 const { requestConnector } = require('../../utils/request');
 const { getAuthMultiSigRegMsgSchema } = require('./auth');
-const { ccmSchema } = require('./constants/schemas');
 
 let allSchemas;
 
@@ -73,13 +72,12 @@ const getAllSchemas = async () => {
 		});
 
 		// Assign generic schemas
-		Object.entries(schemas.schemas).forEach(([entity, schema]) => allSchemas[entity] = { schema });
+		Object.entries(schemas.schemas).forEach(
+			([entity, schema]) => (allSchemas[entity] = { schema }),
+		);
 
 		// Assign messages schemas
 		Object.assign(allSchemas, { messages: schemas.messageSchemas });
-
-		// Assign ccm schema
-		Object.assign(allSchemas, { ccm: { schema: ccmSchema } });
 	}
 
 	return allSchemas;

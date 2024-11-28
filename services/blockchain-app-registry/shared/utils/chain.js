@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,24 +14,24 @@
  *
  */
 const {
-	MySQL: { getTableInstance },
-} = require('lisk-service-framework');
+	DB: {
+		MySQL: { getTableInstance },
+	},
+} = require('klayr-service-framework');
 
 const config = require('../../config');
 
 const MYSQL_ENDPOINT = config.endpoints.mysql;
 
-const applicationMetadataIndexSchema = require('../database/schema/application_metadata');
+const appMetadataTableSchema = require('../database/schema/application_metadata');
 
-const getApplicationMetadataIndex = () => getTableInstance(
-	applicationMetadataIndexSchema.tableName,
-	applicationMetadataIndexSchema,
-	MYSQL_ENDPOINT,
-);
+const getApplicationMetadataTable = () => getTableInstance(appMetadataTableSchema, MYSQL_ENDPOINT);
 
 const resolveChainNameByNetworkAppDir = async (network, appDirName) => {
-	const applicationMetadataTable = await getApplicationMetadataIndex();
-	const [{ chainName = '' } = {}] = await applicationMetadataTable.find({ network, appDirName }, ['chainName']);
+	const applicationMetadataTable = await getApplicationMetadataTable();
+	const [{ chainName = '' } = {}] = await applicationMetadataTable.find({ network, appDirName }, [
+		'chainName',
+	]);
 	return chainName;
 };
 

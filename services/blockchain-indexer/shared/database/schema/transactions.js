@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -25,12 +25,12 @@ module.exports = {
 		blockID: { type: 'string', null: false },
 		timestamp: { type: 'integer', null: false },
 		senderAddress: { type: 'string', null: false },
-		recipientAddress: { type: 'string', null: true, default: null },
-		tokenID: { type: 'string', null: true, default: null },
-		amount: { type: 'bigInteger', null: true, default: null },
-		receivingChainID: { type: 'string', null: true, default: null },
-		messageFee: { type: 'bigInteger', null: true, default: null },
-		data: { type: 'string', null: true, default: null },
+		recipientAddress: { type: 'string', null: true, defaultValue: null },
+		tokenID: { type: 'string', null: true, defaultValue: null },
+		amount: { type: 'bigInteger', null: true, defaultValue: null },
+		receivingChainID: { type: 'string', null: true, defaultValue: null },
+		messageFee: { type: 'bigInteger', null: true, defaultValue: null },
+		data: { type: 'string', null: true, defaultValue: null },
 		size: { type: 'integer', null: false },
 		fee: { type: 'bigInteger', null: false },
 		minFee: { type: 'bigInteger', null: false },
@@ -46,6 +46,7 @@ module.exports = {
 		amount: { type: 'range' },
 		data: { type: 'key' },
 		senderAddress: { type: 'key' },
+		receivingChainID: { type: 'key' },
 		executionStatus: { type: 'key' },
 	},
 	purge: {},

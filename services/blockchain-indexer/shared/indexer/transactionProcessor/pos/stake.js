@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,39 +17,42 @@ const BluebirdPromise = require('bluebird');
 
 const {
 	Logger,
-	MySQL: { getTableInstance },
-} = require('lisk-service-framework');
+	DB: {
+		MySQL: {
+			getTableInstance,
+			KVStore: { getKeyValueTable },
+		},
+	},
+} = require('klayr-service-framework');
 
-const { getLisk32AddressFromPublicKey } = require('../../../utils/account');
+const { getKlayr32AddressFromPublicKey } = require('../../../utils/account');
 const { KV_STORE_KEY } = require('../../../constants');
 const { getPosTokenID } = require('../../../dataService/business/pos/constants');
 
+const { TRANSACTION_STATUS } = require('../../../constants');
+
 const config = require('../../../../config');
-const keyValueTable = require('../../../database/mysqlKVStore');
 const stakesTableSchema = require('../../../database/schema/stakes');
 
 const logger = Logger();
 
 const MYSQL_ENDPOINT = config.endpoints.mysql;
+const keyValueTable = getKeyValueTable();
 
-const getStakesTable = () => getTableInstance(
-	stakesTableSchema.tableName,
-	stakesTableSchema,
-	MYSQL_ENDPOINT,
-);
+const getStakesTable = () => getTableInstance(stakesTableSchema, MYSQL_ENDPOINT);
 
 // Command specific constants
 const COMMAND_NAME = 'stake';
 
-const getStakeIndexingInfo = async (tx) => {
+const getStakeIndexingInfo = async tx => {
 	const stakes = await BluebirdPromise.map(
 		tx.params.stakes,
 		async stake => {
 			const stakeEntry = {};
 
-			stakeEntry.stakerAddress = getLisk32AddressFromPublicKey(tx.senderPublicKey);
+			stakeEntry.stakerAddress = getKlayr32AddressFromPublicKey(tx.senderPublicKey);
 			stakeEntry.validatorAddress = stake.validatorAddress;
-			stakeEntry.amount = stake.amount;
+			stakeEntry.amount = BigInt(stake.amount);
 			return stakeEntry;
 		},
 		{ concurrency: tx.params.stakes.length },
@@ -96,7 +99,7 @@ const decrementStakeTrx = async (stake, trx) => {
 const updateTotalStake = async (changeAmount, dbTrx) => {
 	const tokenID = await getPosTokenID();
 	const tokenKey = KV_STORE_KEY.PREFIX.TOTAL_STAKED.concat(tokenID);
-	const curStakedAmount = BigInt(await keyValueTable.get(tokenKey) || 0);
+	const curStakedAmount = BigInt((await keyValueTable.get(tokenKey)) || 0);
 	const newStakedAmount = curStakedAmount + changeAmount;
 
 	await keyValueTable.set(tokenKey, newStakedAmount, dbTrx);
@@ -105,7 +108,7 @@ const updateTotalStake = async (changeAmount, dbTrx) => {
 const updateTotalSelfStake = async (changeAmount, dbTrx) => {
 	const tokenID = await getPosTokenID();
 	const tokenKey = KV_STORE_KEY.PREFIX.TOTAL_SELF_STAKED.concat(tokenID);
-	const curStakedAmount = BigInt(await keyValueTable.get(tokenKey) || 0);
+	const curStakedAmount = BigInt((await keyValueTable.get(tokenKey)) || 0);
 	const newStakedAmount = curStakedAmount + changeAmount;
 
 	await keyValueTable.set(tokenKey, newStakedAmount, dbTrx);
@@ -113,14 +116,18 @@ const updateTotalSelfStake = async (changeAmount, dbTrx) => {
 
 // eslint-disable-next-line no-unused-vars
 const applyTransaction = async (blockHeader, tx, events, dbTrx) => {
+	if (tx.executionStatus !== TRANSACTION_STATUS.SUCCESSFUL) return;
+
 	const stakes = await getStakeIndexingInfo(tx);
 	let totalStakeChange = BigInt(0);
 	let totalSelfStakeChange = BigInt(0);
 
-	logger.trace(`Indexing stakes in transaction ${tx.id} contained in block at height ${tx.height}.`);
+	logger.trace(
+		`Indexing stakes in transaction ${tx.id} contained in block at height ${tx.height}.`,
+	);
 	await BluebirdPromise.map(
 		stakes,
-		async (stake) => {
+		async stake => {
 			await incrementStakeTrx(stake, dbTrx);
 
 			if (stake.stakerAddress === stake.validatorAddress) {
@@ -138,15 +145,20 @@ const applyTransaction = async (blockHeader, tx, events, dbTrx) => {
 
 // eslint-disable-next-line no-unused-vars
 const revertTransaction = async (blockHeader, tx, events, dbTrx) => {
+	if (tx.executionStatus !== TRANSACTION_STATUS.SUCCESSFUL) return;
+
 	const stakes = await getStakeIndexingInfo(tx);
 	let totalStakeChange = BigInt(0);
 	let totalSelfStakeChange = BigInt(0);
 
-	logger.trace(`Reverting stakes in transaction ${tx.id} contained in block at height ${tx.height}.`);
+	logger.trace(
+		`Reverting stakes in transaction ${tx.id} contained in block at height ${tx.height}.`,
+	);
 	await BluebirdPromise.map(
 		stakes,
-		async (stake) => {
+		async stake => {
 			await decrementStakeTrx(stake, dbTrx);
+
 			// Subtract to reverse the impact
 			if (stake.stakerAddress === stake.validatorAddress) {
 				totalSelfStakeChange -= BigInt(stake.amount);
@@ -158,7 +170,9 @@ const revertTransaction = async (blockHeader, tx, events, dbTrx) => {
 	// Update total stake amount in key value store table.
 	await updateTotalStake(totalStakeChange, dbTrx);
 	await updateTotalSelfStake(totalSelfStakeChange, dbTrx);
-	logger.debug(`Reverted stakes in transaction ${tx.id} contained in block at height ${tx.height}.`);
+	logger.debug(
+		`Reverted stakes in transaction ${tx.id} contained in block at height ${tx.height}.`,
+	);
 };
 
 module.exports = {

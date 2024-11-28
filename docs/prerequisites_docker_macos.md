@@ -1,10 +1,10 @@
-# Lisk Service prerequisites for MacOS
+# Klayr Service prerequisites for MacOS
 
-Those requirements are necessary in order to perform the recommended method of running Lisk Service on the server.
+Those requirements are necessary in order to perform the recommended method of running Klayr Service on the server.
 
 ## Prerequisites
 
-These programs and resources are required to install and run Lisk Service.
+These programs and resources are required to install and run Klayr Service.
 
 ### Brew
 
@@ -29,7 +29,7 @@ xcode-select --install
 
 ### Docker
 
-[Docker](https://www.docker.com/) is used as a run-time environment for Lisk Service. It takes care of most dependencies and simplifies the required configuration.
+[Docker](https://www.docker.com/) is used as a run-time environment for Klayr Service. It takes care of most dependencies and simplifies the required configuration.
 
 Follow the official documentation to install [Docker Desktop](https://docs.docker.com/docker-for-mac/install/) on MacOS.
 
@@ -39,6 +39,6 @@ The most recent version of Docker Desktop already contains docker-compose tool. 
 
 ## Next steps
 
-If you have all dependencies installed properly, it is possible to run pre-build Docker images with Lisk Service. It is also possible to build those images locally by using the `make build` command.
+If you have all dependencies installed properly, it is possible to run pre-build Docker images with Klayr Service. It is also possible to build those images locally by using the `make build-images` command.
 
 Refer to the main [README](../README.md) file regarding the next steps.

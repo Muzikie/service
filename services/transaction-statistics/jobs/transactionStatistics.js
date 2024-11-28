@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,10 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	Logger,
-	Signals,
-} = require('lisk-service-framework');
+const { Logger, Signals } = require('klayr-service-framework');
 
 const config = require('../config');
 
@@ -28,7 +25,8 @@ module.exports = [
 	{
 		name: 'refresh.transactions.statistics',
 		description: 'Keep the transaction statistics up-to-date',
-		schedule: '*/30 * * * *', // Every 30 min
+		interval: config.job.refreshTransactionStats.interval,
+		schedule: config.job.refreshTransactionStats.schedule,
 		updateOnInit: true,
 		init: async () => {
 			const indexReadyListener = async () => {
@@ -36,7 +34,9 @@ module.exports = [
 					logger.debug('Initiating transaction statistics computation.');
 					await transactionStatistics.init(config.transactionStatistics.historyLengthDays);
 				} catch (err) {
-					logger.warn(`Error occurred while running 'refresh.transactions.statistics' job:\n${err.stack}`);
+					logger.warn(
+						`Error occurred while running 'refresh.transactions.statistics' job:\n${err.stack}`,
+					);
 				}
 				Signals.get('blockIndexReady').remove(indexReadyListener);
 			};
@@ -47,19 +47,23 @@ module.exports = [
 				logger.debug('Job scheduled to update transaction statistics.');
 				await transactionStatistics.updateTodayStats();
 			} catch (err) {
-				logger.warn(`Error occurred while running 'refresh.transactions.statistics' job:\n${err.stack}`);
+				logger.warn(
+					`Error occurred while running 'refresh.transactions.statistics' job:\n${err.stack}`,
+				);
 			}
 		},
 	},
 	{
 		name: 'verify.transactions.statistics',
 		description: 'Verify the accuracy and rebuild the transaction statistics, if necessary',
-		schedule: '15 */3 * * *', // Every 3 hours at the 15th minute
+		interval: config.job.verifyTransactionStats.interval,
+		schedule: config.job.verifyTransactionStats.schedule,
 		controller: async () => {
 			try {
 				logger.debug('Verifying the transaction stats...');
-				await transactionStatistics
-					.validateTransactionStatistics(config.transactionStatistics.historyLengthDays);
+				await transactionStatistics.validateTransactionStatistics(
+					config.transactionStatistics.historyLengthDays,
+				);
 			} catch (err) {
 				logger.warn(`Verifying transaction statistics failed due to: ${err.message}`);
 			}

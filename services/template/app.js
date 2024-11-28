@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,11 +14,7 @@
  *
  */
 const path = require('path');
-const {
-	Microservice,
-	LoggerConfig,
-	Logger,
-} = require('lisk-service-framework');
+const { Microservice, LoggerConfig, Logger } = require('klayr-service-framework');
 
 const config = require('./config');
 
@@ -43,10 +39,13 @@ app.addEvents(path.join(__dirname, 'events'));
 app.addJobs(path.join(__dirname, 'jobs'));
 
 // Run the application
-app.run().then(() => {
-	logger.info(`Service started ${packageJson.name}`);
-}).catch(err => {
-	logger.fatal(`Could not start the service ${packageJson.name} + ${err.message}`);
-	logger.fatal(err.stack);
-	process.exit(1);
-});
+app
+	.run()
+	.then(() => {
+		logger.info(`Service started ${packageJson.name}.`);
+	})
+	.catch(err => {
+		logger.fatal(`Failed to start service ${packageJson.name} due to: ${err.message}`);
+		logger.fatal(err.stack);
+		process.exit(1);
+	});

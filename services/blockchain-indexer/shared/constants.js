@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,14 +13,19 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const { Signals } = require('klayr-service-framework');
 const { requestConnector } = require('./utils/request');
 
 let genesisConfig;
 let genesisHeight;
+let currentHeight;
 let moduleCommands;
 let registeredModules;
+let registeredEndpoints;
 let systemMetadata;
 let finalizedHeight;
+let engineEndpoints;
+let allRegisteredEndpoints;
 
 const updateFinalizedHeight = async () => {
 	const { finalizedHeight: latestFinalizedHeight } = await requestConnector('getNetworkStatus');
@@ -42,8 +47,11 @@ const getGenesisHeight = async () => {
 };
 
 const getCurrentHeight = async () => {
-	const { height } = await requestConnector('getNetworkStatus');
-	return height;
+	if (typeof currentHeight !== 'number') {
+		const networkStatus = await requestConnector('getNetworkStatus');
+		currentHeight = networkStatus.height;
+	}
+	return currentHeight;
 };
 
 const getGenesisConfig = async () => {
@@ -51,7 +59,7 @@ const getGenesisConfig = async () => {
 	return genesisConfig;
 };
 
-const resolveModuleCommands = (systemMeta) => {
+const resolveModuleCommands = systemMeta => {
 	const moduleCommandList = [];
 	systemMeta.forEach(module => {
 		module.commands.forEach(command => {
@@ -84,25 +92,72 @@ const getSystemMetadata = async () => {
 	return systemMetadata;
 };
 
-const MODULE = {
+const getRegisteredEndpoints = async () => {
+	if (!registeredEndpoints) {
+		registeredEndpoints = await requestConnector('getRegisteredEndpoints');
+	}
+	return registeredEndpoints;
+};
+
+const getEngineEndpoints = async () => {
+	if (!engineEndpoints) {
+		engineEndpoints = await requestConnector('getEngineEndpoints');
+	}
+	return engineEndpoints;
+};
+
+const getAllRegisteredEndpoints = async () => {
+	if (!allRegisteredEndpoints) {
+		const _registeredEndpoints = await getRegisteredEndpoints();
+		const _engineEndpoints = await getEngineEndpoints();
+
+		allRegisteredEndpoints = _engineEndpoints.map(e => e.name).concat(_registeredEndpoints);
+	}
+
+	return allRegisteredEndpoints;
+};
+
+const MODULE = Object.freeze({
 	POS: 'pos',
 	AUTH: 'auth',
 	DYNAMIC_REWARD: 'dynamicReward',
 	REWARD: 'reward',
 	TOKEN: 'token',
-};
+	INTEROPERABILITY: 'interoperability',
+});
 
-const COMMAND = {
+const MODULE_SUB_STORE = Object.freeze({
+	TOKEN: {
+		USER: 'userSubstore',
+	},
+	POS: {
+		STAKERS: 'stakers',
+		VALIDATORS: 'validators',
+	},
+});
+
+const COMMAND = Object.freeze({
 	REGISTER_VALIDATOR: 'registerValidator',
 	STAKE: 'stake',
-};
+	CHANGE_COMMISSION: 'changeCommission',
+	REPORT_MISBEHAVIOR: 'reportMisbehavior',
+	TRANSFER: 'transfer',
+	TRANSFER_CROSS_CHAIN: 'transferCrossChain',
+	REGISTER_SIDECHAIN: 'registerSidechain',
+	REGISTER_MAINCHAIN: 'registerMainchain',
+});
 
+const INVALID_ED25519_KEY = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'; // LIP-0063
 const LENGTH_CHAIN_ID = 4 * 2; // Each byte is represented with 2 nibbles
 const LENGTH_TOKEN_LOCAL_ID = 4 * 2; // Each byte is represented with 2 nibbles
 const PATTERN_ANY_TOKEN_ID = '*';
 const PATTERN_ANY_CHAIN_TOKEN_ID = '*'.repeat(LENGTH_TOKEN_LOCAL_ID);
 const LENGTH_TOKEN_ID = LENGTH_CHAIN_ID + LENGTH_TOKEN_LOCAL_ID;
 const LENGTH_NETWORK_ID = 1 * 2; // Each byte is represented with 2 nibbles
+const LENGTH_BYTE_SIGNATURE = 64;
+const LENGTH_BYTE_ID = 32;
+const DEFAULT_NUM_OF_SIGNATURES = 1;
+const LENGTH_ID = LENGTH_BYTE_ID * 2; // Each byte is represented with 2 nibbles
 
 const MAX_COMMISSION = BigInt('10000');
 
@@ -115,8 +170,9 @@ const KV_STORE_KEY = Object.freeze({
 });
 
 const TRANSACTION_STATUS = Object.freeze({
-	SUCCESS: 'success',
-	FAIL: 'fail',
+	SUCCESSFUL: 'successful',
+	FAILED: 'failed',
+	PENDING: 'pending',
 });
 
 const EVENT = Object.freeze({
@@ -124,16 +180,43 @@ const EVENT = Object.freeze({
 	UNLOCK: 'unlock',
 	COMMAND_EXECUTION_RESULT: 'commandExecutionResult',
 	REWARD_MINTED: 'rewardMinted',
+	REWARDS_ASSIGNED: 'rewardsAssigned',
+	CCM_SEND_SUCCESS: 'ccmSendSuccess',
+	CCM_SENT_FAILED: 'ccmSentFailed',
+});
+
+const CCM_SENT_FAILED_ERROR_MESSAGE = Object.freeze({
+	1: 'Receiving chain is not active.',
+	11: 'Failed to pay message fee.',
+	12: 'Invalid params provided.',
+	13: 'Invalid CCM format.',
+	14: 'Sending chain cannot be the receiving chain.',
+});
+
+const EVENT_TOPIC_PREFIX = Object.freeze({
+	TX_ID: '04',
+	CCM_ID: '05',
 });
 
 const TRANSACTION_VERIFY_RESULT = {
 	INVALID: -1,
 	PENDING: 0,
-	OK: 1,
+	VALID: 1,
 };
 
-// @todo retrieve this from Core
-const DEV_ADDRESS = 'lskh96jgzfftzff2fta2zvsmba9mvs5cnz9ahr3ke';
+const initNodeConstants = async () => {
+	// Initialize the finalizedHeight at init
+	await updateFinalizedHeight();
+
+	const nodeInfoListener = async payload => {
+		// Caching all node constants
+		genesisHeight = payload.genesisHeight;
+		genesisConfig = payload.genesis;
+		currentHeight = payload.height;
+		finalizedHeight = payload.finalizedHeight;
+	};
+	Signals.get('nodeInfo').add(nodeInfoListener);
+};
 
 module.exports = {
 	updateFinalizedHeight,
@@ -144,19 +227,30 @@ module.exports = {
 	getAvailableModuleCommands,
 	resolveModuleCommands,
 	getRegisteredModules,
+	getRegisteredEndpoints,
 	getSystemMetadata,
+	getEngineEndpoints,
+	getAllRegisteredEndpoints,
+	initNodeConstants,
 
+	INVALID_ED25519_KEY,
 	LENGTH_CHAIN_ID,
 	PATTERN_ANY_TOKEN_ID,
 	PATTERN_ANY_CHAIN_TOKEN_ID,
 	LENGTH_TOKEN_ID,
 	LENGTH_NETWORK_ID,
 	MODULE,
+	MODULE_SUB_STORE,
 	COMMAND,
 	EVENT,
+	EVENT_TOPIC_PREFIX,
 	MAX_COMMISSION,
 	KV_STORE_KEY,
 	TRANSACTION_STATUS,
 	TRANSACTION_VERIFY_RESULT,
-	DEV_ADDRESS,
+	LENGTH_BYTE_SIGNATURE,
+	LENGTH_BYTE_ID,
+	LENGTH_ID,
+	DEFAULT_NUM_OF_SIGNATURES,
+	CCM_SENT_FAILED_ERROR_MESSAGE,
 };

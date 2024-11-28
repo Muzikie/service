@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,11 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	getGenerators,
-	getGeneratorStatus,
-	updateGeneratorStatus,
-} = require('../shared/sdk');
+const { getGenerators, getGeneratorStatus, updateGeneratorStatus } = require('../shared/sdk');
 
 module.exports = [
 	{
@@ -32,7 +28,7 @@ module.exports = [
 	},
 	{
 		name: 'updateGeneratorStatus',
-		controller: async (params) => updateGeneratorStatus(params),
+		controller: async params => updateGeneratorStatus(params),
 		params: {
 			address: { optional: false, type: 'string' },
 			password: { optional: false, type: 'string' },

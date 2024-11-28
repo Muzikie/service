@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,13 +14,15 @@
  *
  */
 const {
-	MySQL: { getTableInstance },
+	DB: {
+		MySQL: { getTableInstance },
+	},
 	Exceptions: { InvalidParamsException },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
 const {
-	address: { getLisk32AddressFromPublicKey },
-} = require('@liskhq/lisk-cryptography');
+	address: { getKlayr32AddressFromPublicKey },
+} = require('@klayr/cryptography');
 
 const config = require('../../../../config');
 
@@ -30,21 +32,20 @@ const validatorsTableSchema = require('../../../database/schema/validators');
 
 const { getRewardTokenID } = require('../dynamicReward');
 
-const MYSQL_ENDPOINT = config.endpoints.mysql;
+const MYSQL_ENDPOINT = config.endpoints.mysqlReplica;
 
-const getValidatorsTable = () => getTableInstance(
-	validatorsTableSchema.tableName,
-	validatorsTableSchema,
-	MYSQL_ENDPOINT,
-);
+const getValidatorsTable = () => getTableInstance(validatorsTableSchema, MYSQL_ENDPOINT);
 
 const getPosLockedRewards = async params => {
 	const response = {
 		data: [],
-		meta: {},
+		meta: {
+			count: 0,
+			offset: 0,
+			total: 0,
+		},
 	};
 
-	// TODO: Simplify these checks once validParamPairings related issue is resolved
 	// Params must contain either address or name or publicKey
 	if (!Object.keys(params).some(param => ['address', 'name', 'publicKey'].includes(param))) {
 		throw new InvalidParamsException('One of the params (address, name or publicKey) is required.');
@@ -64,7 +65,7 @@ const getPosLockedRewards = async params => {
 		if (dataRows.length) [{ address }] = dataRows;
 	}
 	if (!address && params.publicKey) {
-		address = getLisk32AddressFromPublicKey(Buffer.from(params.publicKey, 'hex'));
+		address = getKlayr32AddressFromPublicKey(Buffer.from(params.publicKey, 'hex'));
 	}
 
 	const tokenID = await getRewardTokenID();

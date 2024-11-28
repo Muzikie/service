@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -23,7 +23,7 @@ const punishmentPeriod = {
 
 const sharingCoefficient = {
 	tokenID: Joi.string().pattern(regex.TOKEN_ID).required(),
-	coefficient: Joi.string().required(),
+	coefficient: Joi.string().allow('').required(),
 };
 
 const validatorSchema = {
@@ -31,7 +31,7 @@ const validatorSchema = {
 	totalStake: Joi.string().pattern(regex.POSITIVE_DIGITS).required(),
 	selfStake: Joi.string().pattern(regex.POSITIVE_DIGITS).required(),
 	validatorWeight: Joi.string().pattern(regex.POSITIVE_DIGITS).required(),
-	address: Joi.string().pattern(regex.ADDRESS_LISK32).required(),
+	address: Joi.string().pattern(regex.ADDRESS_KLAYR32).required(),
 	lastGeneratedHeight: Joi.number().integer().min(0).required(),
 	status: Joi.string().pattern(regex.POS_VALIDATOR_STATUS).required(),
 	isBanned: Joi.boolean().required(),

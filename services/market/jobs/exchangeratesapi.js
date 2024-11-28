@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,20 +13,23 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const logger = require('lisk-service-framework').Logger();
+const logger = require('klayr-service-framework').Logger();
+
+const config = require('../config');
 const { reload } = require('../shared/market/sources/exchangeratesapi');
 
 module.exports = [
 	{
 		name: 'prices.retrieve.exchangeratesapi',
 		description: 'Fetches up-to-date market prices from exchangeratesapi',
-		schedule: '* * * * *',
+		interval: config.job.refreshPricesExchangeratesapi.interval,
+		schedule: config.job.refreshPricesExchangeratesapi.schedule,
 		init: async () => {
-			logger.debug('Initializing market prices from exchangeratesapi');
+			logger.debug('Initializing market prices from exchangeratesapi.');
 			await reload();
 		},
 		controller: async () => {
-			logger.debug('Job scheduled to update prices from exchangeratesapi');
+			logger.debug('Job scheduled to update prices from exchangeratesapi.');
 			await reload();
 		},
 	},

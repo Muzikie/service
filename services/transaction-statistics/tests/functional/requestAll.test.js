@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -30,15 +30,16 @@ describe('Test requestAll method', () => {
 	beforeAll(async () => {
 		await broker.start();
 		await request.setAppContext({
-			requestRpc: (method, params) => new Promise((resolve, reject) => {
-				broker
-					.call(method, params)
-					.then(res => resolve(res))
-					.catch(err => {
-						console.error(`Error occurred! ${err.message}`);
-						reject(err);
-					});
-			}),
+			requestRpc: (method, params) =>
+				new Promise((resolve, reject) => {
+					broker
+						.call(method, params)
+						.then(res => resolve(res))
+						.catch(err => {
+							console.error(`Error occurred! ${err.message}`);
+							reject(err);
+						});
+				}),
 		});
 	});
 	afterAll(() => broker.stop());
@@ -62,4 +63,3 @@ describe('Test requestAll method', () => {
 		expect(requestAll(request.requestIndexer, null, {})).rejects.toThrow();
 	});
 });
-

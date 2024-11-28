@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,6 +15,7 @@
  */
 const generatorsSource = require('../../../sources/version3/generators');
 const envelope = require('../../../sources/version3/mappings/stdEnvelope');
+const regex = require('../../../shared/regex');
 const { transformParams, response, getSwaggerDescription } = require('../../../shared/utils');
 
 module.exports = {
@@ -22,6 +23,12 @@ module.exports = {
 	swaggerApiPath: '/generators',
 	rpcMethod: 'get.generators',
 	params: {
+		search: {
+			optional: true,
+			type: 'string',
+			pattern: regex.PARTIAL_SEARCH,
+			altSwaggerKey: 'searchByNameAddressPubKey',
+		},
 		limit: { optional: true, type: 'number', min: 1, max: 103, default: 10 },
 		offset: { optional: true, type: 'number', min: 0, default: 0 },
 	},
@@ -35,7 +42,10 @@ module.exports = {
 			rpcMethod: this.rpcMethod,
 			description: 'Returns generators list',
 		});
-		generatorSchema[this.swaggerApiPath].get.parameters = transformParams('Generators', this.params);
+		generatorSchema[this.swaggerApiPath].get.parameters = transformParams(
+			'Generators',
+			this.params,
+		);
 		generatorSchema[this.swaggerApiPath].get.responses = {
 			200: {
 				description: 'Returns a list of generators',

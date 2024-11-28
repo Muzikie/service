@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,9 +17,11 @@
 const log4js = require('log4js');
 const debug = require('debug');
 const stackTrace = require('stack-trace');
+const { name } = require('../package.json');
 
 let LOG_LEVEL = 'info';
 
+// Default config for log4js
 let log4jsConfig = {
 	appenders: {},
 };
@@ -36,9 +38,13 @@ const configure = config => {
 		categories: { default: { appenders: [], level: LOG_LEVEL } },
 	};
 
-	const coverPasswords = input => `${input}`.replace(
-		/(\b(?!:\/\/\b)[^@/$]+(\b!?@)\b)/g,
-		`${Array(8).join('*')}:${Array(8).join('*')}@`);
+	/* eslint-disable implicit-arrow-linebreak */
+	const coverPasswords = input =>
+		`${input}`.replace(
+			/(\b(?!:\/\/\b)[^@/$]+(\b!?@)\b)/g,
+			`${Array(8).join('*')}:${Array(8).join('*')}@`,
+		);
+	/* eslint-enable implicit-arrow-linebreak */
 
 	const textLayout = {
 		type: 'pattern',
@@ -100,7 +106,7 @@ const configure = config => {
 			const [host, port, protocol] = config.gelf.match(/(\b(?!:\b)[^:/$]+\b)/g);
 
 			if (protocol.toLowerCase() !== 'udp') {
-				console.log(`Protocol error: other prototol that UDP is not supported ${config.gelf}`);
+				console.log(`Protocol error: other protocol that UDP is not supported ${config.gelf}`);
 			}
 
 			log4jsConfig.categories.default.appenders.push('gelf');
@@ -108,7 +114,7 @@ const configure = config => {
 				host,
 				port,
 				type: '@log4js-node/gelf',
-				facility: 'lisk-service',
+				facility: 'klayr-service',
 				customFields: {
 					_component: config.name,
 					_version: config.version,
@@ -163,12 +169,22 @@ const getDebug = entityName => {
 	if (!entityName) entityName = getFileNameWhichCalledGetLogger();
 	const debugInstance = debug(`${packageName}:${entityName}`);
 
-	return [
-		'trace', 'debug', 'info',
-		'warn', 'error', 'fatal',
-		'mark']
-		.reduce((acc, item) => (acc[item] = debugInstance) && acc, {});
+	return ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'mark'].reduce(
+		(acc, item) => (acc[item] = debugInstance) && acc,
+		{},
+	);
 };
+
+// Set default logger config
+configure({
+	name,
+	level: process.env.SERVICE_LOG_LEVEL || 'error',
+	console: process.env.SERVICE_LOG_CONSOLE || 'false',
+	stdout: process.env.SERVICE_LOG_STDOUT || 'true',
+	gelf: process.env.SERVICE_LOG_GELF || 'false',
+	file: process.env.SERVICE_LOG_FILE || 'false',
+	docker_host: process.env.DOCKER_HOST || 'local',
+});
 
 module.exports = {
 	init: configure,

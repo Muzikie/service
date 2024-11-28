@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,15 +18,17 @@ const packageJson = require('./package.json');
 const config = {};
 
 // Moleculer broker config
-config.transporter = process.env.SERVICE_BROKER || 'redis://localhost:6379/0';
-config.brokerTimeout = Number(process.env.SERVICE_BROKER_TIMEOUT) || 5; // in seconds
+config.transporter = process.env.SERVICE_BROKER || 'redis://klayr:password@127.0.0.1:6379/0';
+config.brokerTimeout = Number(process.env.SERVICE_BROKER_TIMEOUT) || 10; // in seconds
 
 /**
  * External endpoints
  */
 config.endpoints = {};
-config.endpoints.redis = process.env.SERVICE_EXPORT_REDIS || 'redis://localhost:6379/3';
-config.endpoints.volatileRedis = process.env.SERVICE_EXPORT_REDIS_VOLATILE || 'redis://localhost:6379/4';
+config.endpoints.redis =
+	process.env.SERVICE_EXPORT_REDIS || 'redis://klayr:password@127.0.0.1:6379/3';
+config.endpoints.volatileRedis =
+	process.env.SERVICE_EXPORT_REDIS_VOLATILE || 'redis://klayr:password@127.0.0.1:6379/4';
 
 // Logging
 config.log = {
@@ -51,7 +53,7 @@ config.log.stdout = process.env.SERVICE_LOG_STDOUT || 'true';
 /*
  * Configurable outputs
  * log.file   - outputs to a file (ie. ./logs/app.log)
- * log.gelf   - Writes to GELF-compatible socket (ie. localhost:12201/udp)
+ * log.gelf   - Writes to GELF-compatible socket (ie. 127.0.0.1:12201/udp)
  */
 config.log.gelf = process.env.SERVICE_LOG_GELF || 'false';
 config.log.file = process.env.SERVICE_LOG_FILE || 'false';
@@ -60,18 +62,44 @@ config.log.file = process.env.SERVICE_LOG_FILE || 'false';
 config.log.docker_host = process.env.DOCKER_HOST || 'local';
 
 // CSV output
-config.csv = {};
-config.csv.delimiter = ';';
-config.csv.dateFormat = 'YYYY-MM-DD';
-config.csv.timeFormat = 'hh:mm:ss';
-config.csv.baseUrl = '/api/v3/exports';
+config.excel = {};
+config.excel.delimiter = ';';
+config.excel.dateFormat = 'YYYY-MM-DD';
+config.excel.timeFormat = 'hh:mm:ss';
+config.excel.baseURL = '/api/v3/export/download';
+config.excel.sheets = {
+	TRANSACTION_HISTORY: 'Transaction History',
+	METADATA: 'Metadata',
+};
 
+/**
+ * Message queue options
+ */
 config.queue = {
+	scheduleTransactionExport: {
+		name: 'ScheduleTransactionExportQueue',
+		concurrency: 10,
+		options: {
+			defaultJobOptions: {
+				attempts: 5,
+				timeout: 5 * 60 * 1000, // millisecs
+				backoff: {
+					type: 'exponential',
+					delay: 1 * 60 * 1000, // millisecs
+				},
+				removeOnComplete: true,
+				removeOnFail: true,
+				stackTraceLimit: 0,
+			},
+		},
+	},
 	defaults: {
 		jobOptions: {
 			attempts: 5,
 			timeout: 5 * 60 * 1000, // millisecs
 			removeOnComplete: true,
+			removeOnFail: true,
+			stackTraceLimit: 0,
 		},
 		settings: {},
 	},
@@ -101,5 +129,13 @@ config.s3.secretKey = process.env.EXPORT_S3_SECRET_KEY; // Optional
 config.s3.sessionToken = process.env.EXPORT_S3_SESSION_TOKEN;
 config.s3.region = process.env.EXPORT_S3_REGION || 'eu-central-1'; // Default: Europe (Frankfurt)
 config.s3.bucketNameDefault = process.env.EXPORT_S3_BUCKET_NAME || 'export';
+
+config.job = {
+	// Interval takes priority over schedule and must be greater than 0 to be valid
+	purgeCache: {
+		interval: Number(process.env.JOB_INTERVAL_CACHE_PURGE) || 0,
+		schedule: process.env.JOB_SCHEDULE_CACHE_PURGE || '45 4 * * *',
+	},
+};
 
 module.exports = config;

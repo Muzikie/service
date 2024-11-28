@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -28,10 +28,10 @@ const {
 
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
 
-const getTokenConstants = async (params) => request(wsRpcUrl, 'get.token.constants', params);
+const getTokenConstants = async params => request(wsRpcUrl, 'get.token.constants', params);
 
 describe('get.token.constants', () => {
-	it('returns Token module constants', async () => {
+	it('should return token module constants', async () => {
 		const response = await getTokenConstants();
 		expect(response).toMap(jsonRpcEnvelopeSchema);
 
@@ -40,8 +40,13 @@ describe('get.token.constants', () => {
 		expect(result.meta).toMap(tokenConstantsMetaSchema);
 	});
 
-	it('params not supported -> INVALID_PARAMS (-32602)', async () => {
+	it('should return invalid params when requested with invalid param', async () => {
 		const response = await getTokenConstants({ invalidParam: 'invalid' });
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params when requested with empty invalid param', async () => {
+		const response = await getTokenConstants({ invalidParam: '' });
 		expect(response).toMap(invalidParamsSchema);
 	});
 });

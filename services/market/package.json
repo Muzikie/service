@@ -1,44 +1,44 @@
 {
-  "name": "lisk-service-market",
-  "version": "0.7.0-beta.0",
-  "description": "Lisk Service Market",
-  "keywords": [
-    "lisk",
-    "blockchain"
-  ],
-  "homepage": "https://github.com/LiskHQ/lisk-service",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:LiskHQ/lisk-service.git"
-  },
-  "bugs": {
-    "url": "https://github.com/LiskHQ/lisk-service/issues"
-  },
-  "private": true,
-  "author": "Lisk Foundation <admin@lisk.com>, lightcurve GmbH <admin@lightcurve.io>",
-  "license": "Apache-2.0",
-  "main": "app.js",
-  "engines": {
-    "node": ">=16.15.0 <=16",
-    "npm": ">=8.5.0"
-  },
-  "scripts": {
-    "start": "node app.js",
-    "clean": "rm -rf ./node_modules",
-    "watch": "supervisor -w . -i ./node_modules app.js",
-    "test:unit": "./node_modules/.bin/jest --config=jest.config.unit.js --detectOpenHandles --forceExit",
-    "test:functional": "./node_modules/.bin/jest --config=jest.config.functional.js --detectOpenHandles --forceExit"
-  },
-  "dependencies": {
-    "bluebird": "^3.7.2",
-    "joi": "^17.4.0",
-    "lisk-service-framework": "https://github.com/LiskHQ/lisk-service/raw/30e8e8df1948ccb049e2dd54f779187445aeb7ad/framework/dist/lisk-service-framework-1.4.13.tgz",
-    "moment": "^2.29.4",
-    "node-cron": "=2.0.3"
-  },
-  "devDependencies": {
-    "ioredis": "^4.27.2",
-    "jest": "^27.3.0",
-    "moleculer": "^0.14.17"
-  }
+	"name": "klayr-service-market",
+	"version": "0.7.8",
+	"description": "Klayr Service Market",
+	"keywords": [
+		"klayr",
+		"blockchain"
+	],
+	"homepage": "https://github.com/KlayrHQ/klayr-service",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:KlayrHQ/klayr-service.git"
+	},
+	"bugs": {
+		"url": "https://github.com/KlayrHQ/klayr-service/issues"
+	},
+	"private": true,
+	"author": "Lisk Foundation <admin@lisk.com>, lightcurve GmbH <admin@lightcurve.io>",
+	"license": "Apache-2.0",
+	"main": "app.js",
+	"engines": {
+		"node": ">=18.20.2 <=18",
+		"npm": ">=8.5.0"
+	},
+	"scripts": {
+		"start": "node app.js",
+		"clean": "rm -rf ./node_modules",
+		"watch": "supervisor -w . -i ./node_modules app.js",
+		"test:unit": "./node_modules/.bin/jest --config=jest.config.unit.js --detectOpenHandles --forceExit",
+		"test:functional": "./node_modules/.bin/jest --config=jest.config.functional.js --detectOpenHandles --forceExit"
+	},
+	"dependencies": {
+		"bluebird": "^3.7.2",
+		"joi": "^17.4.0",
+		"klayr-service-framework": "https://github.com/klayrHQ/klayr-service/raw/development/framework/dist/klayr-service-framework-1.6.15.tgz",
+		"moment": "^2.29.4",
+		"node-cron": "=2.0.3"
+	},
+	"devDependencies": {
+		"ioredis": "^5.3.2",
+		"jest": "^29.7.0",
+		"moleculer": "^0.14.17"
+	}
 }

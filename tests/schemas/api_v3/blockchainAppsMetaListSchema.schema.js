@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,7 +17,7 @@ import Joi from 'joi';
 import regex from './regex';
 
 const blockchainAppMetaListSchema = {
-	chainName: Joi.string().pattern(regex.NAME).required(),
+	chainName: Joi.string().pattern(regex.CHAIN_NAME).required(),
 	chainID: Joi.string().required(),
 	networkType: Joi.string().required(),
 };

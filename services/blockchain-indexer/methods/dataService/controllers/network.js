@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,10 +15,7 @@
  */
 const dataService = require('../../../shared/dataService');
 
-const {
-	getTotalStaked,
-	getTotalSelfStaked,
-} = require('../../../shared/utils/pos');
+const { getTotalStaked, getTotalSelfStaked } = require('../../../shared/utils/pos');
 const { getTotalLocked } = require('../../../shared/utils/token');
 
 const getNetworkStatus = async () => {

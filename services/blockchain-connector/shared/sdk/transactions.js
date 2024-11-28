@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,6 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const { Logger } = require('klayr-service-framework');
 const { encodeTransaction } = require('./encoder');
 const { formatTransaction, formatEvent } = require('./formatter');
 const {
@@ -23,35 +24,47 @@ const {
 	dryRunTransaction,
 } = require('./endpoints');
 
-const getTransactionByIDFormatted = async (id) => {
+const logger = Logger();
+
+const getTransactionByIDFormatted = async id => {
 	const transaction = await getTransactionByID(id);
 	const formattedTransaction = formatTransaction(transaction);
 	return formattedTransaction;
 };
 
-const getTransactionsByIDsFormatted = async (ids) => {
+const getTransactionsByIDsFormatted = async ids => {
 	const transactions = await getTransactionsByIDs(ids);
-	const formattedTransactions = transactions.map((t) => formatTransaction(t));
+	const formattedTransactions = transactions.map(t => formatTransaction(t));
 	return formattedTransactions;
 };
 
 const getTransactionsFromPoolFormatted = async () => {
 	const transactions = await getTransactionsFromPool();
-	const formattedTransactions = transactions.map((t) => formatTransaction(t));
-	return formattedTransactions;
+	const formattedTransactions = transactions.map(t => {
+		try {
+			return formatTransaction(t);
+		} catch (error) {
+			logger.warn(
+				`Formatting transaction failed due to: ${error.message}\nTransaction: ${JSON.stringify(
+					t,
+					null,
+					'\t',
+				)}`,
+			);
+			return null;
+		}
+	});
+
+	return formattedTransactions.filter(t => t);
 };
 
-const dryRunTransactionWrapper = async (params) => {
-	const { transaction, skipVerify, skipDecode } = params;
-	const encodedTransaction = typeof transaction === 'object'
-		? encodeTransaction(transaction)
-		: transaction;
+const dryRunTransactionWrapper = async params => {
+	const { transaction, skipVerify, skipDecode, strict } = params;
+	const encodedTransaction =
+		typeof transaction === 'object' ? encodeTransaction(transaction) : transaction;
 
-	const response = await dryRunTransaction({ transaction: encodedTransaction, skipVerify });
-
-	if (skipDecode) return response;
-
-	response.events = response.events.map(event => formatEvent(event));
+	const response = await dryRunTransaction({ transaction: encodedTransaction, skipVerify, strict });
+	response.events = response.events.map(event => formatEvent(event, skipDecode));
 	return response;
 };
 

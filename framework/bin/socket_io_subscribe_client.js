@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -25,6 +25,14 @@ const socket = io(process.env.WS_ENDPOINT || webSocket.endpoint, {
 	transports: ['websocket'],
 });
 
+const { onevent } = socket;
+socket.onevent = function (packet) {
+    const args = packet.data || [];
+    onevent.call(this, packet);
+    packet.data = ['*'].concat(args);
+    onevent.call(this, packet);
+};
+
 events.forEach(item => {
 	socket.on(item, res => {
 		console.log(`Event: ${item}, res: ${res || '-'}`);
@@ -32,18 +40,31 @@ events.forEach(item => {
 });
 
 ['status'].forEach(eventName => {
-	socket.on(eventName, newData => {
+	socket.on(eventName, eventPayload => {
 		console.log(
-			`Received data from ${webSocket.endpoint}/${eventName}: ${newData}`,
+			`Received data from ${webSocket.endpoint}/${eventName}: ${eventPayload}`,
 		);
 	});
 });
 
-const subscribe = event => {
-	socket.on(event, answer => {
-		console.log(`====== ${event} ======`);
-		console.log(colorize(JSON.stringify(answer, null, 2)));
-	});
+const subscribe = subscribeEvent => {
+	socket.on(
+		subscribeEvent,
+		(...args) => {
+			let eventName;
+			let eventPayload;
+
+			if (subscribeEvent === '*') {
+				[eventName, eventPayload] = args;
+			} else {
+				eventName = subscribeEvent;
+				[eventPayload] = args;
+			}
+
+			console.log(`====== ${eventName} ======`);
+			console.log(colorize(JSON.stringify(eventPayload, null, 2)));
+		},
+	);
 };
 
 // subscribe('*'); // Listen to all the events
@@ -55,3 +76,4 @@ subscribe('update.round');
 subscribe('update.generators');
 subscribe('update.fee_estimates');
 subscribe('update.metadata');
+subscribe('update.index.status');

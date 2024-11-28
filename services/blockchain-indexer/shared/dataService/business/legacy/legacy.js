@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,12 +13,9 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	getLegacyAddressFromPublicKey,
-	getLisk32AddressFromPublicKey,
-} = require('../../../utils/account');
-
 const { requestConnector } = require('../../../utils/request');
+const { getLegacyAddressFromPublicKey } = require('../../utils/account');
+const { getKlayr32AddressFromPublicKey } = require('../../../utils/account');
 
 const getLegacyAccountInfo = async ({ publicKey }) => {
 	const legacyAccountInfo = {
@@ -33,7 +30,7 @@ const getLegacyAccountInfo = async ({ publicKey }) => {
 	};
 
 	legacyAccountInfo.meta = {
-		address: getLisk32AddressFromPublicKey(publicKey),
+		address: getKlayr32AddressFromPublicKey(publicKey),
 		publicKey,
 	};
 

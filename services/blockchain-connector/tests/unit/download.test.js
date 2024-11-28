@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,7 +18,9 @@ const { verifyFileChecksum } = require('../../shared/utils/download');
 
 const genesisBlockFilePath = resolve(`${dirname(__dirname)}/constants/genesis_block.json`);
 const checksumFilePath = resolve(`${dirname(__dirname)}/constants/genesis_block.json.SHA256`);
-const invalidChecksumFilePath = resolve(`${dirname(__dirname)}/constants/invalid_genesis_block.json.SHA256`);
+const invalidChecksumFilePath = resolve(
+	`${dirname(__dirname)}/constants/invalid_genesis_block.json.SHA256`,
+);
 
 describe('Test verifyFileChecksum method', () => {
 	it('should return true in case of valid checksum', async () => {

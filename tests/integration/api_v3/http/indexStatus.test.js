@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,23 +18,25 @@ const { api } = require('../../../helpers/api');
 
 const { badRequestSchema } = require('../../../schemas/httpGenerics.schema');
 
-const {
-	goodResponseSchema,
-} = require('../../../schemas/api_v3/indexStatus.schema');
+const { goodResponseSchema } = require('../../../schemas/api_v3/indexStatus.schema');
 
 const baseUrl = config.SERVICE_ENDPOINT;
 const baseUrlV3 = `${baseUrl}/api/v3`;
 const endpoint = `${baseUrlV3}/index/status`;
 
 describe('Index Status API', () => {
-	it('Retrieves index status -> ok', async () => {
+	it('should return index status', async () => {
 		const response = await api.get(endpoint);
 		expect(response).toMap(goodResponseSchema);
 	});
 
-	it('Invalid request param -> bad request', async () => {
+	it('should return bad request for unsupported param', async () => {
 		const response = await api.get(`${endpoint}?invalidParam=invalid`, 400);
 		expect(response).toMap(badRequestSchema);
 	});
-});
 
+	it('should return bad request for empty param', async () => {
+		const response = await api.get(`${endpoint}?someParam=`, 400);
+		expect(response).toMap(badRequestSchema);
+	});
+});

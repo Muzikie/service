@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,18 +15,14 @@
  */
 module.exports = {
 	tableName: 'event_topics',
-	primaryKey: 'tempID',
+	primaryKey: ['eventID', 'topic'],
 	schema: {
-		tempID: { type: 'string' },
 		eventID: { type: 'string' },
 		topic: { type: 'string' },
-		height: { type: 'integer' },
-		index: { type: 'integer' },
-		timestamp: { type: 'integer' },
 	},
 	indexes: {
+		eventID: { type: 'key' },
 		topic: { type: 'key' },
-		height: { type: 'range' },
 	},
 	purge: {},
 };

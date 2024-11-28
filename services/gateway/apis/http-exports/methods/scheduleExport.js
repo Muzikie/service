@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,9 +24,9 @@ module.exports = {
 	rpcMethod: 'get.export.transactions',
 	tags: ['Account History Export'],
 	params: {
-		address: { optional: true, type: 'string', min: 3, max: 41, pattern: regex.ADDRESS_LISK32 },
+		address: { optional: true, type: 'string', min: 3, max: 41, pattern: regex.ADDRESS_KLAYR32 },
 		publicKey: { optional: true, type: 'string', min: 64, max: 64, pattern: regex.PUBLIC_KEY },
-		interval: { optional: true, type: 'string', min: 10, max: 21, pattern: regex.INTERVAL },
+		interval: { optional: true, type: 'string', min: 10, max: 21, pattern: regex.DATE_INTERVAL },
 	},
 	paramsRequired: true,
 	validParamPairings: [
@@ -39,11 +39,9 @@ module.exports = {
 		const exportSchema = {};
 		exportSchema[this.swaggerApiPath] = { get: {} };
 		exportSchema[this.swaggerApiPath].get.tags = this.tags;
-		exportSchema[this.swaggerApiPath].get.parameters = transformParams(
-			'export',
-			this.params,
-		);
-		exportSchema[this.swaggerApiPath].get.summary = 'Requests to schedule export of transaction history for a given account';
+		exportSchema[this.swaggerApiPath].get.parameters = transformParams('export', this.params);
+		exportSchema[this.swaggerApiPath].get.summary =
+			'Requests to schedule export of transaction history for a given account';
 		exportSchema[this.swaggerApiPath].get.description = getSwaggerDescription({
 			rpcMethod: this.rpcMethod,
 			description: 'Returns transaction history export scheduling information',

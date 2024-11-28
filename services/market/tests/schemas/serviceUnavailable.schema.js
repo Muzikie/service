@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,9 +17,11 @@ const Joi = require('joi');
 
 const serviceUnavailableSchema = {
 	status: Joi.string().valid('SERVICE_UNAVAILABLE').required(),
-	data: Joi.object().keys({
-		error: Joi.string().valid('Service is not ready yet').required(),
-	}).required(),
+	data: Joi.object()
+		.keys({
+			error: Joi.string().valid('Service is not ready yet').required(),
+		})
+		.required(),
 };
 
 module.exports = {

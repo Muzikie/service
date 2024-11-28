@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,9 +15,7 @@
  */
 const config = require('../../../config');
 
-const {
-	request,
-} = require('../../../helpers/socketIoRpcRequest');
+const { request } = require('../../../helpers/socketIoRpcRequest');
 
 const {
 	invalidParamsSchema,
@@ -30,18 +28,23 @@ const {
 	authAccountMetaSchema,
 } = require('../../../schemas/api_v3/authAccountSchema.schema');
 
+const { invalidAddresses } = require('../constants/invalidInputs');
+
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
-const getAuthAccountInfo = async (params) => request(wsRpcUrl, 'get.auth', params);
-const getTransactions = async (params) => request(wsRpcUrl, 'get.transactions', params);
+const getAuthAccountInfo = async params => request(wsRpcUrl, 'get.auth', params);
+const getTransactions = async params => request(wsRpcUrl, 'get.transactions', params);
 
 describe('get.auth', () => {
 	let refTransaction;
 	beforeAll(async () => {
-		const response = await getTransactions({ moduleCommand: 'auth:registerMultisignature', limit: 1 });
+		const response = await getTransactions({
+			moduleCommand: 'auth:registerMultisignature',
+			limit: 1,
+		});
 		[refTransaction] = response.result.data;
 	});
 
-	it('returns auth account info', async () => {
+	it('should retrieve auth account info for a valid address', async () => {
 		const response = await getAuthAccountInfo({ address: refTransaction.sender.address });
 		expect(response).toMap(jsonRpcEnvelopeSchema);
 		const { result } = response;
@@ -50,18 +53,15 @@ describe('get.auth', () => {
 		expect(result.meta).toMap(authAccountMetaSchema);
 	});
 
-	it('invalid address -> invalid params', async () => {
-		const response = await getAuthAccountInfo({ address: 'lsydxc4ta5j43jp9ro3f8zqbxta9fn6jwzjucw7yj' });
-		expect(response).toMap(invalidParamsSchema);
-	});
-
-	it('invalid request param -> invalid param', async () => {
-		const response = await getAuthAccountInfo({ invalidParam: 'invalid' });
-		expect(response).toMap(invalidParamsSchema);
-	});
-
-	it('No address -> invalid param', async () => {
+	it('should return invalid params for missing address parameter', async () => {
 		const response = await getAuthAccountInfo();
 		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params for an invalid address', async () => {
+		for (let i = 0; i < invalidAddresses.length; i++) {
+			const response = await getAuthAccountInfo({ address: invalidAddresses[i] });
+			expect(response).toMap(invalidParamsSchema);
+		}
 	});
 });

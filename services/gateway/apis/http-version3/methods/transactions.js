@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,18 +24,39 @@ module.exports = {
 	rpcMethod: 'get.transactions',
 	tags: ['Transactions'],
 	params: {
-		transactionID: { optional: true, type: 'string', min: 1, max: 64, pattern: regex.HASH_SHA256 },
-		moduleCommand: { optional: true, type: 'string', min: 1.0, pattern: regex.MODULE_COMMAND },
-		senderAddress: { optional: true, type: 'string', min: 3, max: 41, pattern: regex.ADDRESS_LISK32 },
-		address: { optional: true, type: 'string', min: 3, max: 41, pattern: regex.ADDRESS_LISK32 },
-		recipientAddress: { optional: true, type: 'string', min: 3, max: 41, pattern: regex.ADDRESS_LISK32 },
-		blockID: { optional: true, type: 'string', min: 1, max: 64, pattern: regex.HASH_SHA256 },
+		transactionID: { optional: true, type: 'string', min: 64, max: 64, pattern: regex.HASH_SHA256 },
+		moduleCommand: { optional: true, type: 'string', min: 1, pattern: regex.MODULE_COMMAND },
+		senderAddress: {
+			optional: true,
+			type: 'string',
+			min: 41,
+			max: 41,
+			pattern: regex.ADDRESS_KLAYR32,
+		},
+		address: {
+			optional: true,
+			type: 'string',
+			min: 41,
+			max: 41,
+			pattern: regex.ADDRESS_KLAYR32,
+			altSwaggerKey: 'senderAndRecipientAddress',
+		},
+		recipientAddress: {
+			optional: true,
+			type: 'string',
+			min: 41,
+			max: 41,
+			pattern: regex.ADDRESS_KLAYR32,
+		},
+		receivingChainID: { optional: true, type: 'string', pattern: regex.CHAIN_ID },
+		blockID: { optional: true, type: 'string', min: 64, max: 64, pattern: regex.HASH_SHA256 },
 		height: { optional: true, type: 'string', min: 1, pattern: regex.HEIGHT_RANGE },
 		timestamp: { optional: true, type: 'string', min: 1, pattern: regex.TIMESTAMP_RANGE },
 		executionStatus: {
 			optional: true,
 			type: 'string',
 			pattern: regex.TRANSACTION_EXECUTION_STATUS,
+			default: 'pending,successful,failed',
 		},
 		nonce: { optional: true, type: 'string', min: 1, pattern: regex.NONCE },
 		limit: { optional: true, type: 'number', min: 1, max: 100, default: 10 },
@@ -46,7 +67,12 @@ module.exports = {
 			enum: ['height:asc', 'height:desc', 'timestamp:asc', 'timestamp:desc'],
 			default: 'timestamp:desc',
 		},
-		order: { optional: true, type: 'string', enum: ['index:asc', 'index:desc'], default: 'index:asc' },
+		order: {
+			optional: true,
+			type: 'string',
+			enum: ['index:asc', 'index:desc'],
+			default: 'index:asc',
+		},
 	},
 	get schema() {
 		const transactionSchema = {};
@@ -57,7 +83,10 @@ module.exports = {
 			rpcMethod: this.rpcMethod,
 			description: 'Returns transactions data',
 		});
-		transactionSchema[this.swaggerApiPath].get.parameters = transformParams('transactions', this.params);
+		transactionSchema[this.swaggerApiPath].get.parameters = transformParams(
+			'transactions',
+			this.params,
+		);
 		transactionSchema[this.swaggerApiPath].get.responses = {
 			200: {
 				description: 'Returns a list of transactions',

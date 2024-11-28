@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -21,33 +21,36 @@ const {
 	jsonRpcEnvelopeSchema,
 } = require('../../../schemas/rpcGenerics.schema');
 
-const {
-	rewardDefaultResponseSchema,
-} = require('../../../schemas/api_v3/rewardDefault.schema');
+const { rewardDefaultResponseSchema } = require('../../../schemas/api_v3/rewardDefault.schema');
 
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
 
-const getRewardDefault = async (params) => request(wsRpcUrl, 'get.reward.default', params);
+const getRewardDefault = async params => request(wsRpcUrl, 'get.reward.default', params);
 
 describe('get.reward.default', () => {
-	it('Returns default reward when requested with block height=1', async () => {
+	it('should return default reward when requested with block height=1', async () => {
 		const response = await getRewardDefault({ height: 1 });
 		expect(response).toMap(jsonRpcEnvelopeSchema);
 		const { result } = response;
 		expect(result).toMap(rewardDefaultResponseSchema);
 	});
 
-	it('No height -> invalid param', async () => {
+	it('should return invalid params for missing height', async () => {
 		const response = await getRewardDefault();
 		expect(response).toMap(invalidParamsSchema);
 	});
 
-	it('Invalid height -> invalid param', async () => {
+	it('should return invalid params for a height less than 0', async () => {
+		const response = await getRewardDefault({ height: -1 });
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params for a non-integer height', async () => {
 		const response = await getRewardDefault({ height: 'abc' });
 		expect(response).toMap(invalidParamsSchema);
 	});
 
-	it('Invalid request param -> invalid param', async () => {
+	it('should return invalid params for a invalid param', async () => {
 		const response = await getRewardDefault({ invalidParam: 'invalid' });
 		expect(response).toMap(invalidParamsSchema);
 	});

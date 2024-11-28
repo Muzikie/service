@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -40,13 +40,13 @@ const getBlocksByHeightBetweenFormatted = async ({ from, to }) => {
 	return formattedBlocks;
 };
 
-const getBlockByIDFormatted = async (id) => {
+const getBlockByIDFormatted = async id => {
 	const block = await getBlockByID(id);
 	const formattedBlock = formatBlock(block);
 	return formattedBlock;
 };
 
-const getBlocksByIDsFormatted = async (ids) => {
+const getBlocksByIDsFormatted = async ids => {
 	const blocks = await getBlocksByIDs(ids);
 	const formattedBlocks = blocks.map(b => formatBlock(b));
 	return formattedBlocks;

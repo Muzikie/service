@@ -1,120 +1,478 @@
 = PM2 commands
-Mona Bärenfänger <mona@lightcurve.io>
-:description: Describes how to manage Lisk Service with PM2.
+Mona Bärenfänger <mona@lightcurve.io> Muhammad Talha <muhammad.talha@lightcurve.io>
+:description: Describes how to manage Klayr Service with PM2.
 :toc:
 :idseparator: -
 :idprefix:
 :imagesdir: ../assets/images
+:source-language: bash
+:url_snapshot_config: configuration/index.adoc
+// External URLs
+:url_pm2_docs: https://pm2.keymetrics.io/docs/usage/quick-start/
+:url_FLUSHALL: https://redis.io/commands/FLUSHALL
+:url_pm2_management: https://pm2.keymetrics.io/docs/usage/log-management/
+:url_backups: management/snapshots.adoc
+:url_rel_notes: https://github.com/KlayrHQ/klayr-service/releases
+:url_tags: https://github.com/KlayrHQ/klayr-service/tags
 
-== Start
 
-[source,bash]
+//TODO: add in link to new Backups page for importing the DB snapshot manually
+
+On this page, you'll find the most relevant PM2 commands for running a source-based Klayr Service installation.
+For more details about PM2, see {url_pm2_docs}[PM2 docs].
+
+Moreover, we'll also talk about the steps to reset a Klayr Service node.
+
+TIP: The process ID of each PM2-managed process can be seen by executing the <<list>> command. To learn more about PM2 log management please refer the {url_pm2_management}[PM2 logs documentation].
+
+
+== Various PM2 commands
+
+=== Start
+Start Klayr Service.
+
 ----
-pm2 start ecosystem.core3.config.js
-
-# or
-
-npm start
+pm2 start ecosystem.config.js
 ----
 
-== Status
+.Response
+[%collapsible]
+====
+.Example output
+----
+[PM2] Applying action restartProcessId on app [klayr-service-gateway](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-app-registry](ids: [ 1 ])
+[PM2] [klayr-service-gateway](0) ✓
+[PM2] [klayr-service-blockchain-app-registry](1) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-connector](ids: [ 2 ])
+[PM2] [klayr-service-blockchain-connector](2) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-indexer](ids: [ 3 ])
+[PM2] [klayr-service-blockchain-indexer](3) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-coordinator](ids: [ 4 ])
+[PM2] [klayr-service-blockchain-coordinator](4) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-fee-estimator](ids: [ 5 ])
+[PM2] [klayr-service-fee-estimator](5) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-transaction-statistics](ids: [ 6 ])
+[PM2] [klayr-service-transaction-statistics](6) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-market](ids: [ 7 ])
+[PM2] [klayr-service-market](7) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-export](ids: [ 8 ])
+[PM2] [klayr-service-export](8) ✓
+┌----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name                                    │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┤
+│ 1   │ klayr-service-blockchain-app-registry    │ default     │ 0.7.8   │ fork    │ 33328    │ 0s     │ 16   │ online    │ 0%       │ 65.5mb   │ XYZ      │ disabled │
+│ 2   │ klayr-service-blockchain-connector       │ default     │ 0.7.8   │ fork    │ 33331    │ 0s     │ 0    │ online    │ 0%       │ 63.8mb   │ XYZ      │ disabled │
+│ 4   │ klayr-service-blockchain-coordinator     │ default     │ 0.7.8   │ fork    │ 33341    │ 0s     │ 0    │ online    │ 0%       │ 54.1mb   │ XYZ      │ disabled │
+│ 3   │ klayr-service-blockchain-indexer         │ default     │ 0.7.8   │ fork    │ 33338    │ 0s     │ 16   │ online    │ 0%       │ 54.3mb   │ XYZ      │ disabled │
+│ 8   │ klayr-service-export                     │ default     │ 0.7.8   │ fork    │ 33355    │ 0s     │ 15   │ online    │ 0%       │ 14.1mb   │ XYZ      │ disabled │
+│ 5   │ klayr-service-fee-estimator              │ default     │ 0.7.8   │ fork    │ 33346    │ 0s     │ 15   │ online    │ 0%       │ 46.9mb   │ XYZ      │ disabled │
+│ 0   │ klayr-service-gateway                    │ default     │ 0.7.8   │ fork    │ 33326    │ 0s     │ 15   │ online    │ 0%       │ 65.6mb   │ XYZ      │ disabled │
+│ 7   │ klayr-service-market                     │ default     │ 0.7.8   │ fork    │ 33351    │ 0s     │ 15   │ online    │ 0%       │ 36.9mb   │ XYZ      │ disabled │
+│ 6   │ klayr-service-transaction-statistics     │ default     │ 0.7.8   │ fork    │ 33348    │ 0s     │ 15   │ online    │ 0%       │ 43.5mb   │ XYZ      │ disabled │
+└----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┘
+----
+====
 
-[source,bash]
+=== List
+
+View the status of different microservices of Klayr Service in the list of PM2 processes:
+
 ----
 pm2 list
 ----
 
-== Stop
+.Response
+[%collapsible]
+====
+.Example output
+----
+┌----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name                                    │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┤
+│ 1   │ klayr-service-blockchain-app-registry    │ default     │ 0.7.8   │ fork    │ 33328    │ 0s     │ 16   │ online    │ 0%       │ 65.5mb   │ XYZ      │ disabled │
+│ 2   │ klayr-service-blockchain-connector       │ default     │ 0.7.8   │ fork    │ 33331    │ 0s     │ 0    │ online    │ 0%       │ 63.8mb   │ XYZ      │ disabled │
+│ 4   │ klayr-service-blockchain-coordinator     │ default     │ 0.7.8   │ fork    │ 33341    │ 0s     │ 0    │ online    │ 0%       │ 54.1mb   │ XYZ      │ disabled │
+│ 3   │ klayr-service-blockchain-indexer         │ default     │ 0.7.8   │ fork    │ 33338    │ 0s     │ 16   │ online    │ 0%       │ 54.3mb   │ XYZ      │ disabled │
+│ 8   │ klayr-service-export                     │ default     │ 0.7.8   │ fork    │ 33355    │ 0s     │ 15   │ online    │ 0%       │ 14.1mb   │ XYZ      │ disabled │
+│ 5   │ klayr-service-fee-estimator              │ default     │ 0.7.8   │ fork    │ 33346    │ 0s     │ 15   │ online    │ 0%       │ 46.9mb   │ XYZ      │ disabled │
+│ 0   │ klayr-service-gateway                    │ default     │ 0.7.8   │ fork    │ 33326    │ 0s     │ 15   │ online    │ 0%       │ 65.6mb   │ XYZ      │ disabled │
+│ 7   │ klayr-service-market                     │ default     │ 0.7.8   │ fork    │ 33351    │ 0s     │ 15   │ online    │ 0%       │ 36.9mb   │ XYZ      │ disabled │
+│ 6   │ klayr-service-transaction-statistics     │ default     │ 0.7.8   │ fork    │ 33348    │ 0s     │ 15   │ online    │ 0%       │ 43.5mb   │ XYZ      │ disabled │
+└----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┘
+----
+====
 
+=== Logs
+To check the logs for the different microservices of Klayr Service, use the command `pm2 logs PROCESS_NAME`, where `PROCESS_NAME` is the respective PM2-managed process that contains the logs you wish to view.
+
+Alternatively, it is also possible to check the logs for a specific PM2 process based on its process ID.
+For example, `pm2 logs 0` can be used to check the Klayr Service Gateway logs.
+
+TIP: The process ID of each PM2-managed process can be seen by executing the <<list>> command.
+To learn more about PM2 log management please refer the {url_pm2_management}[PM2 logs documentation].
+
+For example, to see the logs for the Gateway microservice, execute the following command:
+
+----
+pm2 logs klayr-service-gateway
+----
+
+.Response
+[%collapsible]
+====
+.Example output
+----
+0|klayr-ser | 2023-07-19 17:53:08 503: 2023-07-19T17:53:08.503 INFO [TRANSIT] Connecting to the transporter...
+0|klayr-ser | 2023-07-19 17:53:08 504: 2023-07-19T17:53:08.503 INFO [TRANSPORTER] Setting Redis transporter
+0|klayr-ser | 2023-07-19 17:53:08 510: 2023-07-19T17:53:08.510 INFO [TRANSPORTER] Redis-sub client is connected.
+0|klayr-ser | 2023-07-19 17:53:08 510: 2023-07-19T17:53:08.510 INFO [TRANSPORTER] Setting Redis transporter
+0|klayr-ser | 2023-07-19 17:53:08 512: 2023-07-19T17:53:08.512 INFO [TRANSPORTER] Redis-pub client is connected.
+0|klayr-ser | 2023-07-19 17:53:09 016: 2023-07-19T17:53:09.016 INFO [TEMP_SERVICE_GATEWAY] Waiting for service(s) 'indexer, connector'...
+0|klayr-ser | 2023-07-19 17:53:09 018: 2023-07-19T17:53:09.018 INFO [REGISTRY] '$node' service is registered.
+0|klayr-ser | 2023-07-19 17:53:09 018: 2023-07-19T17:53:09.018 INFO [$NODE] Service '$node' started.
+0|klayr-ser | 2023-07-19 17:53:10 225: 2023-07-19T17:53:10.223 INFO [REGISTRY] Node 'XYZ.local-74790' connected.
+0|klayr-ser | 2023-07-19 17:53:10 274: 2023-07-19T17:53:10.274 INFO [REGISTRY] Node 'XYZ.local-74787' connected.
+0|klayr-ser | 2023-07-19 17:53:10 325: 2023-07-19T17:53:10.325 INFO [REGISTRY] Node 'XYZ.local-74798' connected.
+0|klayr-ser | 2023-07-19 17:53:10 346: 2023-07-19T17:53:10.345 INFO [REGISTRY] Node 'XYZ.local-74772' connected.
+0|klayr-ser | 2023-07-19 17:53:10 415: 2023-07-19T17:53:10.414 INFO [REGISTRY] Node 'XYZ.local-74804' connected.
+0|klayr-ser | 2023-07-19 17:53:10 485: 2023-07-19T17:53:10.484 INFO [REGISTRY] Node 'XYZ.local-74795' connected.
+0|klayr-ser | 2023-07-19 17:53:10 676: 2023-07-19T17:53:10.675 INFO [REGISTRY] Node 'XYZ.local-74779' connected.
+----
+====
+
+=== Flush
+Remove all the logs of the PM2-managed processes defined in the specified config file.
+
+----
+pm2 flush ecosystem.config.js
+----
+
+.Response
+[%collapsible]
+====
+.Example output
+----
+[PM2] Logs flushed
+----
+====
+
+
+=== Stop
+Stop PM2 managed Klayr Service instance.
+
+----
+pm2 stop ecosystem.config.js
+----
+
+.Response
+[%collapsible]
+====
+.Example output
 [source,bash]
 ----
-pm2 stop ecosystem.core3.config.js
+[PM2] [klayr-service-blockchain-app-registry](1) ✓
+[PM2] [klayr-service-gateway](0) ✓
+[PM2] [klayr-service-blockchain-indexer](3) ✓
+[PM2] [klayr-service-blockchain-connector](2) ✓
+[PM2] [klayr-service-blockchain-coordinator](4) ✓
+[PM2] [klayr-service-fee-estimator](5) ✓
+[PM2] [klayr-service-transaction-statistics](6) ✓
+[PM2] [klayr-service-market](7) ✓
+[PM2] [klayr-service-export](8) ✓
+┌------------------------------------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name                                    │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem  │ user     │ watching │
+├------------------------------------------------------------------------------------------------------------------------------------------------------------------------┤
+│ 1   │ klayr-service-blockchain-app-registry    │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 32   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 2   │ klayr-service-blockchain-connector       │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 4   │ klayr-service-blockchain-coordinator     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 3   │ klayr-service-blockchain-indexer         │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 32   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 8   │ klayr-service-export                     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 5   │ klayr-service-fee-estimator              │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 0   │ klayr-service-gateway                    │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 7   │ klayr-service-market                     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 6   │ klayr-service-transaction-statistics     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+└------------------------------------------------------------------------------------------------------------------------------------------------------------------------┘
+----
+====
+
+
+=== Restart
+
+Restart Klayr Service via PM2.
+
+----
+pm2 restart ecosystem.config.js
 ----
 
-== Restart
-
+.Response
+[%collapsible]
+====
+.Example output
 [source,bash]
 ----
-pm2 restart ecosystem.core3.config.js
+[PM2] Applying action restartProcessId on app [klayr-service-gateway](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-app-registry](ids: [ 1 ])
+[PM2] [klayr-service-gateway](0) ✓
+[PM2] [klayr-service-blockchain-app-registry](1) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-connector](ids: [ 2 ])
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-indexer](ids: [ 3 ])
+[PM2] [klayr-service-blockchain-indexer](3) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-coordinator](ids: [ 4 ])
+[PM2] [klayr-service-blockchain-connector](2) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-fee-estimator](ids: [ 5 ])
+[PM2] [klayr-service-blockchain-coordinator](4) ✓
+[PM2] [klayr-service-fee-estimator](5) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-transaction-statistics](ids: [ 6 ])
+[PM2] Applying action restartProcessId on app [klayr-service-market](ids: [ 7 ])
+[PM2] [klayr-service-transaction-statistics](6) ✓
+[PM2] [klayr-service-market](7) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-export](ids: [ 8 ])
+[PM2] [klayr-service-export](8) ✓
+┌----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name                                    │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┤
+│ 1   │ klayr-service-blockchain-app-registry    │ default     │ 0.7.8   │ fork    │ 33328    │ 0s     │ 16   │ online    │ 0%       │ 65.5mb   │ XYZ      │ disabled │
+│ 2   │ klayr-service-blockchain-connector       │ default     │ 0.7.8   │ fork    │ 33331    │ 0s     │ 0    │ online    │ 0%       │ 63.8mb   │ XYZ      │ disabled │
+│ 4   │ klayr-service-blockchain-coordinator     │ default     │ 0.7.8   │ fork    │ 33341    │ 0s     │ 0    │ online    │ 0%       │ 54.1mb   │ XYZ      │ disabled │
+│ 3   │ klayr-service-blockchain-indexer         │ default     │ 0.7.8   │ fork    │ 33338    │ 0s     │ 16   │ online    │ 0%       │ 54.3mb   │ XYZ      │ disabled │
+│ 8   │ klayr-service-export                     │ default     │ 0.7.8   │ fork    │ 33355    │ 0s     │ 15   │ online    │ 0%       │ 14.1mb   │ XYZ      │ disabled │
+│ 5   │ klayr-service-fee-estimator              │ default     │ 0.7.8   │ fork    │ 33346    │ 0s     │ 15   │ online    │ 0%       │ 46.9mb   │ XYZ      │ disabled │
+│ 0   │ klayr-service-gateway                    │ default     │ 0.7.8   │ fork    │ 33326    │ 0s     │ 15   │ online    │ 0%       │ 65.6mb   │ XYZ      │ disabled │
+│ 7   │ klayr-service-market                     │ default     │ 0.7.8   │ fork    │ 33351    │ 0s     │ 15   │ online    │ 0%       │ 36.9mb   │ XYZ      │ disabled │
+│ 6   │ klayr-service-transaction-statistics     │ default     │ 0.7.8   │ fork    │ 33348    │ 0s     │ 15   │ online    │ 0%       │ 43.5mb   │ XYZ      │ disabled │
+└----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┘
+----
+====
+
+=== Delete
+Remove all processes from the PM2 list.
+
+----
+pm2 delete ecosystem.config.js
 ----
 
-== Remove all processes from pm2 list
 
-[source,bash]
+.Response
+[%collapsible]
+====
+.Example output
 ----
-pm2 delete ecosystem.core3.config.js
-
-# or
-
-npm stop
+[PM2] [klayr-service-gateway](0) ✓
+[PM2] [klayr-service-blockchain-app-registry](1) ✓
+[PM2] [klayr-service-blockchain-indexer](3) ✓
+[PM2] [klayr-service-blockchain-connector](2) ✓
+[PM2] [klayr-service-blockchain-coordinator](4) ✓
+[PM2] [klayr-service-fee-estimator](5) ✓
+[PM2] [klayr-service-transaction-statistics](6) ✓
+[PM2] [klayr-service-market](7) ✓
+[PM2] [klayr-service-export](8) ✓
+┌----------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└----------------------------------------------------------------------------------------------------------------------------------------------┘
+[PM2][WARN] Current process list is not synchronized with saved list. App klayr-service-gateway klayr-service-blockchain-app-registry klayr-service-blockchain-connector klayr-service-blockchain-indexer klayr-service-blockchain-coordinator klayr-service-fee-estimator klayr-service-transaction-statistics klayr-service-market klayr-service-export differs. Type 'pm2 save' to synchronize.
 ----
+====
 
-== Clean all run-time files with dependencies
+== Taking Snapshots
 
-[source,bash]
+If you wish to take a snapshot of your Source-based installation, the details can be found here on the xref:{url_backups}[Snapshots] page.
+
+== Resetting Klayr Service
+
+=== Clean all run-time files with dependencies
+
 ----
-make clean
-----
-
-== Reset the Lisk Service database
-
-To reset the database of Lisk Service, drop the respective MYSQL and Redis databases.
-
-=== Drop the MYSQL database
-
-[source,bash]
-----
-# Stop Lisk Service
-$ npm stop
-# Login to MYSQL with the lisk user
-$ mysql -u lisk -ppassword
-# Drop the database
-mysql> drop database lisk;
-# Create fresh database
-mysql> create database lisk;
-mysql> quit; # Quit MYSQL
+make clean-local
 ----
 
-NOTE: When Lisk Service is started again after a database reset, then the process to reindex all the data is initiated. This can be quite time-consuming and may take up to 2 hours.
+.Response
+[%collapsible]
+====
+.Example output
+----
+rm -rf node_modules
+cd ./framework && rm -rf node_modules
+cd ./services/blockchain-app-registry && rm -rf node_modules
+cd ./services/blockchain-connector && rm -rf node_modules
+cd ./services/blockchain-coordinator && rm -rf node_modules
+cd ./services/blockchain-indexer && rm -rf node_modules
+cd ./services/transaction-statistics && rm -rf node_modules
+cd ./services/fee-estimator && rm -rf node_modules
+cd ./services/market && rm -rf node_modules
+cd ./services/gateway && rm -rf node_modules
+cd ./services/export && rm -rf node_modules
+cd ./services/template && rm -rf node_modules
+cd ./tests && rm -rf node_modules
+----
+====
 
-=== Flush Redis DB
+=== Install npm dependencies
 
-Reset the databases for Redis after dropping the MYSQL database:
+----
+make build-local
+----
 
-[source,bash]
+=== Reset the Klayr Service database
+
+To reset the database of Klayr Service, drop the respective MySQL and Redis databases.
+
+==== Drop the MySQL database
+
+. Stop Klayr Service
++
+----
+yarn stop
+----
+
+. Login to MySQL with the `klayr` user.
++
+----
+mysql -u klayr -ppassword
+----
+
+. Drop the database.
++
+----
+mysql> drop database klayr;
+----
+
+. Create a fresh database.
++
+----
+mysql> create database klayr;
+----
+
+. Quit MySQL.
++
+----
+mysql> quit;
+----
+
+NOTE: The process to re-index all the data commences after Klayr Service starts again following a database reset. The process can be rather time-consuming and could take several hours, depending on the length of the chain.
+
+==== Flush Redis DB
+
+Reset the databases for Redis after dropping the MySQL database:
+
 ----
 redis-cli flushall
 ----
 
 [NOTE]
 ====
-The `flushall` command removes all existing Redis databases:
+The `flushall` command truncates all existing Redis databases:
 
 > Deletes all the keys of all the existing databases, not just the current selected one. This command never fails.
 
-For more information check the Redis documentation: https://redis.io/commands/FLUSHALL[FLUSHALL]
+For more information, check the Redis documentation: {url_FLUSHALL}[FLUSHALL].
 
-To flush only a particular DB in Redis, execute the following command instead:
+To flush only a particular database in Redis, execute the following command instead:
+
 ----
- redis-cli -n <db_number> flushdb
+redis-cli -n <db_number> flushdb
 ----
 ====
 
-=== Start Lisk Service
+You can start Klayr Service again with the <<start>> command.
 
+
+== Upgrade Klayr Service
+
+To upgrade Klayr Service to a desired version, please follow the steps listed below. To find all the tagged versions for Klayr Service, please check the {url_tags}[available tags] on GitHub.
+
+. Stop the existing running version of Klayr Service.
++
+----
+pm2 stop ecosystem.config.js
+----
++
+.Response
+[%collapsible]
+====
+.Example output
 [source,bash]
 ----
-# Start Lisk Service
-$ npm start
+[PM2] [klayr-service-blockchain-app-registry](1) ✓
+[PM2] [klayr-service-gateway](0) ✓
+[PM2] [klayr-service-blockchain-indexer](3) ✓
+[PM2] [klayr-service-blockchain-connector](2) ✓
+[PM2] [klayr-service-blockchain-coordinator](4) ✓
+[PM2] [klayr-service-fee-estimator](5) ✓
+[PM2] [klayr-service-transaction-statistics](6) ✓
+[PM2] [klayr-service-market](7) ✓
+[PM2] [klayr-service-export](8) ✓
+┌------------------------------------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name                                    │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem  │ user     │ watching │
+├------------------------------------------------------------------------------------------------------------------------------------------------------------------------┤
+│ 1   │ klayr-service-blockchain-app-registry    │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 32   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 2   │ klayr-service-blockchain-connector       │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 4   │ klayr-service-blockchain-coordinator     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 3   │ klayr-service-blockchain-indexer         │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 32   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 8   │ klayr-service-export                     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 5   │ klayr-service-fee-estimator              │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 0   │ klayr-service-gateway                    │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 7   │ klayr-service-market                     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+│ 6   │ klayr-service-transaction-statistics     │ default     │ 0.7.8   │ fork    │ 0        │ 0      │ 30   │ stopped   │ 0%       │ 0b   │ XYZ      │ disabled │
+└------------------------------------------------------------------------------------------------------------------------------------------------------------------------┘
+----
+====
+
+. Checkout the version with *`git checkout <tag>`*.
++
+----
+git checkout v0.7.8
 ----
 
-== Logging
-
-To check the logs for the different microservices of Lisk Service, use the command `pm2 logs PROCESS_NAME`, where `PROCESS_NAME` is the respective PM2 managed process that contains the logs you wish to view.
-
-For example, to see the logs for the Gateway microservice, execute:
-
-[source,bash]
+. Update the npm dependencies by executing the following command.
++
 ----
-pm2 logs lisk-service-gateway
+make build-local
 ----
+
+. Restart Klayr Service with the following command.
++
+----
+pm2 start ecosystem.config.js
+----
++
+.Response
+[%collapsible]
+====
+.Example output
+----
+[PM2] Applying action restartProcessId on app [klayr-service-gateway](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-app-registry](ids: [ 1 ])
+[PM2] [klayr-service-gateway](0) ✓
+[PM2] [klayr-service-blockchain-app-registry](1) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-connector](ids: [ 2 ])
+[PM2] [klayr-service-blockchain-connector](2) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-indexer](ids: [ 3 ])
+[PM2] [klayr-service-blockchain-indexer](3) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-blockchain-coordinator](ids: [ 4 ])
+[PM2] [klayr-service-blockchain-coordinator](4) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-fee-estimator](ids: [ 5 ])
+[PM2] [klayr-service-fee-estimator](5) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-transaction-statistics](ids: [ 6 ])
+[PM2] [klayr-service-transaction-statistics](6) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-market](ids: [ 7 ])
+[PM2] [klayr-service-market](7) ✓
+[PM2] Applying action restartProcessId on app [klayr-service-export](ids: [ 8 ])
+[PM2] [klayr-service-export](8) ✓
+┌----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┐
+│ id  │ name                                    │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┤
+│ 1   │ klayr-service-blockchain-app-registry    │ default     │ 0.7.8   │ fork    │ 33328    │ 0s     │ 16   │ online    │ 0%       │ 65.5mb   │ XYZ      │ disabled │
+│ 2   │ klayr-service-blockchain-connector       │ default     │ 0.7.8   │ fork    │ 33331    │ 0s     │ 0    │ online    │ 0%       │ 63.8mb   │ XYZ      │ disabled │
+│ 4   │ klayr-service-blockchain-coordinator     │ default     │ 0.7.8   │ fork    │ 33341    │ 0s     │ 0    │ online    │ 0%       │ 54.1mb   │ XYZ      │ disabled │
+│ 3   │ klayr-service-blockchain-indexer         │ default     │ 0.7.8   │ fork    │ 33338    │ 0s     │ 16   │ online    │ 0%       │ 54.3mb   │ XYZ      │ disabled │
+│ 8   │ klayr-service-export                     │ default     │ 0.7.8   │ fork    │ 33355    │ 0s     │ 15   │ online    │ 0%       │ 14.1mb   │ XYZ      │ disabled │
+│ 5   │ klayr-service-fee-estimator              │ default     │ 0.7.8   │ fork    │ 33346    │ 0s     │ 15   │ online    │ 0%       │ 46.9mb   │ XYZ      │ disabled │
+│ 0   │ klayr-service-gateway                    │ default     │ 0.7.8   │ fork    │ 33326    │ 0s     │ 15   │ online    │ 0%       │ 65.6mb   │ XYZ      │ disabled │
+│ 7   │ klayr-service-market                     │ default     │ 0.7.8   │ fork    │ 33351    │ 0s     │ 15   │ online    │ 0%       │ 36.9mb   │ XYZ      │ disabled │
+│ 6   │ klayr-service-transaction-statistics     │ default     │ 0.7.8   │ fork    │ 33348    │ 0s     │ 15   │ online    │ 0%       │ 43.5mb   │ XYZ      │ disabled │
+└----------------------------------------------------------------------------------------------------------------------------------------------------------------------------┘
+----
+====
+
+NOTE: Please check the {url_rel_notes}[GitHub release notes] for the relevant version to verify if the existing databases need to be flushed.

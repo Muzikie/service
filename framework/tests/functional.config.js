@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2020 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,12 +15,8 @@
  */
 module.exports = {
 	verbose: true,
-	testMatch: [
-		'<rootDir>/functional/*.test.js',
-	],
+	testMatch: ['<rootDir>/functional/**/*.test.js'],
+	testTimeout: 120000,
 	testEnvironment: 'node',
-	setupFilesAfterEnv: [
-		'jest-extended',
-		'<rootDir>/helpers/setupCustomMatchers.js',
-	],
+	setupFilesAfterEnv: ['jest-extended', '<rootDir>/helpers/setupCustomMatchers.js'],
 };

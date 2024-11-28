@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -87,7 +87,7 @@ module.exports = [
 	},
 	{
 		name: 'getGenesisAssetByModule',
-		controller: async (params) => getGenesisAssetByModule(params),
+		controller: async params => getGenesisAssetByModule(params),
 		params: {
 			module: { type: 'string' },
 			subStore: { type: 'string', optional: true },
@@ -97,7 +97,7 @@ module.exports = [
 	},
 	{
 		name: 'getGenesisAssetsLength',
-		controller: async (params) => getGenesisAssetsLength(params),
+		controller: async params => getGenesisAssetsLength(params),
 		params: {
 			module: { type: 'string', optional: true },
 			subStore: { type: 'string', optional: true },

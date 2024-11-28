@@ -1,0 +1,7 @@
+{
+	"name": "klayr-core",
+	"script": "klayr-core start",
+	"env": {
+		"KLAYR_NETWORK": "devnet"
+	}
+}

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,16 +14,18 @@
  *
  */
 const { inspect } = require('util');
-const { codec } = require('@liskhq/lisk-codec');
-const { utils: { hash } } = require('@liskhq/lisk-cryptography');
-const { computeMinFee } = require('@liskhq/lisk-transactions');
-const { Logger } = require('lisk-service-framework');
+const { codec } = require('@klayr/codec');
+const {
+	utils: { hash },
+} = require('@klayr/cryptography');
+const { computeMinFee } = require('@klayr/transactions');
+const { Logger } = require('klayr-service-framework');
 
 const {
 	getBlockAssetDataSchemaByModule,
 	getTransactionSchema,
 	getTransactionParamsSchema,
-	getDataSchemaByEventName,
+	getDataSchemaByEvent,
 	getEventSchema,
 } = require('./schema');
 
@@ -34,24 +36,36 @@ const {
 
 const { EVENT_NAME_COMMAND_EXECUTION_RESULT } = require('./constants/names');
 const { parseToJSONCompatObj, parseInputBySchema } = require('../utils/parser');
-const { getLisk32Address } = require('../utils/account');
+const { getKlayr32Address } = require('../utils/account');
 const { getMinFeePerByte } = require('./fee');
 
 const logger = Logger();
 
-const formatTransaction = (transaction) => {
+const formatTransaction = (transaction, additionalFee = 0) => {
 	// Calculate transaction size
 	const txSchema = getTransactionSchema();
+
+	// Decode transaction in case of binary payload
+	if (typeof transaction === 'string') {
+		transaction = codec.decode(txSchema, Buffer.from(transaction, 'hex'));
+	}
+	const txParamsSchema = getTransactionParamsSchema(transaction);
+
+	// Encode transaction params to calculate transaction size
+	if (typeof transaction.params === 'object') {
+		transaction.params = Buffer.isBuffer(transaction.params)
+			? transaction.params.toString('hex')
+			: codec
+					.encode(txParamsSchema, parseInputBySchema(transaction.params, txParamsSchema))
+					.toString('hex');
+	}
 	const schemaCompliantTransaction = parseInputBySchema(transaction, txSchema);
-	const transactionBuffer = codec.encode(txSchema, schemaCompliantTransaction);
-	const transactionSize = transactionBuffer.length;
 
 	// Calculate transaction min fee
-	const txParamsSchema = getTransactionParamsSchema(transaction);
-	const transactionParams = codec.decodeJSON(txParamsSchema, Buffer.from(transaction.params, 'hex'));
-
-	// TODO: Verify transaction minFee
-	const schemaCompliantTransactionParams = codec.decode(txParamsSchema, Buffer.from(transaction.params, 'hex'));
+	const schemaCompliantTransactionParams = codec.decode(
+		txParamsSchema,
+		Buffer.from(transaction.params, 'hex'),
+	);
 	const nonEmptySignatureCount = transaction.signatures.filter(s => s).length;
 	const transactionMinFee = computeMinFee(
 		{ ...schemaCompliantTransaction, params: schemaCompliantTransactionParams },
@@ -60,12 +74,20 @@ const formatTransaction = (transaction) => {
 			minFeePerByte: getMinFeePerByte() || null,
 			numberOfSignatures: nonEmptySignatureCount,
 			numberOfEmptySignatures: transaction.signatures.length - nonEmptySignatureCount,
+			additionalFee: BigInt(additionalFee),
 		},
 	);
 
+	// Calculate transaction size
+	const transactionBuffer = codec.encode(txSchema, {
+		...schemaCompliantTransaction,
+		fee: schemaCompliantTransaction.fee || transactionMinFee,
+	});
+	const transactionSize = transactionBuffer.length;
+
 	const formattedTransaction = {
 		...transaction,
-		params: transactionParams,
+		params: codec.decodeJSON(txParamsSchema, Buffer.from(transaction.params, 'hex')),
 		size: transactionSize,
 		minFee: transactionMinFee,
 	};
@@ -73,27 +95,31 @@ const formatTransaction = (transaction) => {
 	return parseToJSONCompatObj(formattedTransaction);
 };
 
-const formatBlock = (block) => {
+const formatBlock = block => {
 	const blockHeader = block.header;
 
 	const blockAssets = block.assets.map(asset => {
-		const assetModule = asset.module;
-		const blockAssetDataSchema = getBlockAssetDataSchemaByModule(assetModule);
-		const formattedAssetData = blockAssetDataSchema
-			? codec.decodeJSON(blockAssetDataSchema, Buffer.from(asset.data, 'hex'))
-			: asset.data;
+		// Decode asset data in case of binary payload
+		if (typeof asset.data === 'string') {
+			const assetModule = asset.module;
+			const blockAssetDataSchema = getBlockAssetDataSchemaByModule(assetModule);
+			const formattedAssetData = blockAssetDataSchema
+				? codec.decodeJSON(blockAssetDataSchema, Buffer.from(asset.data, 'hex'))
+				: asset.data;
 
-		if (!blockAssetDataSchema) {
-			// TODO: Remove this after all asset schemas are exposed (before tagging rc.0)
-			console.error(`Block asset schema missing for module ${assetModule}.`);
-			logger.error(`Unable to decode asset data. Block asset schema missing for module ${assetModule}.`);
+			if (!blockAssetDataSchema) {
+				logger.error(
+					`Unable to decode asset data. Block asset schema missing for module ${assetModule}.`,
+				);
+			}
+
+			const formattedBlockAsset = {
+				module: assetModule,
+				data: formattedAssetData,
+			};
+			return formattedBlockAsset;
 		}
-
-		const formattedBlockAsset = {
-			module: assetModule,
-			data: formattedAssetData,
-		};
-		return formattedBlockAsset;
+		return asset;
 	});
 
 	const blockTransactions = block.transactions.map(t => formatTransaction(t));
@@ -106,49 +132,58 @@ const formatBlock = (block) => {
 	return parseToJSONCompatObj(formattedBlock);
 };
 
-const formatEvent = (event) => {
+const formatEvent = (event, skipDecode) => {
 	// Calculate event ID
 	const eventSchema = getEventSchema();
 	const schemaCompliantEvent = parseInputBySchema(event, eventSchema);
 	const eventBuffer = codec.encode(eventSchema, schemaCompliantEvent);
 	const eventID = hash(eventBuffer);
 
-	const eventDataSchema = getDataSchemaByEventName(event.name);
-	const eventData = eventDataSchema
-		? codec.decodeJSON(eventDataSchema, Buffer.from(event.data, 'hex'))
-		: { data: event.data };
-
-	if (!eventDataSchema) {
-		// TODO: Remove this after SDK exposes all event schemas (before tagging rc.0)
-		console.error(`Event data schema missing for ${event.module}:${event.name}.`);
-		logger.error(`Unable to decode event data. Event data schema missing for ${event.module}:${event.name}.`);
+	let eventData;
+	if (skipDecode) {
+		eventData = event.data;
 	} else {
-		// TODO: Remove after SDK fixes the address format (before tagging rc.0)
-		Object.keys(eventDataSchema.properties).forEach((prop) => {
-			if (prop.endsWith('Address')) {
-				eventData[prop] = getLisk32Address(eventData[prop].toString('hex'));
-			}
-		});
+		const eventDataSchema = getDataSchemaByEvent(event);
+		try {
+			eventData = eventDataSchema
+				? codec.decodeJSON(eventDataSchema, Buffer.from(event.data, 'hex'))
+				: { data: event.data };
+		} catch (err) {
+			logger.warn(`Unable to decode data for ${event.name} (${event.module}) event:\n${err.stack}`);
+			return { data: event.data };
+		}
+
+		if (!eventDataSchema) {
+			logger.error(
+				`Unable to decode event data. Event data schema missing for ${event.module}:${event.name}.`,
+			);
+		} else {
+			// TODO: Remove after SDK fixes the address format (https://github.com/KlayrHQ/klayr-sdk/issues/7629)
+			Object.keys(eventDataSchema.properties).forEach(prop => {
+				if (prop.endsWith('Address')) {
+					eventData[prop] = getKlayr32Address(eventData[prop].toString('hex'));
+				}
+			});
+		}
 	}
 
 	const eventTopicMappings = EVENT_TOPIC_MAPPINGS_BY_MODULE[event.module] || {};
-	// TODO: Remove after all transaction types are tested (before tagging rc.0)
 	if (!(event.module in EVENT_TOPIC_MAPPINGS_BY_MODULE)) {
-		console.error(`EVENT_TOPIC_MAPPINGS_BY_MODULE missing for module: ${event.module}.`);
-		console.info(inspect(event));
+		logger.error(`EVENT_TOPIC_MAPPINGS_BY_MODULE missing for module: ${event.module}.`);
+		logger.info(inspect(event));
 	}
 
-	const topics = event.name === EVENT_NAME_COMMAND_EXECUTION_RESULT
-		? COMMAND_EXECUTION_RESULT_TOPICS
-		: eventTopicMappings[event.name];
+	const topics =
+		event.name === EVENT_NAME_COMMAND_EXECUTION_RESULT
+			? COMMAND_EXECUTION_RESULT_TOPICS
+			: eventTopicMappings[event.name];
 
-	// TODO: Remove after all transaction types are tested (before tagging rc.0)
 	if (!topics || topics.length === 0) {
-		console.error(`EVENT_TOPIC_MAPPINGS_BY_MODULE undefined for event: ${event.name}.`);
-		console.info(inspect(event));
+		logger.error(`EVENT_TOPIC_MAPPINGS_BY_MODULE undefined for event: ${event.name}.`);
+		logger.info(inspect(event));
 	} else if (topics.length !== event.topics.length) {
-		console.error(`EVENT_TOPIC_MAPPINGS_BY_MODULE defined incorrectly for event: ${event.name}.`);
-		console.info(inspect(event));
+		logger.error(`EVENT_TOPIC_MAPPINGS_BY_MODULE defined incorrectly for event: ${event.name}.`);
+		logger.info(inspect(event));
 	}
 
 	let eventTopics;
@@ -156,7 +191,7 @@ const formatEvent = (event) => {
 		eventTopics = event.topics.map((topic, index) => {
 			const topicAtIndex = topics[index] || '';
 			if (topicAtIndex.toLowerCase().endsWith('address') && !topicAtIndex.includes('legacy')) {
-				return getLisk32Address(topic);
+				return getKlayr32Address(topic);
 			}
 			return topic;
 		});

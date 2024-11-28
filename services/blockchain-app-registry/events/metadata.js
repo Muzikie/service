@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { Logger, Signals } = require('lisk-service-framework');
+const { Logger, Signals } = require('klayr-service-framework');
 
 const logger = Logger();
 
@@ -22,8 +22,8 @@ module.exports = [
 		name: 'metadata.change',
 		description: 'Emit event when the database is successfully synchronized',
 		controller: async callback => {
-			const updateMetadataListener = async (data) => {
-				logger.debug('Database has been successfully synchronized');
+			const updateMetadataListener = async data => {
+				logger.debug('Database has been successfully synchronized.');
 				callback(data);
 			};
 			Signals.get('metadataUpdated').add(updateMetadataListener);

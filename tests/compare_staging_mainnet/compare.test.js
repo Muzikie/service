@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -33,7 +33,7 @@ const urls = readFileSync('./integration/api/http_staging_mainnet/routes.txt', '
  * contradict its usefulness though.
  */
 describe('Routes match staging server', () => {
-	urls.forEach((url) => {
+	urls.forEach(url => {
 		it(`${prodUrl}${url}`, async () => {
 			const responses = await Promise.all([
 				api.get(`${stagingUrl}${url}`),

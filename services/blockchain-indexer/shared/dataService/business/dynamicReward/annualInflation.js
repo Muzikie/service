@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,7 +15,7 @@
  */
 const { requestConnector } = require('../../../utils/request');
 
-const getAnnualInflation = async (params) => {
+const getAnnualInflation = async params => {
 	const annualInflation = {
 		data: {},
 		meta: {},

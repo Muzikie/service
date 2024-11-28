@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,25 +13,36 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const config = require('../../config');
 const { requestIndexer } = require('../utils/request');
 
-const getMissingblocks = async (from, to) => requestIndexer('getMissingBlocks', {
-	from,
-	to,
-});
+let isGenesisBlockIndexedFlag = false;
 
-const getCurrentHeight = async () => requestIndexer('getCurrentHeight');
+const isGenesisBlockIndexed = async () => {
+	if (isGenesisBlockIndexedFlag !== true) {
+		isGenesisBlockIndexedFlag = await requestIndexer('isGenesisBlockIndexed');
+	}
+	return isGenesisBlockIndexedFlag;
+};
 
-const getGenesisHeight = async () => requestIndexer('getGenesisHeight');
+const getIndexStatus = async () => requestIndexer('index.status').catch(() => null);
 
-const getIndexVerifiedHeight = async () => requestIndexer('getIndexVerifiedHeight');
+const getMissingBlocks = async (from, to) =>
+	requestIndexer('getMissingBlocks', { from, to }).catch(err => err);
 
-const setIndexVerifiedHeight = async (height) => requestIndexer('setIndexVerifiedHeight', { height });
+const getIndexVerifiedHeight = async () =>
+	requestIndexer('getIndexVerifiedHeight').catch(() => null);
+
+const getLiveIndexingJobCount = async () =>
+	requestIndexer('getLiveIndexingJobCount').catch(
+		// So that no new jobs are scheduled when indexer is failing to respond
+		() => config.job.indexMissingBlocks.skipThreshold,
+	);
 
 module.exports = {
-	getMissingblocks,
-	getCurrentHeight,
-	getGenesisHeight,
+	isGenesisBlockIndexed,
+	getIndexStatus,
+	getMissingBlocks,
 	getIndexVerifiedHeight,
-	setIndexVerifiedHeight,
+	getLiveIndexingJobCount,
 };

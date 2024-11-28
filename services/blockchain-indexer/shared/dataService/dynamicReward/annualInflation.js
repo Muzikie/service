@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,7 +15,7 @@
  */
 const business = require('../business');
 
-const getAnnualInflation = async (height) => {
+const getAnnualInflation = async height => {
 	const response = await business.getAnnualInflation(height);
 	return response;
 };

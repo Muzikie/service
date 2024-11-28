@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -23,6 +23,8 @@ module.exports = {
 		size: { type: 'integer' },
 		reward: { type: 'bigInteger' },
 		isFinal: { type: 'boolean' },
+		payload: { type: 'json' },
+		generatorAddress: { type: 'string' },
 	},
 	indexes: {
 		id: { type: 'key' },

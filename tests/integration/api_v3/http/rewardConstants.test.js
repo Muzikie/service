@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -19,25 +19,26 @@ const { api } = require('../../../helpers/api');
 const baseUrl = config.SERVICE_ENDPOINT;
 const baseUrlV3 = `${baseUrl}/api/v3`;
 
-const {
-	badRequestSchema,
-} = require('../../../schemas/httpGenerics.schema');
+const { badRequestSchema } = require('../../../schemas/httpGenerics.schema');
 
-const {
-	rewardConstantsResponseSchema,
-} = require('../../../schemas/api_v3/rewardConstants.schema');
+const { rewardConstantsResponseSchema } = require('../../../schemas/api_v3/rewardConstants.schema');
 
 const endpoint = `${baseUrlV3}/reward/constants`;
 
 describe('Reward Constants API', () => {
 	describe(`GET ${endpoint}`, () => {
-		it('Returns reward constants when requested', async () => {
+		it('should return reward constants when requested', async () => {
 			const response = await api.get(endpoint);
 			expect(response).toMap(rewardConstantsResponseSchema);
 		});
 
-		it('Invalid request param -> bad request', async () => {
+		it('should return bad request when requested with invalid param', async () => {
 			const response = await api.get(`${endpoint}?invalidParam=invalid`, 400);
+			expect(response).toMap(badRequestSchema);
+		});
+
+		it('should return bad request when requested with empty invalid param', async () => {
+			const response = await api.get(`${endpoint}?invalidParam=`, 400);
 			expect(response).toMap(badRequestSchema);
 		});
 	});

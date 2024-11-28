@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,13 +15,12 @@
  */
 const BluebirdPromise = require('bluebird');
 
-const {
-	getIndexedAccountInfo,
-	getLisk32AddressFromPublicKey,
-} = require('../../../utils/account');
-const { getAddressByName } = require('../../../utils/validator');
+const { getIndexedAccountInfo } = require('../../utils/account');
+const { getAddressByName } = require('../../utils/validator');
 const { parseToJSONCompatObj } = require('../../../utils/parser');
 const { requestConnector } = require('../../../utils/request');
+const { getKlayr32AddressFromPublicKey } = require('../../../utils/account');
+const { indexAccountPublicKey } = require('../../../indexer/accountIndex');
 
 const normalizeStake = stake => parseToJSONCompatObj(stake);
 
@@ -41,7 +40,10 @@ const getStakes = async params => {
 	}
 
 	if (!params.address && params.publicKey) {
-		params.address = getLisk32AddressFromPublicKey(params.publicKey);
+		params.address = getKlayr32AddressFromPublicKey(params.publicKey);
+
+		// Index publicKey asynchronously
+		indexAccountPublicKey(params.publicKey);
 	}
 
 	const stakerInfo = await requestConnector('getStaker', { address: params.address });
@@ -49,10 +51,20 @@ const getStakes = async params => {
 	// Filter stakes by user specified search param (validator name) and add to response
 	const accountInfoQueryFilter = {};
 	if (params.search) {
-		accountInfoQueryFilter.search = {
-			property: 'name',
-			pattern: params.search,
-		};
+		accountInfoQueryFilter.orSearch = [
+			{
+				property: 'name',
+				pattern: params.search,
+			},
+			{
+				property: 'address',
+				pattern: params.search,
+			},
+			{
+				property: 'publicKey',
+				pattern: params.search,
+			},
+		];
 	}
 
 	await BluebirdPromise.map(
@@ -86,7 +98,7 @@ const getStakes = async params => {
 	stakesResponse.meta.staker = {
 		address: params.address,
 		name: accountInfo.name || null,
-		publicKey: accountInfo.publicKey || null,
+		publicKey: accountInfo.publicKey || params.publicKey || null,
 	};
 
 	stakesResponse.meta.count = stakesResponse.data.stakes.length;

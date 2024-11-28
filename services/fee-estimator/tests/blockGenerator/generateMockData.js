@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -18,14 +18,12 @@ const fs = require('fs');
 const path = require('path');
 const blockMocker = require('./createBlocks');
 
-const generateHex = (size) => {
+const generateHex = size => {
 	let resultHex = '';
 	const characters = 'abcdef0123456789';
 
 	for (let i = 0; i < size; i++) {
-		resultHex += characters.charAt(
-			Math.floor(Math.random() * characters.length),
-		);
+		resultHex += characters.charAt(Math.floor(Math.random() * characters.length));
 	}
 
 	return resultHex;

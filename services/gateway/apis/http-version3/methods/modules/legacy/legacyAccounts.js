@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -23,7 +23,14 @@ module.exports = {
 	rpcMethod: 'get.legacy',
 	tags: ['Legacy'],
 	params: {
-		publicKey: { optional: false, type: 'string', min: 64, max: 64, pattern: regex.PUBLIC_KEY },
+		publicKey: {
+			optional: false,
+			type: 'string',
+			min: 64,
+			max: 64,
+			pattern: regex.PUBLIC_KEY,
+			altSwaggerKey: 'publicKeyRequired',
+		},
 	},
 	get schema() {
 		const legacyAccountSchema = {};
@@ -34,7 +41,10 @@ module.exports = {
 			rpcMethod: this.rpcMethod,
 			description: 'Returns legacy account details',
 		});
-		legacyAccountSchema[this.swaggerApiPath].get.parameters = transformParams('legacyAccount', this.params);
+		legacyAccountSchema[this.swaggerApiPath].get.parameters = transformParams(
+			'legacyAccount',
+			this.params,
+		);
 		legacyAccountSchema[this.swaggerApiPath].get.responses = {
 			200: {
 				description: 'Returns legacy account details for the specified publicKey',

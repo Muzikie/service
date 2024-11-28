@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -15,32 +15,33 @@
  */
 const { parse } = require('csv-parse');
 
-const waitForSuccess = (fn, successValidator, intervalMs = 500) => new Promise((resolve) => {
-	const intervalId = setInterval(
-		() => fn()
-			.then(result => {
-				clearInterval(intervalId);
-				if (!successValidator || successValidator(result)) resolve(result);
-			})
-			.catch(),
-		intervalMs,
-	);
-});
+const waitForSuccess = (fn, successValidator, intervalMs = 2000) =>
+	new Promise(resolve => {
+		const intervalId = setInterval(
+			() =>
+				fn()
+					.then(result => {
+						if (!successValidator || successValidator(result)) {
+							clearInterval(intervalId);
+							resolve(result);
+						}
+					})
+					.catch(),
+			intervalMs,
+		);
+	});
 
-const isStringCsvParseable = (string, params) => parse(
-	string,
-	params,
-	(err) => !err,
-);
+const isStringCsvParsable = (string, params) => parse(string, params, err => !err);
 
-const waitMs = (n) => new Promise((resolve) => {
-	setTimeout(() => {
-		resolve();
-	}, n);
-});
+const waitMs = n =>
+	new Promise(resolve => {
+		setTimeout(() => {
+			resolve();
+		}, n);
+	});
 
 module.exports = {
 	waitForSuccess,
-	isStringCsvParseable,
+	isStringCsvParsable,
 	waitMs,
 };

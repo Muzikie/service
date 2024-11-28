@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,14 +13,11 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const {
-	Utils,
-} = require('lisk-service-framework');
 const path = require('path');
+const { Utils } = require('klayr-service-framework');
 const BluebirdPromise = require('bluebird');
 const { requireAllJson } = require('./utils');
 const config = require('../config');
-const { exists } = require('./fsUtils');
 
 const createApiDocs = async (apiName, apiJsonPaths, registeredModuleNames) => {
 	const methodsDir = path.resolve(__dirname, `../apis/${apiName}/methods`);
@@ -31,7 +28,7 @@ const createApiDocs = async (apiName, apiJsonPaths, registeredModuleNames) => {
 		registeredModuleNames,
 		async module => {
 			const dirPath = path.resolve(`${methodsDir}/modules/${module}`);
-			if (await exists(dirPath)) Object.assign(services, Utils.requireAllJs(dirPath));
+			if (await Utils.fs.exists(dirPath)) Object.assign(services, Utils.requireAllJs(dirPath));
 		},
 		{ concurrency: registeredModuleNames.length },
 	);
@@ -40,18 +37,20 @@ const createApiDocs = async (apiName, apiJsonPaths, registeredModuleNames) => {
 		const method = services[key];
 		return { ...acc, [key]: method.schema };
 	}, {});
-	if (methods.postTransactions) methods.transactions['/transactions'].post = methods.postTransactions['/transactions'].post;
+	if (methods.postTransactions)
+		methods.transactions['/transactions'].post = methods.postTransactions['/transactions'].post;
 	const apiSchemas = Object.keys(methods);
-	apiSchemas.forEach((key) => {
+	apiSchemas.forEach(key => {
 		Object.assign(apiJsonPaths, methods[key]);
 	});
 	return apiJsonPaths;
 };
 
 const genDocs = async (ctx, registeredModuleNames) => {
-	if (!config.api.versions[ctx.endpoint.baseUrl]) return {
-		info: { description: `This route offers no specs for ${ctx.endpoint.baseUrl}.` },
-	};
+	if (!config.api.versions[ctx.endpoint.baseUrl])
+		return {
+			info: { description: `This route offers no specs for ${ctx.endpoint.baseUrl}.` },
+		};
 
 	const finalDoc = {};
 
@@ -61,7 +60,7 @@ const genDocs = async (ctx, registeredModuleNames) => {
 
 	await BluebirdPromise.map(
 		apis,
-		async (api) => {
+		async api => {
 			const { apiJson, parameters, definitions, responses } = requireAllJson(api);
 
 			const params = finalDoc.parameters || {};
@@ -80,16 +79,14 @@ const genDocs = async (ctx, registeredModuleNames) => {
 			const apiDocs = await createApiDocs(api, apiJson.paths, registeredModuleNames);
 			Object.assign(paths, apiDocs);
 
-			Object.assign(finalDoc,
-				{
-					...apiJson,
-					parameters: params,
-					definitions: defs,
-					responses: allResponses,
-					tags,
-					paths,
-				},
-			);
+			Object.assign(finalDoc, {
+				...apiJson,
+				parameters: params,
+				definitions: defs,
+				responses: allResponses,
+				tags,
+				paths,
+			});
 		},
 		{ concurrency: 1 },
 	);

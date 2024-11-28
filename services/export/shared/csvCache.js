@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,10 +14,8 @@
  *
  */
 const {
-	Exceptions: {
-		NotFoundException,
-	},
-} = require('lisk-service-framework');
+	Exceptions: { NotFoundException },
+} = require('klayr-service-framework');
 
 const FileStorage = require('./helpers/file');
 const S3Storage = require('./helpers/s3');
@@ -27,37 +25,45 @@ const DRIVERS = {
 	S3: 's3-minio',
 };
 
-const objectCacheFS = (params) => {
-	const { init, write, read, exists, remove, purge } = FileStorage;
+const objectCacheFS = params => {
+	const { init, write, read, fileExists, remove, purge, isFile, isFilePathInDirectory } =
+		FileStorage;
 	const { dirPath, retentionInDays } = params;
 
 	init({ dirPath });
 
 	return {
 		write: (filename, content) => write(`${dirPath}/${filename}`, content),
-		read: (filename) => read(`${dirPath}/${filename}`),
-		exists: (filename) => exists(`${dirPath}/${filename}`),
-		remove: (filename) => remove(`${dirPath}/${filename}`),
+		read: filename => {
+			if (isFilePathInDirectory(`${dirPath}/${filename}`, dirPath)) {
+				return read(`${dirPath}/${filename}`);
+			}
+			return Promise.reject(new Error('Filepath is not allowed.'));
+		},
+		fileExists: filename => fileExists(`${dirPath}/${filename}`),
+		remove: filename => remove(`${dirPath}/${filename}`),
 		purge: () => purge(dirPath, retentionInDays),
+		isFile: filename => isFile(`${dirPath}/${filename}`),
 	};
 };
 
-const objectCacheS3 = (params) => {
-	const { init, write, read, exists, remove, purge } = S3Storage;
+const objectCacheS3 = params => {
+	const { init, write, read, exists, remove, purge, isFile } = S3Storage;
 	const { retentionInDays } = params;
 
 	init(params);
 
 	return {
 		write: (filename, content) => write(filename, content),
-		read: (filename) => read(filename),
-		exists: (filename) => exists(filename),
-		remove: (filename) => remove(filename),
+		read: filename => read(filename),
+		exists: filename => exists(filename),
+		remove: filename => remove(filename),
 		purge: () => purge('', retentionInDays),
+		isFile: filename => isFile(filename),
 	};
 };
 
-const objectCache = (params) => {
+const objectCache = params => {
 	const { driver } = params;
 
 	// Check if the storage `driver` is supported

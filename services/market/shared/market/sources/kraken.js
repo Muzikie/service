@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -17,7 +17,7 @@ const {
 	HTTP,
 	CacheRedis,
 	Exceptions: { ServiceUnavailableException },
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
 const BluebirdPromise = require('bluebird');
 
@@ -32,9 +32,9 @@ const expireMiliseconds = config.ttl.kraken;
 const krakenCache = CacheRedis('kraken', config.endpoints.redis);
 
 const symbolMap = {
-	LSK_USD: 'LSKUSD',
-	LSK_EUR: 'LSKEUR',
-	LSK_BTC: 'LSKBTC',
+	KLY_USD: 'KLYUSD',
+	KLY_EUR: 'KLYEUR',
+	KLY_BTC: 'KLYBTC',
 };
 
 const fetchAllMarketTickers = async () => {
@@ -47,9 +47,9 @@ const fetchAllMarketTickers = async () => {
 	throw new ServiceUnavailableException('Data from Kraken is currently unavailable');
 };
 
-const standardizeTickers = (tickers) => {
+const standardizeTickers = tickers => {
 	const transformedPrices = Object.entries(symbolMap).map(([k, v]) => {
-		if (v === symbolMap.LSK_BTC) v = 'LSKXBT'; // Kraken API returns LSKBTC as LSKXBT
+		if (v === symbolMap.KLY_BTC) v = 'KLYXBT'; // Kraken API returns LSKBTC as LSKXBT
 		const currentTicker = tickers[v];
 		const [from, to] = k.split('_');
 		const price = {
@@ -69,7 +69,7 @@ const getFromCache = async () => {
 	// Read individual price item from cache and deserialize
 	const prices = await BluebirdPromise.map(
 		Object.getOwnPropertyNames(symbolMap),
-		async (itemCode) => {
+		async itemCode => {
 			const serializedPrice = await krakenCache.get(`kraken_${itemCode}`);
 			if (serializedPrice) return JSON.parse(serializedPrice);
 			return null;
@@ -87,8 +87,11 @@ const reload = async () => {
 			const transformedPrices = standardizeTickers(tickers);
 
 			// Serialize individual price item and write to the cache
-			await BluebirdPromise.all(transformedPrices
-				.map(item => krakenCache.set(`kraken_${item.code}`, JSON.stringify(item), expireMiliseconds)));
+			await BluebirdPromise.all(
+				transformedPrices.map(item =>
+					krakenCache.set(`kraken_${item.code}`, JSON.stringify(item), expireMiliseconds),
+				),
+			);
 		}
 	}
 };

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,14 +16,9 @@
 const config = require('../../config');
 const { api } = require('../../helpers/api');
 
-const {
-	badRequestSchema,
-	serviceUnavailableSchema,
-} = require('../../schemas/httpGenerics.schema');
+const { badRequestSchema, serviceUnavailableSchema } = require('../../schemas/httpGenerics.schema');
 
-const {
-	readySchema,
-} = require('../../schemas/gateway/ready.schema');
+const { readySchema } = require('../../schemas/gateway/ready.schema');
 
 const baseUrl = config.SERVICE_ENDPOINT;
 const endpoint = `${baseUrl}/api/ready`;

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -21,13 +21,11 @@ const {
 	jsonRpcEnvelopeSchema,
 } = require('../../../schemas/rpcGenerics.schema');
 
-const {
-	rewardInflationResponseSchema,
-} = require('../../../schemas/api_v3/rewardInflation.schema');
+const { rewardInflationResponseSchema } = require('../../../schemas/api_v3/rewardInflation.schema');
 
 const wsRpcUrl = `${config.SERVICE_ENDPOINT}/rpc-v3`;
 
-const getRewardInflation = async (params) => request(wsRpcUrl, 'get.reward.annual-inflation', params);
+const getRewardInflation = async params => request(wsRpcUrl, 'get.reward.annual-inflation', params);
 
 let latestBlockHeight;
 
@@ -44,13 +42,23 @@ describe('Test get.reward.annual-inflation', () => {
 		expect(result).toMap(rewardInflationResponseSchema);
 	});
 
-	it('should return INVALID_PARAMS (-32602) when called with unsupported param', async () => {
-		const response = await getRewardInflation({ invalidParam: 'invalidParam' });
+	it('should return invalid params for missing height', async () => {
+		const response = await getRewardInflation();
 		expect(response).toMap(invalidParamsSchema);
 	});
 
-	it('should return INVALID_PARAMS (-32602) when called without param', async () => {
-		const response = await getRewardInflation();
+	it('should return invalid params for a height less than 0', async () => {
+		const response = await getRewardInflation({ height: -1 });
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params for a non-integer height', async () => {
+		const response = await getRewardInflation({ height: 'abc' });
+		expect(response).toMap(invalidParamsSchema);
+	});
+
+	it('should return invalid params for a invalid param', async () => {
+		const response = await getRewardInflation({ invalidParam: 'invalidParam' });
 		expect(response).toMap(invalidParamsSchema);
 	});
 });

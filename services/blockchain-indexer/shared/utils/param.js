@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,7 +16,7 @@
 const {
 	Exceptions: { ValidationException },
 	Utils,
-} = require('lisk-service-framework');
+} = require('klayr-service-framework');
 
 const normalizeRangeParam = (params, property) => {
 	if (!params || !Utils.isObject(params)) return params;
@@ -32,8 +32,12 @@ const normalizeRangeParam = (params, property) => {
 		const from = Number(fromStr);
 		const to = Number(toStr);
 
-		if (Number.isNaN(from) || Number.isNaN(to)) throw new ValidationException(`Invalid (non-numeric) '${property}' range values supplied: ${params[property]}.`);
-		if (fromStr && toStr && from > to) throw new ValidationException(`From ${property} cannot be greater than to ${property}.`);
+		if (Number.isNaN(from) || Number.isNaN(to))
+			throw new ValidationException(
+				`Invalid (non-numeric) '${property}' range values supplied: ${params[property]}.`,
+			);
+		if (fromStr && toStr && from > to)
+			throw new ValidationException(`From ${property} cannot be greater than to ${property}.`);
 
 		if (fromStr === EMPTY_STRING) {
 			propBetweens.push({ property, to });
@@ -43,13 +47,10 @@ const normalizeRangeParam = (params, property) => {
 			propBetweens.push({ property, from, to });
 		}
 
-		const paramsWithoutProperty = Object.keys(params).reduce(
-			(acc, key) => {
-				if (key !== property) acc[key] = params[key];
-				return acc;
-			},
-			{},
-		);
+		const paramsWithoutProperty = Object.keys(params).reduce((acc, key) => {
+			if (key !== property) acc[key] = params[key];
+			return acc;
+		}, {});
 		return {
 			...paramsWithoutProperty,
 			propBetweens,

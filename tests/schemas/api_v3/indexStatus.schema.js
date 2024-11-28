@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -28,8 +28,7 @@ const indexStatusResponseSchema = {
 };
 
 const indexStatusMetaResponseSchema = {
-	lastUpdate: Joi.number().integer().positive().max(getCurrentTime())
-		.required(),
+	lastUpdate: Joi.number().integer().positive().max(getCurrentTime()).required(),
 };
 
 const goodResponseSchema = {

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2019 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -27,11 +27,18 @@ module.exports = {
 	SocketClient: require('./src/socketClient'),
 	Queue: require('./src/queue'),
 	mapper: require('./src/mapper'),
-	MySQL: require('./src/mysql'),
+	MySQL: require('./src/database/mysql'),
+	DB: {
+		MySQL: require('./src/database/mysql'),
+		sqlite3: require('./src/database/sqlite3'),
+	},
 	Utils: {
+		delay: require('./src/delay'),
 		requireAllJs: require('./src/requireAllJs'),
+		waitForIt: require('./src/waitForIt'),
 		Data: require('./src/data'),
-		...(require('./src/data')),
+		fs: require('./src/fs'),
+		...require('./src/data'),
 	},
 	Constants: {
 		...require('./constants/ErrorCodes'),

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,50 +13,32 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const { HTTP } = require('lisk-service-framework');
+const { HTTP } = require('klayr-service-framework');
 const dataService = require('../../../shared/dataService');
-const { isMainchain } = require('../../../shared/chain');
-const config = require('../../../config');
-const { LENGTH_CHAIN_ID } = require('../../../shared/constants');
 
-const resolveMainchainServiceURL = async () => {
-	if (config.endpoints.mainchainServiceUrl) return config.endpoints.mainchainServiceUrl;
-
-	const netStatus = await dataService.getNetworkStatus();
-	const { chainID } = netStatus.data;
-	const networkID = chainID.substring(0, 2);
-	const mainchainID = networkID.padEnd(LENGTH_CHAIN_ID, '0');
-	const [{ serviceURL } = {}] = config.networks.LISK
-		.filter(networkInfo => networkInfo.chainID === mainchainID);
-	return serviceURL;
-};
-
-const getBlockchainApps = async (params) => {
-	if (await isMainchain()) {
+const getBlockchainApps = async params => {
+	if (await dataService.isMainchain()) {
 		const result = await dataService.getBlockchainApps(params);
 		return result;
 	}
 
 	// Redirect call to the mainchain service
-	const serviceURL = await resolveMainchainServiceURL();
+	const serviceURL = await dataService.resolveMainchainServiceURL();
 	const blockchainAppsEndpoint = `${serviceURL}/api/v3/blockchain/apps`;
-	const { data: response } = await HTTP.request(
-		blockchainAppsEndpoint,
-		params,
-	);
+	const { data: response } = await HTTP.request(blockchainAppsEndpoint, params);
 	return response;
 };
 
 const getBlockchainAppsStatistics = async () => {
-	if (await isMainchain()) {
+	if (await dataService.isMainchain()) {
 		const result = await dataService.getBlockchainAppsStatistics();
 		return result;
 	}
 
 	// Redirect call to the mainchain service
-	const serviceURL = await resolveMainchainServiceURL();
+	const serviceURL = await dataService.resolveMainchainServiceURL();
 	const blockchainAppsStatsEndpoint = `${serviceURL}/api/v3/blockchain/apps/statistics`;
-	const response = HTTP.get(blockchainAppsStatsEndpoint);
+	const { data: response } = HTTP.get(blockchainAppsStatsEndpoint);
 	return response;
 };
 

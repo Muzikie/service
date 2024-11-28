@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -20,25 +20,26 @@ module.exports = {
 	fee: '=,string',
 	minFee: '=,string',
 	size: '=,number',
+	block: {
+		id: 'block.id,string',
+		height: 'block.height,number',
+		timestamp: 'block.timestamp,number',
+		isFinal: 'block.isFinal,boolean',
+	},
 	sender: {
-		address: '=,string',
-		publicKey: '=,string',
-		name: '=,string',
+		address: 'sender.address,string',
+		publicKey: 'sender.publicKey,string',
+		name: 'sender.name,string',
 	},
 	params: '=',
-	block: {
-		id: '=,string',
-		height: '=,number',
-		timestamp: '=,number',
-		isFinal: '=,boolean',
-	},
-	meta: {
-		recipient: {
-			address: '=,string',
-			publicKey: '=,string',
-			name: '=,string',
-		},
-	},
+	signatures: '=',
 	executionStatus: '=,string',
 	index: '=,number',
+	meta: {
+		recipient: {
+			address: 'meta.recipient.address,string',
+			publicKey: 'meta.recipient.publicKey,string',
+			name: 'meta.recipient.name,string',
+		},
+	},
 };

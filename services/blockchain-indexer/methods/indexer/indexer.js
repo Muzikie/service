@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -16,13 +16,11 @@
 const {
 	getMissingBlocks,
 	getIndexVerifiedHeight,
-	setIndexVerifiedHeight,
+	isGenesisBlockIndexed,
+	getLiveIndexingJobCount,
 } = require('../../shared/indexer/blockchainIndex');
 
-const {
-	getCurrentHeight,
-	getGenesisHeight,
-} = require('../../shared/constants');
+const { getCurrentHeight, getGenesisHeight } = require('../../shared/constants');
 
 module.exports = [
 	{
@@ -49,10 +47,13 @@ module.exports = [
 		params: {},
 	},
 	{
-		name: 'setIndexVerifiedHeight',
-		controller: setIndexVerifiedHeight,
-		params: {
-			height: { optional: false, type: 'number' },
-		},
+		name: 'isGenesisBlockIndexed',
+		controller: isGenesisBlockIndexed,
+		params: {},
+	},
+	{
+		name: 'getLiveIndexingJobCount',
+		controller: getLiveIndexingJobCount,
+		params: {},
 	},
 ];

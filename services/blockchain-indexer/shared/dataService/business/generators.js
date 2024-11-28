@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,10 +14,10 @@
  *
  */
 const BluebirdPromise = require('bluebird');
-const { Logger } = require('lisk-service-framework');
+const { Logger } = require('klayr-service-framework');
 
 const { getPosConstants } = require('./pos');
-const { getIndexedAccountInfo } = require('../../utils/account');
+const { getIndexedAccountInfo } = require('../utils/account');
 const { requestConnector } = require('../../utils/request');
 const { getNameByAddress } = require('../../utils/validator');
 
@@ -27,26 +27,24 @@ let generatorsListCache = [];
 
 const getGeneratorsInfo = async () => {
 	const { list: generatorsList } = await requestConnector('getGenerators');
-	const generators = await BluebirdPromise.map(
-		generatorsList,
-		async generator => {
-			const { name, publicKey } = await getIndexedAccountInfo(
-				{ address: generator.address, limit: 1 },
-				['name', 'publicKey'],
-			);
+	const generators = await BluebirdPromise.map(generatorsList, async generator => {
+		const { name, publicKey } = await getIndexedAccountInfo(
+			{ address: generator.address, limit: 1 },
+			['name', 'publicKey'],
+		);
 
-			return {
-				...generator,
-				name: name || await getNameByAddress(generator.address),
-				publicKey,
-			};
-		});
+		return {
+			...generator,
+			name: name || (await getNameByAddress(generator.address)),
+			publicKey,
+		};
+	});
 
 	return generators;
 };
 
 const getNumberOfGenerators = async () => {
-	const constants = await getPosConstants();
+	const { data: constants } = await getPosConstants();
 	return constants.numberActiveValidators + constants.numberStandbyValidators;
 };
 
@@ -69,4 +67,7 @@ module.exports = {
 	reloadGeneratorsCache,
 	getGenerators,
 	getNumberOfGenerators,
+
+	// For unit tests
+	getGeneratorsInfo,
 };

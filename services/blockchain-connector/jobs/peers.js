@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,15 +13,17 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
-const logger = require('lisk-service-framework').Logger();
+const logger = require('klayr-service-framework').Logger();
 
+const config = require('../config');
 const peerCache = require('../shared/sdk/peerCache');
 
 module.exports = [
 	{
 		name: 'refresh.peers',
 		description: 'Keep the peer list up-to-date',
-		interval: 60, // seconds
+		interval: config.job.refreshPeers.interval,
+		schedule: config.job.refreshPeers.schedule,
 		init: () => {
 			try {
 				logger.debug('Initializing peer list...');

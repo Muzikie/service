@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2021 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -13,21 +13,34 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const { Logger } = require('klayr-service-framework');
 const { requestConnector } = require('../../../utils/request');
 
-let moduleConstants;
+const logger = Logger();
+
+let posModuleConstants;
 
 const getPosConstants = async () => {
-	if (typeof moduleConstants === 'undefined') moduleConstants = await requestConnector('getPosConstants');
+	try {
+		if (typeof posModuleConstants === 'undefined')
+			posModuleConstants = await requestConnector('getPosConstants');
+	} catch (err) {
+		const errMessage = `Unable to fetch the PoS constants from connector due to: ${err.message}`;
+		logger.warn(errMessage);
+		logger.trace(err.stack);
+		throw new Error(errMessage);
+	}
 
 	return {
-		data: moduleConstants,
+		data: posModuleConstants,
 		meta: {},
 	};
 };
 
 const getPosTokenID = async () => {
-	const { data: { posTokenID } } = await getPosConstants();
+	const {
+		data: { posTokenID },
+	} = await getPosConstants();
 	return posTokenID;
 };
 

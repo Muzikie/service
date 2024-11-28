@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,10 +14,7 @@
  *
  */
 
-const {
-	getBlockchainAppsStatistics,
-	getBlockchainApps,
-} = require('./controllers/blockchainApps');
+const { getBlockchainAppsStatistics, getBlockchainApps } = require('./controllers/blockchainApps');
 
 module.exports = [
 	{
@@ -30,7 +27,7 @@ module.exports = [
 		controller: getBlockchainApps,
 		params: {
 			chainID: { optional: true, type: 'string' },
-			name: { optional: true, type: 'string' },
+			chainName: { optional: true, type: 'string' },
 			status: { optional: true, type: 'string' },
 			search: { optional: true, type: 'string' },
 			limit: { optional: true, type: 'number' },

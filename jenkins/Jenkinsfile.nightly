@@ -1,21 +1,23 @@
-MYSQL_PORT = 3306
-REDIS_PORT = 6381
+MYSQL_PORT = 3306;
+REDIS_PORT = 6381;
+KLAYR_CORE_WS_PORT = 7887;
+SERVICE_BROKER_PORT = 4222;
 
 def checkOpenPort(nPort) {
-	def result = sh script: "nc -z localhost ${nPort}", returnStatus: true
+	def result = sh script: "nc -z 127.0.0.1 ${nPort}", returnStatus: true
 	return (result == 0)
 }
 
-def runServiceIfMissing(svcName, path, nPort) {
-	if (checkOpenPort(nPort) == false) {
-		echo "${svcName} is not running, starting a new instance on port ${nPort}"
-		dir(path) { sh 'make up' }
-		if (checkOpenPort(nPort) == false) {
-			dir(path) { sh 'make logs' }
-			currentBuild.result = 'FAILURE'
-			throw new Exception("Failed to run ${svcName} instance")
-		}
-	}
+def runServiceIfMissing(svcName, path, nPort, startCommand = 'make up', logsCommand= 'make logs') {
+    if (checkOpenPort(nPort) == false) {
+        echo "${svcName} is not running, starting a new instance on port ${nPort}"
+        dir(path) { sh startCommand }
+        if (checkOpenPort(nPort) == false) {
+            dir(path) { sh logsCommand }
+            currentBuild.result = 'FAILURE'
+            throw new Exception("Failed to run ${svcName} instance")
+        }
+    }
 }
 
 def checkHttp(url) {
@@ -33,142 +35,137 @@ def echoBanner(msg) {
 	echo '----------------------------------------------------------------------'
 }
 
-properties([
-	parameters([
-		string(name: 'COMMITISH_CORE', description: 'Commit-ish of LiskHQ/lisk-core to use', defaultValue: 'release/4.0.0' ),
-	])
-])
-
 pipeline {
-	agent { node { label 'lisk-service' } }
+	agent { node { label 'klayr-service' } }
 	triggers {
 		cron('0 23 * * *')
 	}
 	options {
-		timeout(time: 10, unit: 'MINUTES')
+		timeout(time: 45, unit: 'MINUTES')
 	}
+	environment {
+		ENABLE_HTTP_API='http-status,http-version3,http-exports'
+		ENABLE_WS_API='rpc-v3,rpc-test,blockchain'
+		KLAYR_APP_WS='ws://host.docker.internal:7887'
+		ENABLE_TESTING_MODE='true'
+    }
 	stages {
-		stage('Checkout SCM') {
+        stage('Checkout SCM') {
 			when {
 				anyOf {
 					branch 'development'
+					branch 'release/**'
 					branch 'feature/**'
 				}
 			}
 			steps {
 				script { echoBanner(STAGE_NAME) }
 				cleanWs()
-				dir('lisk-core') {
-					checkout([$class: 'GitSCM', branches: [[name: "${params.COMMITISH_CORE}" ]], userRemoteConfigs: [[url: 'https://github.com/LiskHQ/lisk-core']]])
-				}
-				dir('lisk-service') {
+				dir('klayr-service') {
 					checkout scm
 				}
 			}
 		}
-		stage ('Build dependencies') {
+		stage('Start Klayr Service') {
 			when {
 				anyOf {
 					branch 'development'
-					branch 'feature/**'
-				}
-			}
-			parallel {
-				stage('Lisk Core') {
-					steps {
-						script { echoBanner(STAGE_NAME) }
-						dir('lisk-core') {
-							nvm(readFile('.nvmrc').trim()) {
-								sh '''
-									rm -rf ~/.lisk
-									npm ci
-									npm run build
-								'''
-							}
-						}
-					}
-				}
-				stage('Lisk Service') {
-					steps {
-						script { echoBanner(STAGE_NAME) }
-						dir('lisk-service') {
-							nvm(readFile('.nvmrc').trim()) {
-								sh 'npm i -g pm2'
-								dir('./') { sh 'npm ci' }
-								dir('./framework') { sh 'npm ci' }
-								dir('./services/blockchain-app-registry') { sh 'npm ci' }
-								dir('./services/blockchain-connector') { sh 'npm ci' }
-								dir('./services/blockchain-indexer') { sh 'npm ci' }
-								dir('./services/blockchain-coordinator') { sh 'npm ci' }
-								dir('./services/fee-estimator') { sh 'npm ci' }
-								dir('./services/market') { sh 'npm ci' }
-								dir('./services/export') { sh 'npm ci' }
-								dir('./services/gateway') { sh 'npm ci' }
-								dir('./services/template') { sh 'npm ci' }
-								dir('./services/transaction-statistics') { sh 'npm ci' }
-								dir('./tests') { sh 'npm ci' }
-							}
-						}
-					}
-				}
-			}
-		}
-		stage('Run required services') {
-			when {
-				anyOf {
-					branch 'development'
-					branch 'feature/**'
-				}
-			}
-			parallel {
-				stage('Lisk Core') {
-					steps {
-						script { echoBanner(STAGE_NAME) }
-						dir('lisk-core') {
-							nvm(readFile('.nvmrc').trim()) {
-								sh '''
-									./bin/run blockchain:import --force lisk-core/snapshots/blockchain.tar.gz
-									./bin/run start --network devnet --api-ipc &
-									echo $! > lisk-core.pid
-								'''
-							}
-						}
-					}
-				}
-				stage('Lisk Service') {
-					steps {
-						dir('lisk-service') {
-							script {
-								runServiceIfMissing('MySQL', './jenkins/mysql', MYSQL_PORT)
-								runServiceIfMissing('Redis', './jenkins/redis', REDIS_PORT)
-							}
-						}
-					}	
-				}
-			}
-		}
-		stage('Run microservices') {
-			when {
-				anyOf {
-					branch 'development'
+					branch 'release/**'
 					branch 'feature/**'
 				}
 			}
 			steps {
 				script { echoBanner(STAGE_NAME) }
-				dir('lisk-service') {
+				dir('klayr-service') {
 					nvm(readFile('.nvmrc').trim()) {
-						sh 'pm2 start --silent ecosystem.jenkins.config.js' 
+						sh '''
+							make build
+							docker-compose -f jenkins/docker-compose.nightly.yml down --volumes --remove-orphans
+							docker-compose -f jenkins/docker-compose.nightly.yml --env-file .env up -d
+						'''
 					}
-					sleep(90)
-					waitForHttp('http://localhost:9901/api/ready')
 				}
 			}
 		}
-		stage('Run Tests') {
+		stage('Start Klayr Core') {
 			when {
 				anyOf {
 					branch 'development'
+					branch 'release/**'
+					branch 'feature/**'
+				}
+			}
+			steps {
+				script { echoBanner(STAGE_NAME) }
+				dir('klayr-service') {
+					nvm(readFile('.nvmrc').trim()) {
+						sh '''
+							# klayr-core
+							npm i -g klayr-core@^4.0.0-rc.6
+							npm i -g pm2
+							pm2 stop jenkins/klayr-core/pm2.config.json
+							pm2 delete jenkins/klayr-core/pm2.config.json
+							pm2 flush
+							rm -rf ~/.klayr/
+							klayr-core blockchain:import jenkins/klayr-core/snapshots/blockchain.tar.gz
+							KLAYR_CONFIG_FILE=$PWD/jenkins/klayr-core/config/config.json pm2 start jenkins/klayr-core/pm2.config.json
+						'''
+					}
+					sleep(5)
+				}
+			}
+		}
+		stage('Start external services') {
+			when {
+				anyOf {
+					branch 'development'
+					branch 'release/**'
+					branch 'feature/**'
+				}
+			}
+			steps {
+				dir('klayr-service') {
+					script {
+						runServiceIfMissing('MySQL', './jenkins/mysql', MYSQL_PORT)
+						runServiceIfMissing('Redis', './jenkins/redis', REDIS_PORT)
+					}
+					sleep(5)
+				}
+			}
+		}
+		stage('Wait till indexing is complete') {
+			when {
+				anyOf {
+					branch 'development'
+					branch 'release/**'
+					branch 'feature/**'
+				}
+			}
+			steps {
+				script {
+					def apiUrl = 'http://127.0.0.1:9901/api/v3/index/status'
+					def percentageIndexed = "0"
+					while (percentageIndexed != "100") {
+						def response = sh(script: "curl -s $apiUrl", returnStatus: true, returnStdout: true)
+						if (response == 0) {
+							def jsonString = sh(script: "curl -s $apiUrl | jq -r '.data.percentageIndexed'", returnStdout: true).trim()
+                    		percentageIndexed = jsonString
+						}
+						else {
+							sh '''
+								echo "Failed to fetch status"
+							'''
+						}
+						sleep(30)
+					}
+				}
+			}
+		}
+		stage('Run tests') {
+			when {
+				anyOf {
+					branch 'development'
+					branch 'release/**'
 					branch 'feature/**'
 				}
 			}
@@ -176,9 +173,9 @@ pipeline {
 				stage ('Check linting') {
 					steps {
 						script { echoBanner(STAGE_NAME) }
-						dir('lisk-service') {
+						dir('klayr-service') {
 							nvm(readFile('.nvmrc').trim()) {
-								sh 'npm run eslint'
+								sh 'yarn lint'
 							}
 						}
 					}
@@ -186,12 +183,19 @@ pipeline {
 				stage('Run functional tests') {
 					steps {
 						script { echoBanner(STAGE_NAME) }
-						dir('lisk-service') {
+						dir('klayr-service') {
 							nvm(readFile('.nvmrc').trim()) {
-								dir('./framework') { sh "npm run test:functional" }
-								dir('./services/blockchain-connector') { sh "npm run test:functional" }
-								dir('./services/market') { sh "npm run test:functional" }
-								// dir('./tests') { sh "npm run test:functional" }
+								dir('./services/blockchain-app-registry') { sh "npm run test:functional" }
+								dir('./services/blockchain-indexer') {
+									sh "SERVICE_BROKER='nats://127.0.0.1:${SERVICE_BROKER_PORT}' SERVICE_INDEXER_CACHE_REDIS='redis://klayr:password@127.0.0.1:${REDIS_PORT}/2' SERVICE_INDEXER_REDIS_VOLATILE='redis://klayr:password@127.0.0.1:${REDIS_PORT}/3' SERVICE_MESSAGE_QUEUE_REDIS='redis://klayr:password@127.0.0.1:${REDIS_PORT}/4' npm run test:functional"
+								}
+								dir('./services/fee-estimator') { sh "npm run test:functional" }
+								dir('./services/market') {
+									sh "SERVICE_BROKER='nats://127.0.0.1:${SERVICE_BROKER_PORT}' SERVICE_MARKET_REDIS='redis://klayr:password@127.0.0.1:${REDIS_PORT}/10' npm run test:functional"
+								}
+								dir('./services/transaction-statistics') { sh "SERVICE_BROKER='nats://127.0.0.1:${SERVICE_BROKER_PORT}' npm run test:functional" }
+								dir('./framework') { sh "REDIS_URL='redis://klayr:password@127.0.0.1:${REDIS_PORT}/0' npm run test:functional" }
+								dir('./services/blockchain-connector') { sh "SERVICE_BROKER='nats://127.0.0.1:${SERVICE_BROKER_PORT}' npm run test:functional" }
 							}
 						}
 					}
@@ -199,9 +203,9 @@ pipeline {
 				stage('Run integration tests') {
 					steps {
 						script { echoBanner(STAGE_NAME) }
-						dir('lisk-service') {
+						dir('klayr-service') {
 							nvm(readFile('.nvmrc').trim()) {
-								dir('./tests') { sh 'npm run test:integration:APIv3:SDKv6' }
+								dir('./tests') { sh "node runIntegrationTestsWithRetry.js" }
 							}
 						}
 					}
@@ -212,13 +216,13 @@ pipeline {
 	post {
 		failure {
 			emailext(
-				to: 'service-dev@lisk.com',
+				to: 'service-dev@klayr.com',
 				subject: "[JENKINS] ${currentBuild.fullDisplayName} - ${currentBuild.result}",
 				body: """
 					Hello Team,<br><br>
-					
-					Build <b>${currentBuild.fullDisplayName}</b> for <b>Lisk Service</b> needs your attention. Please find all the necessary details below:
-					
+
+					Build <b>${currentBuild.fullDisplayName}</b> for <b>Klayr Service</b> needs your attention. Please find all the necessary details below:
+
 					<p>
 						<ul>
 							<li>Job <b>${currentBuild.fullDisplayName}</b> finished with result - <b>${currentBuild.result}</b></li>
@@ -227,42 +231,30 @@ pipeline {
 						</ul>
 					</p>
 
-					- Lisk Service Team!
+					- Klayr Service Team!
 				""",
 				mimeType: 'text/html'
 			)
-			script { 
-				echoBanner('Failed to run the pipeline') 
-			}
-			dir('lisk-service') {
-				nvm(readFile('.nvmrc').trim()) {
-					sh 'pm2 logs'	
-				}
+			script {
+				echoBanner('Failed to run the pipeline')
 			}
 		}
 		cleanup {
-			script { 
-				echoBanner('Cleaning up...')
-				dir('lisk-service') {
+			script {
+				dir('klayr-service') {
 					nvm(readFile('.nvmrc').trim()) {
-						echoBanner('Stopping all microservices and removing dependencies')
 						sh '''
-							pm2 stop --silent ecosystem.jenkins.config.js
-							make clean-local
+							docker-compose -f jenkins/docker-compose.nightly.yml down --volumes --remove-orphans
+							pm2 stop jenkins/klayr-core/pm2.config.json
+							pm2 delete jenkins/klayr-core/pm2.config.json
+							pm2 flush
+							make clean
 						'''
-						echoBanner('Stopping MySQL')
 						dir('./jenkins/mysql') { sh "make down" }
-						echoBanner('Stopping Redis')
 						dir('./jenkins/redis') { sh "make down" }
 					}
 				}
-				dir('lisk-core') {
-					echoBanner('Stopping Lisk Core')
-					sh '''
-						kill $( cat lisk-core.pid ) || true
-						rm -rf ~/.lisk node_modules
-					'''
-				}
+				cleanWs()
 			}
 		}
 	}

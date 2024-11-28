@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -14,21 +14,8 @@
  *
  */
 const getModifiedFileNamesInput = {
-	alphanet: {
-		Lisk: [
-			{ filename: 'alphanet/Lisk/app.json' },
-			{ filename: 'alphanet/Lisk/nativetokens.json' },
-		],
-		Enevti: [
-			{ filename: 'alphanet/Enevti/app.json' },
-			{ filename: 'alphanet/Enevti/nativetokens.json' },
-		],
-	},
 	betanet: {
-		Lisk: [
-			{ filename: 'betanet/Lisk/app.json' },
-			{ filename: 'betanet/Lisk/nativetokens.json' },
-		],
+		Klayr: [{ filename: 'betanet/Klayr/app.json' }, { filename: 'betanet/Klayr/nativetokens.json' }],
 		Enevti: [
 			{ filename: 'betanet/Enevti/app.json' },
 			{ filename: 'betanet/Enevti/nativetokens.json' },
@@ -37,13 +24,8 @@ const getModifiedFileNamesInput = {
 };
 
 const getModifiedFileNamesExpectedResponse = [
-	'alphanet/Lisk/app.json',
-	'alphanet/Lisk/nativetokens.json',
-	'alphanet/Enevti/app.json',
-	'alphanet/Enevti/nativetokens.json',
-
-	'betanet/Lisk/app.json',
-	'betanet/Lisk/nativetokens.json',
+	'betanet/Klayr/app.json',
+	'betanet/Klayr/nativetokens.json',
 	'betanet/Enevti/app.json',
 	'betanet/Enevti/nativetokens.json',
 ];

@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2022 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -24,6 +24,11 @@ const marketPriceSchema = {
 	sources: Joi.array().items(Joi.string().required()).required(),
 };
 
+const marketPriceMetaSchema = {
+	count: Joi.number().integer().min(0).required(),
+};
+
 module.exports = {
 	marketPriceSchema: Joi.object(marketPriceSchema).required(),
+	marketPriceMetaSchema: Joi.object(marketPriceMetaSchema).required(),
 };

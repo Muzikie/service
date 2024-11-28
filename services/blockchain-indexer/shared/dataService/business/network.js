@@ -1,5 +1,5 @@
 /*
- * LiskHQ/lisk-service
+ * Klayrhq/klayrservice
  * Copyright © 2023 Lisk Foundation
  *
  * See the LICENSE file at the top-level directory of this distribution
@@ -26,7 +26,6 @@ const getNetworkStatus = async () => {
 
 	status.moduleCommands = await getAvailableModuleCommands();
 	status.registeredModules = await getRegisteredModules();
-	status.constants = { chainID: status.chainID };
 
 	return {
 		data: status,
@@ -56,7 +55,16 @@ const getNetworkPeers = async params => {
 		return [...new Set(a)].filter(x => setB.has(x));
 	};
 
-	const filterParams = ['ip', 'httpPort', 'wsPort', 'os', 'version', 'networkVersion', 'height', 'broadhash'];
+	const filterParams = [
+		'ip',
+		'httpPort',
+		'wsPort',
+		'os',
+		'version',
+		'networkVersion',
+		'height',
+		'broadhash',
+	];
 	const activeParams = Object.keys(params).filter(item => params[item]);
 	const activeFilters = intersect(filterParams, activeParams);
 
@@ -84,14 +92,16 @@ const getNetworkPeers = async params => {
 
 	if (params.offset || params.limit) {
 		if (!params.offset) params.offset = 0;
-		sortedPeers = filteredPeers.slice(params.offset,
-			(params.limit || filteredPeers.length) + params.offset);
+		sortedPeers = filteredPeers.slice(
+			params.offset,
+			(params.limit || filteredPeers.length) + params.offset,
+		);
 	}
 
 	const meta = {
 		count: sortedPeers.length,
 		offset: params.offset,
-		total: peers.length,
+		total: filteredPeers.length,
 	};
 
 	return {
